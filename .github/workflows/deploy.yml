@@ -22,9 +22,6 @@ jobs:
           cache: npm
       - run: npm install --frozen-lockfile
 
-      - name: Update
-        run: npm run update
-
       - name: Build
         run: npm run build
 
