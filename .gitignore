@@ -1,1 +1,19 @@
 node_modules
+dist
+
+# IDEs and editors
+
+*.iml
+*.ipr
+*.iws
+.idea/
+.project
+.classpath
+.settings/
+.vscode/
+*.sublime-workspace
+
+# OS
+
+.DS_Store
+Thumbs.db
