@@ -12,10 +12,12 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@base-open/web-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/base-open-web-api-0.2.0-alpha.11.tgz",
+    "@base-open/web-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@base-open-web-api-0.2.0-alpha.14.tgz",
+    "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.6",
     "vue": "^3.3.4",
+    "vue-i18n": "^9.2.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   },
   "devDependencies": {

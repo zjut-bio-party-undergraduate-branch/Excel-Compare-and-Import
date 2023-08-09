@@ -1,27 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch, toRaw } from "vue";
 import {
   FieldType,
-  IOpenSegmentType,
-  IRecordValues,
   IWidgetTable,
   ViewType,
   bitable,
   IFieldMeta,
-  IOpenCellValue,
 } from "@base-open/web-api";
-import type { ExcelDataInfo } from "@/types/types";
+import type { ExcelDataInfo, fieldMap } from "@/types/types";
 import { ElLoading, ElMessage } from "element-plus";
+import { Setting } from "@element-plus/icons-vue";
+import { ignoreFieldType, importExcel } from "./utils";
+import { dateDefaultFormat } from "./utils/date";
+import fieldSetting from "@/components/field-setting/index.vue";
+import { defaultSeparator } from "./utils/multiSelect";
+import { defaultBoolValue } from "./utils/checkBox";
+import { useI18n } from "vue-i18n";
 
-interface IFieldValue {
-  record_id: string;
-  value: IOpenCellValue;
-}
-
-interface IUndefinedFieldValue {
-  record_id: undefined;
-  value: undefined;
-}
+const { t } = useI18n();
 
 const props = defineProps({
   excelData: {
@@ -33,9 +29,8 @@ const props = defineProps({
 const isActive = ref(false);
 const form = ref();
 const chooseRef = ref();
+const settingRef = ref();
 const Index = ref("");
-// const table = ref<IWidgetTable>();
-// const view = ref<IWidgetView>();
 const tableId = ref("");
 const tableFields = ref<IFieldMeta[]>();
 const indexFields = ref<IFieldMeta[]>();
@@ -43,59 +38,38 @@ const sheetIndex = ref(0);
 const excelFields = computed(
   () => props.excelData?.sheets[sheetIndex.value]?.tableData.fields ?? []
 );
+const defaultSetting = ref<any>(dateDefaultFormat);
 const mode = ref<"append" | "merge_direct" | "compare_merge">("append");
-
-export interface fieldMap {
-  field: IFieldMeta;
-  excel_field: string;
-}
-
+const importLoading = ref(false);
+const currentSettingIndex = ref(0);
+const settingType = ref<FieldType>(FieldType.DateTime);
 const settingColumns = ref<fieldMap[]>([]);
 
 watch(
   () => tableFields.value,
   (newVal) => {
     if (!newVal) return;
+    settingColumns.value = [];
     newVal.forEach((field) => {
-      settingColumns.value.push({
-        field,
+      const field_map: fieldMap = {
+        field: toRaw(field),
         excel_field: "",
-      });
+        config: {},
+      };
+      if (field.type === FieldType.DateTime) {
+        field_map.config.format = dateDefaultFormat;
+      }
+      if (field.type === FieldType.MultiSelect) {
+        field_map.config.separator = defaultSeparator;
+      }
+      if (field.type === FieldType.Checkbox) {
+        field_map.config.bool_value = defaultBoolValue;
+      }
+      settingColumns.value.push(field_map);
     });
   },
   { deep: true }
 );
-
-// const chooseOptions = computed(() => {
-//   const options: CascaderOption[] = [];
-//   if (!props.excelData) return options;
-//   props.excelData.sheets.forEach((sheet, index) => {
-//     const fields = sheet.tableData.fields;
-//     options.push({
-//       value: index,
-//       label: sheet.name,
-//       children: fields.map((field) => ({
-//         value: field.name,
-//         label: field.name,
-//       })),
-//     });
-//   });
-//   return options;
-// });
-
-const ignoreFieldType = [
-  FieldType.Lookup,
-  FieldType.CreatedTime,
-  FieldType.ModifiedTime,
-  FieldType.Checkbox,
-  FieldType.Formula,
-  FieldType.AutoNumber,
-  FieldType.DuplexLink,
-  FieldType.SingleLink,
-  FieldType.CreatedUser,
-  FieldType.ModifiedUser,
-  FieldType.NotSupport,
-];
 
 async function getActiveTable(ignoreFields = ignoreFieldType) {
   const selection = await bitable.base.getSelection();
@@ -142,189 +116,10 @@ const refresh = async () => {
   loading.close();
 };
 
-function getCellValue(field: IFieldMeta, value: string): IOpenCellValue {
-  const type = field.type;
-  if (!value) return value;
-  switch (type) {
-    case FieldType.Url:
-      return [
-        {
-          text: value,
-          type: IOpenSegmentType.Url,
-          link: value,
-        },
-      ];
-    case FieldType.DateTime:
-      return Number(new Date(value));
-    case FieldType.Number:
-      return Number(value);
-    case FieldType.SingleSelect:
-      const id =
-        field.property?.options.find((option) => option.name === value)?.id ??
-        "";
-      return {
-        text: value,
-        id,
-      };
-    case FieldType.MultiSelect:
-      return Array.from(value.split(",")).map((v) => {
-        const id =
-          field.property?.options.find((option) => option.name === v)?.id ?? "";
-        return {
-          text: v,
-          id,
-        };
-      });
-    case FieldType.Currency:
-      return Number(value);
-    case FieldType.Progress:
-      return Number(value);
-    case FieldType.Rating:
-      return Number(value);
-    case FieldType.Text:
-      return [
-        {
-          text: String(value),
-          type: IOpenSegmentType.Text,
-        },
-      ];
-    default:
-      return value;
-  }
-}
-
-async function importExcel(
-  fieldsMaps: fieldMap[],
-  excelData: ExcelDataInfo,
-  sheetIndex: number,
-  tableId: string,
-  index: string | null = null,
-  mode: "append" | "merge_direct" | "compare_merge" = "append"
-) {
-  if (!fieldsMaps || !excelData || !tableId) return;
-  const tableItem = await bitable.base.getTableById(tableId);
-  const sheet = excelData.sheets[sheetIndex];
-  const records = sheet.tableData.records;
-  async function addRecord() {
-    const res = await Promise.all(
-      records.map(async (record) => {
-        const newRecord: IRecordValues = { fields: {} };
-        fieldsMaps.forEach((field_map) => {
-          const field = field_map.field;
-          // console.log("record", record);
-          newRecord.fields[field.id] = getCellValue(
-            field,
-            record[field_map.excel_field]
-          );
-        });
-        console.log("newRecord", newRecord);
-        return tableItem.addRecord(newRecord);
-      })
-    );
-    return res;
-  }
-  function compare(
-    excelVal: string,
-    tableVal: string,
-    mode: "merge_direct" | "compare_merge"
-  ) {
-    if (mode === "merge_direct") {
-      return excelVal;
-    } else {
-      if (excelVal === "") {
-        return tableVal;
-      } else {
-        return excelVal;
-      }
-    }
-  }
-  if (!index || mode === "append") {
-    // 直接向表中追加记录
-    const res = addRecord();
-    console.log("addRecord", res);
-  } else {
-    console.log("index", index);
-    const indexField = await tableItem.getFieldByName(index);
-    const index_res: (IFieldValue | IUndefinedFieldValue)[] =
-      await indexField.getFieldValueList();
-    console.log("getFieldValueList", index_res);
-    const excelIndexField =
-      fieldsMaps.find((item) => item.field.name === index)?.excel_field ?? null;
-    if (!excelIndexField) return;
-    let deleteList: Array<string> = [];
-    const newRecords: Array<{ fields: { [key: string]: IOpenCellValue } }> = [];
-    records.forEach(async (record) => {
-      const sameRecordIds = index_res
-        .filter((item) => item.value[0].text === record[excelIndexField])
-        .map((item) => item.record_id);
-      console.log("sameRecordIds", sameRecordIds);
-      if (sameRecordIds.length === 0) {
-        const newRecord: IRecordValues = { fields: {} };
-        fieldsMaps.forEach((field_map) => {
-          const field = field_map.field;
-          // console.log("record", record);
-          newRecord.fields[field.id] = getCellValue(
-            field,
-            record[field_map.excel_field]
-          );
-        });
-        newRecords.push(newRecord);
-        console.log("newRecording", newRecords.length, newRecord);
-        // return tableItem.addRecord(newRecord);
-      } else {
-        deleteList.push(...sameRecordIds);
-        const newRecord: IRecordValues = { fields: {} };
-        fieldsMaps.forEach(async (field_map) => {
-          const field = await tableItem.getFieldByName(field_map.field.name);
-          sameRecordIds.forEach(async (tableRecordId) => {
-            const tableValueStr = await field.getCellString(tableRecordId);
-            const excelValue = String(record[field_map.excel_field]);
-            record[field_map.excel_field] = compare(
-              excelValue,
-              tableValueStr,
-              mode
-            );
-          });
-          newRecord.fields[field.id] = getCellValue(
-            field_map.field,
-            record[field_map.excel_field]
-          );
-          // return tableItem.addRecord(newRecord);
-        });
-        newRecords.push(newRecord);
-        console.log("newRecording", newRecords.length, newRecord);
-      }
-    });
-    console.log("new", newRecords);
-    deleteList = Array.from(new Set(deleteList));
-    console.log("delete", deleteList);
-    Promise.all(
-      deleteList.map((id) => {
-        if (!id) return;
-        return tableItem.deleteRecord(id);
-      })
-    )
-      .then((res) => {
-        console.log("delete success", res);
-        console.log("addRecord", newRecords);
-        Promise.all(
-          newRecords.map((record) => {
-            return tableItem.addRecord(record);
-          })
-        ).then((res) => {
-          console.log("add success", res);
-        });
-      })
-      .catch((err) => {
-        console.log("delete error", err);
-      });
-  }
-}
-
-function importAction() {
+async function importAction() {
   if (tableId.value === "") {
     ElMessage({
-      message: "Please choose a table first",
+      message: t('message.chooseTableFirst'),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -333,7 +128,7 @@ function importAction() {
   }
   if (!props.excelData) {
     ElMessage({
-      message: "Please upload excel file first",
+      message: t('message.uploadExcelFirst'),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -346,21 +141,32 @@ function importAction() {
   console.log("start import");
   const sheet_index = sheetIndex.value;
   const id = tableId.value;
+  const table = await bitable.base.getTableById(id);
   const index = Index.value === "" ? null : Index.value;
-  importExcel(
-    settingColumns.value,
-    props.excelData,
+  importLoading.value = true;
+  await importExcel(
+    toRaw(settingColumns.value),
+    toRaw(props.excelData),
     sheet_index,
-    id,
+    table,
     index,
-    mode.value
+    mode.value,
+    () => {
+      ElMessage({
+        message: t('message.importSuccess'),
+        grouping: true,
+        type: "success",
+        duration: 2000,
+      });
+      importLoading.value = false;
+    }
   );
 }
 
 function autoFill() {
   if (settingColumns.value.length === 0) {
     ElMessage({
-      message: "Please choose a table first",
+      message: t('message.chooseTableFirst'),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -370,7 +176,7 @@ function autoFill() {
 
   if (!props.excelData) {
     ElMessage({
-      message: "Please upload excel file first",
+      message: t('message.uploadExcelFirst'),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -400,6 +206,36 @@ onMounted(() => {
 //   console.log("delete", recordIds[0], res);
 // }
 
+function settingField(index: number, config: fieldMap["config"]) {
+  const type = settingColumns.value[index].field.type;
+  if (type === FieldType.MultiSelect) {
+    defaultSetting.value = config.separator;
+  }
+  if (type === FieldType.Checkbox) {
+    defaultSetting.value = config.bool_value;
+  }
+  if (type === FieldType.DateTime) {
+    defaultSetting.value = config.format;
+  }
+  currentSettingIndex.value = index;
+  settingType.value = type;
+  settingRef.value.toggleVisible();
+}
+
+function getFormat(value: any) {
+  const type = settingColumns.value[currentSettingIndex.value].field.type;
+  if (type === FieldType.MultiSelect) {
+    settingColumns.value[currentSettingIndex.value].config.separator = value;
+  }
+  if (type === FieldType.Checkbox) {
+    settingColumns.value[currentSettingIndex.value].config.bool_value = value;
+  }
+  if (type === FieldType.DateTime) {
+    settingColumns.value[currentSettingIndex.value].config.format = value;
+  }
+  console.log(settingColumns.value[currentSettingIndex.value])
+}
+
 defineExpose({
   isActive,
   index: Index,
@@ -409,13 +245,16 @@ defineExpose({
 </script>
 
 <template>
-  <h2>Settings</h2>
+  <h2>
+    <el-icon><Setting /></el-icon>
+    {{ t("h.settings") }}
+  </h2>
   <el-form ref="form" label-position="top">
-    <el-form-item label="Index">
+    <el-form-item :label="t('form.label.index')">
       <el-select
         v-model="Index"
         :disabled="!isActive"
-        placeholder="Choose index"
+        :placeholder="t('input.placeholder.chooseIndex')"
         clearable
       >
         <el-option
@@ -426,11 +265,11 @@ defineExpose({
         />
       </el-select>
     </el-form-item>
-    <el-form-item label="Sheet" required>
+    <el-form-item :label="t('form.label.sheet')" required>
       <el-select
         v-model="sheetIndex"
         :disabled="!excelData || !isActive"
-        placeholder="Choose sheet"
+        :placeholder="t('input.placeholder.chooseSheet')"
         clearable
       >
         <el-option
@@ -441,16 +280,31 @@ defineExpose({
         />
       </el-select>
     </el-form-item>
-    <el-form-item label="Fields Map" required>
+    <el-form-item
+      :label="t('form.label.fieldsMap')"
+      label-width="auto"
+      required
+    >
+      <template #label="{ label }">
+        <label>{{ label }}</label>
+        <div
+          style="display: inline; margin-left: 20px"
+          class="el-form-item__content"
+        >
+          <el-button type="primary" size="default" @click="autoFill">{{
+            t("button.autoFill")
+          }}</el-button>
+        </div>
+      </template>
       <el-table ref="chooseRef" stripe max-height="250" :data="settingColumns">
-        <el-table-column label="Table Field" prop="field.name" />
-        <el-table-column label="Excel Field">
+        <el-table-column :label="t('table.baseField')" prop="field.name" />
+        <el-table-column :label="t('table.excelField')">
           <template #default="{ $index }">
             <el-select
               v-model="settingColumns[$index].excel_field"
               :disabled="!(excelFields.length > 0) || !isActive"
               @change="console.log(excelFields, settingColumns)"
-              placeholder="Choose Field"
+              :placeholder="t('input.placeholder.chooseField')"
               clearable
             >
               <el-option
@@ -460,25 +314,42 @@ defineExpose({
                 :label="field.name"
               />
             </el-select>
+            <el-tooltip
+              v-if="Object.values(settingColumns[$index].config).length > 0"
+              :content="t('toolTip.setInputFormat')"
+            >
+              <el-button
+                :disabled="!(excelFields.length > 0) || !isActive"
+                :icon="Setting"
+                @click="settingField($index, settingColumns[$index].config)"
+              ></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
     </el-form-item>
     <el-form-item label="Mode">
       <el-radio-group v-model="mode">
-        <el-radio label="append" name="append"
-          >Append records directly</el-radio
-        >
-        <el-radio label="merge_direct" name="merge_direct"
-          >Merge records directly according index</el-radio
-        >
-        <el-radio label="compare_merge" name="compare_merge"
-          >Merge records after comparing according index</el-radio
-        >
+        <el-radio label="append" name="append">{{ t("mode.append") }}</el-radio>
+        <el-radio label="merge_direct" name="merge_direct">{{
+          t("mode.mergeDirect")
+        }}</el-radio>
+        <el-radio label="compare_merge" name="compare_merge">{{
+          t("mode.compareMerge")
+        }}</el-radio>
       </el-radio-group>
     </el-form-item>
   </el-form>
-  <el-button type="primary" @click="importAction()">Import</el-button>
-  <el-button type="default" @click="autoFill">Auto Fill</el-button>
+  <el-button type="primary" :loading="importLoading" @click="importAction()">{{
+    t("button.import")
+  }}</el-button>
+
+  <fieldSetting
+    ref="settingRef"
+    @confirmFormat="getFormat"
+    :default="defaultSetting"
+    :type="settingType"
+  ></fieldSetting>
+  <!-- <el-button type="default" @click="autoFill">Auto Fill</el-button> -->
   <!-- <el-button type="danger" @click="deleteTest">Delete Test</el-button> -->
 </template>
