@@ -1,5 +1,8 @@
-import { IOpenPhone } from "@base-open/web-api"
+import { IOpenPhone, checkers } from "@base-open/web-api"
 
 export function phone(value: string): IOpenPhone {
-  return String(value)
+  const res = String(value)
+  if (checkers.isPhone(res)) return res
+  console.log("not a phone", value, res)
+  return ""
 }

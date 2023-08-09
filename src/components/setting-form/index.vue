@@ -78,6 +78,7 @@ watch(
 watch(
   [() => props.excelData, () => tableFields.value],
   () => {
+    console.log("excelData", props.excelData);
     Fill();
   }
 
@@ -86,7 +87,7 @@ watch(
 watch(
   () => modeSelect.value,
   (newVal) => {
-    mode.value = newVal[newVal.length - 1];
+    mode.value = newVal[newVal.length - 1] as "append" | "merge_direct" | "compare_merge";
   }
 );
 

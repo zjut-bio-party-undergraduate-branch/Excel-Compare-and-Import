@@ -1,7 +1,8 @@
 import {
   IMultiSelectFieldMeta,
   IOpenMultiSelect,
-  IWidgetTable
+  IWidgetTable,
+  checkers
 } from "@base-open/web-api";
 
 export const defaultSeparator = ","
@@ -31,5 +32,7 @@ export async function multiSelect(
     });
   }
   console.log("IOpenMultiSelect",value, res)
-  return res;
+  if (checkers.isMultiSelect(res)) return res;
+  console.log("not a multiSelect", value, res)
+  return [];
 }

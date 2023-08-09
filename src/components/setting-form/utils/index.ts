@@ -15,11 +15,15 @@ import { singleSelect } from "./singleSelect";
 import { checkBox, defaultBoolValue } from './checkBox';
 import { text } from './text';
 import { url } from './url';
+import { phone } from './phone';
+import { currency } from './currency';
+import { progress } from './progress';
+import { rating } from './rating';
 // import { phone } from './phone';
 import {
   IFieldValue,
   IUndefinedFieldValue
-} from "@/types/types.d"
+} from "@/types/types.d";
 
 export const ignoreFieldType = [
   FieldType.Lookup,
@@ -36,7 +40,8 @@ export const ignoreFieldType = [
   FieldType.AutoNumber,
   FieldType.GroupChat,
   FieldType.User,
-  FieldType.Denied
+  FieldType.Denied,
+  FieldType.Url
 ];
 
 export const optionsFieldType = [
@@ -61,18 +66,20 @@ export async function getCellValue(fieldMap: fieldMap, value: string, table: IWi
       console.log("Hi multiSelect", value, field, config, config?.separator ?? ",")
       return multiSelect(value, field as IMultiSelectFieldMeta, table, config?.separator ?? ",");
     case FieldType.Number:
-      return Number(value);
+      return Number(value.replace(/-?\d+\.?\d*/g, ""));
     case FieldType.Currency:
-      return Number(value);
+      return currency(value);
     case FieldType.Progress:
-      return Number(value);
+      return progress(value);
     case FieldType.Rating:
-      return Number(value);
+      return rating(value);
     case FieldType.Checkbox:
       return checkBox(value, config?.boolValue ?? defaultBoolValue);
     case FieldType.Text:
       return text(value) as IOpenCellValue;
-    default: // IOpenPhone
+    case FieldType.Phone:
+      return phone(value);
+    default: 
       return value;
   }
 }
@@ -183,7 +190,7 @@ export async function importExcel(
 
   }
 
-  console.log("fieldMaps",fieldsMaps)
+  console.log("fieldMaps", fieldsMaps)
   const excelRecords = excelData.sheets[sheetIndex].tableData.records;
   const newRecords = [];
   if (mode === "append" || !index) {
@@ -196,11 +203,17 @@ export async function importExcel(
       //   }
       // }
       // newRecords.push(newRecord);
+      console.log("kkrecord", record)
       await Promise.all(fieldsMaps.map(async (fieldMap) => {
         // return new Promise(async () => {
         const value = record[fieldMap.excel_field];
+
         if (value) {
-          newRecord[fieldMap.field.id] = await getCellValue(fieldMap, value, table);
+          console.log("kkvalue", value, fieldMap)
+          const tempValue = await getCellValue(fieldMap, value, table);
+          if (tempValue) {
+            newRecord[fieldMap.field.id] = tempValue;
+          }
         }
         // })
       }));
@@ -277,8 +290,14 @@ export async function importExcel(
     }
   }
   console.log("start addRecords", newRecords)
-  const addRes = await Promise.all(newRecords.map(record => {
-    return table.addRecord({ fields: record })
+  const addRes = await Promise.all(newRecords.map(async (record, index) => {
+    console.log("addRecord", record, index, fieldsMaps.map(fieldMap => fieldMap.field));
+    try {
+      const res = await table.addRecord({ fields: record })
+      return res;
+    } catch (e) {
+      console.error("addRecord error", e, index)
+    }
   }))
   console.log("addRes", addRes)
   if (callback && typeof callback === "function") callback(addRes);
