@@ -5,10 +5,5 @@ export function text(value: string) {
     text: String(value),
     type: IOpenSegmentType.Text,
   };
-  if (checkers.isSegments(res)) return res;
-  console.log("not a text", value, res);
-  return {
-    text: "",
-    type: IOpenSegmentType.Text,
-  };
+  return res;
 }
