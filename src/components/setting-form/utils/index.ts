@@ -195,7 +195,7 @@ export async function importExcel(
       //     newRecord[fieldMap.field.id] = await getCellValue(fieldMap, value, table);
       //   }
       // }
-      newRecords.push(newRecord);
+      // newRecords.push(newRecord);
       await Promise.all(fieldsMaps.map(async (fieldMap) => {
         // return new Promise(async () => {
         const value = record[fieldMap.excel_field];
