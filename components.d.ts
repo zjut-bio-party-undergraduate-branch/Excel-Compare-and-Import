@@ -9,6 +9,9 @@ declare module 'vue' {
   export interface GlobalComponents {
     ElButto: typeof import('element-plus/es')['ElButto']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElCascader: typeof import('element-plus/es')['ElCascader']
+    ElConfig: typeof import('element-plus/es')['ElConfig']
+    ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElEmpty: typeof import('element-plus/es')['ElEmpty']
     ElForm: typeof import('element-plus/es')['ElForm']
@@ -32,5 +35,6 @@ declare module 'vue' {
     FieldSetting: typeof import('./src/components/field-setting/index.vue')['default']
     SettingForm: typeof import('./src/components/setting-form/index.vue')['default']
     Upload: typeof import('./src/components/upload/index.vue')['default']
+    UploadIcon: typeof import('./src/components/icons/upload-icon.vue')['default']
   }
 }

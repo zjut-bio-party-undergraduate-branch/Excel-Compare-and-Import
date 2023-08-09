@@ -26,6 +26,10 @@ const props = defineProps({
   },
 });
 
+const modeList = ref<any[]>([]);
+
+const modeSelect = ref(["append"]);
+
 const isActive = ref(false);
 const form = ref();
 const chooseRef = ref();
@@ -71,8 +75,24 @@ watch(
   { deep: true }
 );
 
+watch(
+  [() => props.excelData, () => tableFields.value],
+  () => {
+    Fill();
+  }
+
+);
+
+watch(
+  () => modeSelect.value,
+  (newVal) => {
+    mode.value = newVal[newVal.length - 1];
+  }
+);
+
 async function getActiveTable(ignoreFields = ignoreFieldType) {
   const selection = await bitable.base.getSelection();
+  tableFields.value = [];
   if (!selection.tableId) return null;
 
   const table: IWidgetTable = await bitable.base.getTableById(
@@ -119,7 +139,7 @@ const refresh = async () => {
 async function importAction() {
   if (tableId.value === "") {
     ElMessage({
-      message: t('message.chooseTableFirst'),
+      message: t("message.chooseTableFirst"),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -128,7 +148,7 @@ async function importAction() {
   }
   if (!props.excelData) {
     ElMessage({
-      message: t('message.uploadExcelFirst'),
+      message: t("message.uploadExcelFirst"),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -153,7 +173,7 @@ async function importAction() {
     mode.value,
     () => {
       ElMessage({
-        message: t('message.importSuccess'),
+        message: t("message.importSuccess"),
         grouping: true,
         type: "success",
         duration: 2000,
@@ -163,10 +183,20 @@ async function importAction() {
   );
 }
 
+function Fill() {
+  if(!props.excelData || !tableFields) return;
+  const excelFieldsArray = excelFields.value.map((field) => field.name);
+  settingColumns.value.forEach((column) => {
+    if (excelFieldsArray.includes(column.field.name)) {
+      column.excel_field = column.field.name;
+    }
+  });
+}
+
 function autoFill() {
   if (settingColumns.value.length === 0) {
     ElMessage({
-      message: t('message.chooseTableFirst'),
+      message: t("message.chooseTableFirst"),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -176,7 +206,7 @@ function autoFill() {
 
   if (!props.excelData) {
     ElMessage({
-      message: t('message.uploadExcelFirst'),
+      message: t("message.uploadExcelFirst"),
       grouping: true,
       type: "warning",
       duration: 2000,
@@ -187,16 +217,31 @@ function autoFill() {
   if (excelFields.value.length === 0) {
     return;
   }
-  const excelFieldsArray = excelFields.value.map((field) => field.name);
-  settingColumns.value.forEach((column) => {
-    if (excelFieldsArray.includes(column.field.name)) {
-      column.excel_field = column.field.name;
-    }
-  });
+  Fill();
 }
 
 onMounted(() => {
   refresh();
+  modeList.value = [
+    {
+      value: "append",
+      label: t("mode.append"),
+    },
+    {
+      value: "merge",
+      label: t("mode.merge"),
+      children: [
+        {
+          value: "merge_direct",
+          label: t("mode.mergeDirect"),
+        },
+        {
+          value: "compare_merge",
+          label: t("mode.compareMerge"),
+        },
+      ],
+    },
+  ];
 });
 
 // async function deleteTest() {
@@ -233,7 +278,7 @@ function getFormat(value: any) {
   if (type === FieldType.DateTime) {
     settingColumns.value[currentSettingIndex.value].config.format = value;
   }
-  console.log(settingColumns.value[currentSettingIndex.value])
+  console.log(settingColumns.value[currentSettingIndex.value]);
 }
 
 defineExpose({
@@ -241,6 +286,7 @@ defineExpose({
   index: Index,
   tableId,
   unlisten,
+  autoFill,
 });
 </script>
 
@@ -250,21 +296,6 @@ defineExpose({
     {{ t("h.settings") }}
   </h2>
   <el-form ref="form" label-position="top">
-    <el-form-item :label="t('form.label.index')">
-      <el-select
-        v-model="Index"
-        :disabled="!isActive"
-        :placeholder="t('input.placeholder.chooseIndex')"
-        clearable
-      >
-        <el-option
-          v-for="field in indexFields"
-          :key="field.id"
-          :value="field.name"
-          :label="field.name"
-        />
-      </el-select>
-    </el-form-item>
     <el-form-item :label="t('form.label.sheet')" required>
       <el-select
         v-model="sheetIndex"
@@ -328,8 +359,8 @@ defineExpose({
         </el-table-column>
       </el-table>
     </el-form-item>
-    <el-form-item label="Mode">
-      <el-radio-group v-model="mode">
+    <el-form-item :label="t('form.label.mode')">
+      <!-- <el-radio-group v-model="mode">
         <el-radio label="append" name="append">{{ t("mode.append") }}</el-radio>
         <el-radio label="merge_direct" name="merge_direct">{{
           t("mode.mergeDirect")
@@ -337,7 +368,23 @@ defineExpose({
         <el-radio label="compare_merge" name="compare_merge">{{
           t("mode.compareMerge")
         }}</el-radio>
-      </el-radio-group>
+      </el-radio-group> -->
+      <el-cascader v-model="modeSelect" :options="modeList" />
+    </el-form-item>
+    <el-form-item :label="t('form.label.index')">
+      <el-select
+        v-model="Index"
+        :disabled="!isActive"
+        :placeholder="t('input.placeholder.chooseIndex')"
+        clearable
+      >
+        <el-option
+          v-for="field in indexFields"
+          :key="field.id"
+          :value="field.name"
+          :label="field.name"
+        />
+      </el-select>
     </el-form-item>
   </el-form>
   <el-button type="primary" :loading="importLoading" @click="importAction()">{{

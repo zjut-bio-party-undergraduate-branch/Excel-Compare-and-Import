@@ -5,9 +5,12 @@ import { genFileId } from "element-plus";
 import type { UploadInstance, UploadFile, UploadRawFile } from "element-plus";
 import * as XLSX from "xlsx";
 import type { ExcelDataInfo } from "@/types/types";
+import { useI18n } from "vue-i18n";
+import uploadIcon from "@/components/icons/upload-icon.vue";
 
 const upload = ref<UploadInstance>();
 const data = ref<ExcelDataInfo | null>(null);
+const { t } = useI18n();
 
 async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
   if (!file) return null;
@@ -67,7 +70,8 @@ defineExpose({
 
 <template>
   <h2>
-    <el-icon><Upload /></el-icon>Upload
+    <el-icon><Upload /></el-icon>
+    {{ t("h.upload") }}
   </h2>
   <el-upload
     ref="upload"
@@ -78,12 +82,17 @@ defineExpose({
     :auto-upload="false"
     :on-exceed="exceedHandler"
   >
-    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+    <el-icon color="#2962f1" size="30" class="el-icon--upload"
+      ><uploadIcon style="color: var(--color)"
+    /></el-icon>
     <div class="el-upload__text">
-      Drop file here or <em>click to upload</em>
+      <el-text>{{ t("upload.tip.common") }}</el-text>
+    </div>
+    <div class="el-upload__text">
+      <el-text size="small">{{ t("upload.tip.fileSupport") }}</el-text>
     </div>
     <template #tip>
-      <div class="el-upload__tip">xlsx/xls file</div>
+      <div class="el-upload__tip">{{ t("upload.tip.fileLimit") }}</div>
     </template>
   </el-upload>
 </template>

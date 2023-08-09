@@ -29,23 +29,26 @@ export const zh = {
       separator: "分隔符",
       trueValue: "真值",
       falseValue: "假值",
+      mode: "模式"
     }
   },
   table: {
-    baseField: "Base 字段",
+    baseField: "多维表格字段",
     excelField: "Excel 字段",
   },
   upload: {
     tip: { 
-      common: "拖拽文件到此或",
-      em: "点击上传",
+      common: "点击上传文件或拖拽文件到这里",
+      em: "拖拽文件到这里",
       fileLimit: "xlsx/xls 文件",
+      fileSupport: "支持 xlsx/xls 类型文件",
     },
   },
   mode: {
-    append: "直接添加记录",
-    mergeDirect: "根据索引合并记录",
-    compareMerge: "根据索引比较后合并记录",
+    append: "批量追加记录",
+    mergeDirect: "覆盖原记录",
+    compareMerge: "保留原记录",
+    merge: "合并记录"
   },
   toolTip: {
     setInputFormat: "设置输入格式",

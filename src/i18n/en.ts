@@ -29,6 +29,7 @@ export const en = {
       separator: "Separator",
       trueValue: "True Value",
       falseValue: "False Value",
+      mode: "mode"
     }
   },
   table: {
@@ -37,15 +38,17 @@ export const en = {
   },
   upload: {
     tip: { 
-      common: "Drag and drop file here or",
+      common: "Drag and drop file here or click to upload",
       em: "click to upload",
       fileLimit: "xlsx/xls file",
+      fileSupport: "xlsx/xls file support",
     },
   },
   mode: {
     append: "Append records directly",
-    mergeDirect: "Merge records directly according to the index",
-    compareMerge: "Merge records after comparing according to the index",
+    mergeDirect: "Cover original records",
+    compareMerge: "Save original records",
+    merge: "merge records"
   },
   toolTip: {
     setInputFormat: "Set input format",

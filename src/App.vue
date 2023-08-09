@@ -3,18 +3,17 @@ import settingForm from "@/components/setting-form/index.vue";
 import upload from "@/components/upload/index.vue";
 import { ref, onMounted, watch, onUnmounted } from "vue";
 import { bitable, ThemeModeType } from "@base-open/web-api";
-import { isDark } from './utils';
+import { isDark } from "./utils";
 import { useI18n } from "vue-i18n";
 
 const settingRef = ref();
 const uploadRef = ref();
 const { t } = useI18n();
 
-
-const off = bitable.bridge.onThemeChange((ev)=>{
-  console.log('theme change')
+const off = bitable.bridge.onThemeChange((ev) => {
+  console.log("theme change");
   isDark.value = ev.data.theme === ThemeModeType.DARK;
-})
+});
 
 const data = ref(null);
 const isActive = ref(false);
