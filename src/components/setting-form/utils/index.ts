@@ -20,6 +20,7 @@ import { currency } from './currency';
 import { progress } from './progress';
 import { rating } from './rating';
 // import { phone } from './phone';
+import { barCode } from './barCode';
 import {
   IFieldValue,
   IUndefinedFieldValue
@@ -41,7 +42,7 @@ export const ignoreFieldType = [
   FieldType.GroupChat,
   FieldType.User,
   FieldType.Denied,
-  FieldType.Url
+  // FieldType.Url
 ];
 
 export const optionsFieldType = [
@@ -77,9 +78,11 @@ export async function getCellValue(fieldMap: fieldMap, value: string, table: IWi
       return checkBox(value, config?.boolValue ?? defaultBoolValue);
     case FieldType.Text:
       return text(value) as IOpenCellValue;
+    case FieldType.Barcode:
+      return barCode(value) as IOpenCellValue;
     case FieldType.Phone:
       return phone(value);
-    default: 
+    default:
       return value;
   }
 }
@@ -221,7 +224,7 @@ export async function importExcel(
     }
     console.log("newRecords", newRecords)
   } else {
-    const deleteList: any[] = [];
+    let deleteList: any[] = [];
     const excelIndexField: fieldMap = fieldsMaps.find(fieldMap => fieldMap.excel_field === index) as fieldMap;;
     const indexField = await table.getFieldByName(index);
     const tableIndexRecords: (IFieldValue | IUndefinedFieldValue)[] = await indexField.getFieldValueList();
@@ -242,8 +245,9 @@ export async function importExcel(
         await Promise.all(fieldsMaps.map(async (fieldMap) => {
           // return new Promise(async () => {
           const value = record[fieldMap.excel_field];
-          if (value) {
-            newRecord[fieldMap.field.id] = await getCellValue(fieldMap, value, table);
+          const tempValue = await getCellValue(fieldMap, value, table);
+          if (tempValue) {
+            newRecord[fieldMap.field.id] = tempValue;
           }
           // })
         }));
@@ -272,8 +276,9 @@ export async function importExcel(
             console.log("table string value", tableValue)
             const excelValue = record[fieldMap.excel_field];
             const value = compareCellValue(excelValue, tableValue, mode);
-            if (value) {
-              newRecord[fieldMap.field.id] = await getCellValue(fieldMap, value, table);
+            const tempValue = await getCellValue(fieldMap, value, table);
+            if (tempValue) {
+              newRecord[fieldMap.field.id] = tempValue;
             }
           }
           // })
@@ -283,6 +288,7 @@ export async function importExcel(
     }));
     console.log(newRecords, deleteList)
     if (deleteList.length > 0) {
+      deleteList = Array.from(new Set(deleteList));
       const deleteRes = await Promise.all(deleteList.map((id) => {
         if (typeof id === "string") return table.deleteRecord(id);
       }));
