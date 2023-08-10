@@ -16,6 +16,7 @@ import fieldSetting from "@/components/field-setting/index.vue";
 import { defaultSeparator } from "./utils/multiSelect";
 import { defaultBoolValue } from "./utils/checkBox";
 import { useI18n } from "vue-i18n";
+import fieldIcon from "@/components/field-icon/index.vue";
 
 const { t } = useI18n();
 
@@ -77,16 +78,15 @@ watch(
 
 watch([() => props.excelData, () => tableFields.value], () => {
   console.log("excelData", props.excelData);
-  if(!props.excelData) {
+  if (!props.excelData) {
     settingColumns.value = settingColumns.value.map((column) => {
       column.excel_field = "";
       return column;
     });
     return;
-  }else {
+  } else {
     Fill();
   }
-  
 });
 
 watch(
@@ -337,7 +337,12 @@ defineExpose({
         </div>
       </template>
       <el-table ref="chooseRef" stripe max-height="250" :data="settingColumns">
-        <el-table-column :label="t('table.baseField')" prop="field.name" />
+        <el-table-column :label="t('table.baseField')" prop="field.name">
+          <template #default="scope">
+            <field-icon :type="scope.row.field.type" />
+            {{ scope.row.field.name }}
+          </template>
+        </el-table-column>
         <el-table-column :label="t('table.excelField')">
           <template #default="{ $index }">
             <el-select

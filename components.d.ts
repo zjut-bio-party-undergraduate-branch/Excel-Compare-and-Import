@@ -7,6 +7,10 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    BarCodeIcon: typeof import('./src/components/icons/barCode-icon.vue')['default']
+    CheckBoxIcon: typeof import('./src/components/icons/checkBox-icon.vue')['default']
+    Currency: typeof import('./src/components/icons/currency.vue')['default']
+    CurrencyIcon: typeof import('./src/components/icons/currency-icon.vue')['default']
     ElButto: typeof import('element-plus/es')['ElButto']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
@@ -39,8 +43,16 @@ declare module 'vue' {
     ExcelIcon: typeof import('./src/components/icons/excel-icon.vue')['default']
     FieldIcon: typeof import('./src/components/field-icon/index.vue')['default']
     FieldSetting: typeof import('./src/components/field-setting/index.vue')['default']
+    MultiSelect: typeof import('./src/components/icons/multiSelect.vue')['default']
+    MultiSelectIcon: typeof import('./src/components/icons/multiSelect-icon.vue')['default']
+    NumberIcon: typeof import('./src/components/icons/number-icon.vue')['default']
+    ProgressIcon: typeof import('./src/components/icons/progress-icon.vue')['default']
+    RatingIcon: typeof import('./src/components/icons/rating-icon.vue')['default']
     SettingForm: typeof import('./src/components/setting-form/index.vue')['default']
+    SingleSelectIcon: typeof import('./src/components/icons/singleSelect-icon.vue')['default']
+    TextIcon: typeof import('./src/components/icons/text-icon.vue')['default']
     Upload: typeof import('./src/components/upload/index.vue')['default']
     UploadIcon: typeof import('./src/components/icons/upload-icon.vue')['default']
+    UrlIcon: typeof import('./src/components/icons/url-icon.vue')['default']
   }
 }
