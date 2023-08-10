@@ -19,7 +19,7 @@ import { phone } from './phone';
 import { currency } from './currency';
 import { progress } from './progress';
 import { rating } from './rating';
-// import { phone } from './phone';
+import { phone } from './phone';
 import { barCode } from './barCode';
 import {
   IFieldValue,
@@ -30,7 +30,6 @@ export const ignoreFieldType = [
   FieldType.Lookup,
   FieldType.CreatedTime,
   FieldType.ModifiedTime,
-  // FieldType.Checkbox,
   FieldType.Formula,
   FieldType.DuplexLink,
   FieldType.SingleLink,
@@ -42,7 +41,7 @@ export const ignoreFieldType = [
   FieldType.GroupChat,
   FieldType.User,
   FieldType.Denied,
-  FieldType.Attachment
+  FieldType.Attachment,
   // FieldType.Url
 ];
 
