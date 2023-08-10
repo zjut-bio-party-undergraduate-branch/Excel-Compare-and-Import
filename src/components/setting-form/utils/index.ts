@@ -19,7 +19,6 @@ import { phone } from './phone';
 import { currency } from './currency';
 import { progress } from './progress';
 import { rating } from './rating';
-import { phone } from './phone';
 import { barCode } from './barCode';
 import {
   IFieldValue,
