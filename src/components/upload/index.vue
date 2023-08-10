@@ -21,6 +21,7 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
       try {
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: "binary" });
+        console.log("workbook", workbook);
         const sheets = workbook.SheetNames.map((name) => {
           const sheet = workbook.Sheets[name];
           const tableData = XLSX.utils.sheet_to_json(sheet, { header: 1 });

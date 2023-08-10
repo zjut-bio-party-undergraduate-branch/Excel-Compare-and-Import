@@ -42,6 +42,7 @@ export const ignoreFieldType = [
   FieldType.GroupChat,
   FieldType.User,
   FieldType.Denied,
+  FieldType.Attachment
   // FieldType.Url
 ];
 
