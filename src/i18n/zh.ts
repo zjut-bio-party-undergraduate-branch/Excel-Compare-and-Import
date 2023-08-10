@@ -63,5 +63,19 @@ export const zh = {
     uploadExcelFirst: "请先上传Excel文件",
     importSuccess: "导入成功",
   },
-  loading: "加载中..."
+  loading: "加载中...",
+  fieldType: {
+    text: "多行文本",
+    singleSelect: "单选",
+    multiSelect: "多选",
+    number: "数字",
+    dateTime: "日期",
+    checkBox: "复选框",
+    barCode: "条码",
+    rating: "评分",
+    currency: "货币",
+    progress: "进度",
+    phone: "电话号码",
+    url: "超链接",
+  }
 }

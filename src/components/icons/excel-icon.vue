@@ -1,6 +1,3 @@
-<script lang="ts" setup>
-
-</script>
 <template>
 <svg
     width="1em"

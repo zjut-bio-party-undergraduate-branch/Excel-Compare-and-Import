@@ -63,5 +63,18 @@ export const en = {
     importSuccess: "Import success",
   },
   loading: "Loading...",
-
+  fieldType: {
+    text: "Text",
+    singleSelect: "singleSelect",
+    multiSelect: "MultiSelect",
+    number: "Number",
+    dateTime: "DateTime",
+    checkBox: "CheckBox",
+    barCode: "Barcode",
+    rating: "Rating",
+    currency: "Currency",
+    progress: "Progress",
+    phone: "Phone",
+    url: "Url",
+  }
 }
