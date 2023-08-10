@@ -66,7 +66,7 @@ export async function getCellValue(fieldMap: fieldMap, value: string, table: IWi
       console.log("Hi multiSelect", value, field, config, config?.separator ?? ",")
       return multiSelect(value, field as IMultiSelectFieldMeta, table, config?.separator ?? ",");
     case FieldType.Number:
-      return Number(value.replace(/-?\d+\.?\d*/g, ""));
+      return Number(value.match(/-?\d+\.?\d*/g));
     case FieldType.Currency:
       return currency(value);
     case FieldType.Progress:
@@ -128,7 +128,7 @@ export async function importExcel(
         return Array.from(new Set(Array.from((v[optionsField.excel_field] ?? "")
           ?.split(optionsField.config?.separator ?? ",")))) as string[];
       });
-      const options = Array.from(new Set([...optionsField.field.property.options.map(v => v.name), ...excelValues.flat()])).filter(v => v !== "") as string[];
+      const options = Array.from(new Set([...optionsField.field.property.options.map((v: any) => v.name), ...excelValues.flat()])).filter(v => v !== "") as string[];
       selects.push({
         id: optionsField.field.id as string,
         config: {
@@ -194,7 +194,7 @@ export async function importExcel(
 
   console.log("fieldMaps", fieldsMaps)
   const excelRecords = excelData.sheets[sheetIndex].tableData.records;
-  const newRecords = [];
+  const newRecords: any[] = [];
   if (mode === "append" || !index) {
     for (const record of excelRecords) {
       const newRecord: { [key: string]: IOpenCellValue } = {};
@@ -242,13 +242,11 @@ export async function importExcel(
         //   }
         // }
         await Promise.all(fieldsMaps.map(async (fieldMap) => {
-          // return new Promise(async () => {
           const value = record[fieldMap.excel_field];
           const tempValue = await getCellValue(fieldMap, value, table);
           if (tempValue) {
             newRecord[fieldMap.field.id] = tempValue;
           }
-          // })
         }));
         newRecords.push(newRecord);
         console.log("newRecord", newRecord)
@@ -268,7 +266,6 @@ export async function importExcel(
         //   }
         // }
         await Promise.all(fieldsMaps.map(async (fieldMap) => {
-          // return new Promise(async () => {
           const field = await table.getFieldById(fieldMap.field.id);
           for (const sameRecord of sameRecords) {
             const tableValue = await field.getCellString(sameRecord.record_id as string);
@@ -280,7 +277,6 @@ export async function importExcel(
               newRecord[fieldMap.field.id] = tempValue;
             }
           }
-          // })
         }));
         newRecords.push(newRecord);
       }
