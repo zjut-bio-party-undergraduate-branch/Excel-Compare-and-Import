@@ -9,7 +9,7 @@ import {
 } from "@base-open/web-api";
 import type { ExcelDataInfo, fieldMap } from "@/types/types";
 import { ElLoading, ElMessage } from "element-plus";
-import { Setting } from "@element-plus/icons-vue";
+import { Setting, Lock } from "@element-plus/icons-vue";
 import { ignoreFieldType, importExcel } from "./utils";
 import { dateDefaultFormat } from "./utils/date";
 import fieldSetting from "@/components/field-setting/index.vue";
@@ -75,19 +75,27 @@ watch(
   { deep: true }
 );
 
-watch(
-  [() => props.excelData, () => tableFields.value],
-  () => {
-    console.log("excelData", props.excelData);
+watch([() => props.excelData, () => tableFields.value], () => {
+  console.log("excelData", props.excelData);
+  if(!props.excelData) {
+    settingColumns.value = settingColumns.value.map((column) => {
+      column.excel_field = "";
+      return column;
+    });
+    return;
+  }else {
     Fill();
   }
-
-);
+  
+});
 
 watch(
   () => modeSelect.value,
   (newVal) => {
-    mode.value = newVal[newVal.length - 1] as "append" | "merge_direct" | "compare_merge";
+    mode.value = newVal[newVal.length - 1] as
+      | "append"
+      | "merge_direct"
+      | "compare_merge";
   }
 );
 
@@ -185,7 +193,7 @@ async function importAction() {
 }
 
 function Fill() {
-  if(!props.excelData || !tableFields) return;
+  if (!props.excelData || !tableFields) return;
   const excelFieldsArray = excelFields.value.map((field) => field.name);
   settingColumns.value.forEach((column) => {
     if (excelFieldsArray.includes(column.field.name)) {
@@ -292,10 +300,10 @@ defineExpose({
 </script>
 
 <template>
-  <h2>
+  <h3>
     <el-icon><Setting /></el-icon>
     {{ t("h.settings") }}
-  </h2>
+  </h3>
   <el-form ref="form" label-position="top">
     <el-form-item :label="t('form.label.sheet')" required>
       <el-select
@@ -361,18 +369,18 @@ defineExpose({
       </el-table>
     </el-form-item>
     <el-form-item :label="t('form.label.mode')">
-      <!-- <el-radio-group v-model="mode">
-        <el-radio label="append" name="append">{{ t("mode.append") }}</el-radio>
-        <el-radio label="merge_direct" name="merge_direct">{{
-          t("mode.mergeDirect")
-        }}</el-radio>
-        <el-radio label="compare_merge" name="compare_merge">{{
-          t("mode.compareMerge")
-        }}</el-radio>
-      </el-radio-group> -->
       <el-cascader v-model="modeSelect" :options="modeList" />
     </el-form-item>
     <el-form-item :label="t('form.label.index')">
+      <template #label="{ label }">
+        {{ label }}
+        <el-tooltip effect="dark">
+          <template #content>
+            {{ t("toolTip.indexInfo") }}
+          </template>
+          <el-icon><Lock /></el-icon>
+        </el-tooltip>
+      </template>
       <el-select
         v-model="Index"
         :disabled="!isActive"

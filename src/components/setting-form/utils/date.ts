@@ -9,9 +9,9 @@ dayjs.extend(advancedFormat);
 
 export const dateDefaultFormat = "YYYY/MM/DD";
 
-export function dateTime(value: string, format: string = "YYYY/MM/DD"): IOpenTimestamp | null{
+export function dateTime(value: string, format: string = "YYYY/MM/DD"): IOpenTimestamp | null {
   console.log("dateTime", value, format, dayjs(value, format).valueOf())
   const res = dayjs(value, format).valueOf();
-  if(checkers.isTimestamp(res)) return res;
+  if (checkers.isTimestamp(res)) return res;
   return null;
 };

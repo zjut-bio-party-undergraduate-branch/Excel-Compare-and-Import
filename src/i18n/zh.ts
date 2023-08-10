@@ -37,7 +37,7 @@ export const zh = {
     excelField: "Excel 字段",
   },
   upload: {
-    tip: { 
+    tip: {
       common: "点击上传文件或拖拽文件到这里",
       em: "拖拽文件到这里",
       fileLimit: "xlsx/xls 文件",
@@ -55,6 +55,7 @@ export const zh = {
     setOperator: "设置分隔符",
     setBoolValue: "设置布尔值",
     pleaseReferTo: "请参考",
+    indexInfo: "索引列：用于标识每条记录，合并记录的依据。例：身份证号。"
 
   },
   message: {

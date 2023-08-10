@@ -164,6 +164,7 @@ export async function importExcel(
             }
           });
           const res = await table.setRecord(id, {
+            // @ts-ignore
             fields: {
               [select.id]: value
             }

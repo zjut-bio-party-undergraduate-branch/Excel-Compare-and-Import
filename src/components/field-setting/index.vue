@@ -88,7 +88,7 @@ defineExpose({
         <template #label>
           <label>
             {{ t("form.label.inputDateFormat") }}
-            <el-tooltip :effect="'dark'">
+            <el-tooltip effect="dark">
               <template #content>
                 <el-text type="info"
                   >{{ t("toolTip.pleaseReferTo")

@@ -37,7 +37,7 @@ export const en = {
     excelField: "Excel Field",
   },
   upload: {
-    tip: { 
+    tip: {
       common: "Drag and drop file here or click to upload",
       em: "click to upload",
       fileLimit: "xlsx/xls file",
@@ -55,12 +55,13 @@ export const en = {
     setOperator: "Set operator",
     setBoolValue: "Set bool value",
     pleaseReferTo: "Please refer to",
-
+    indexInfo: "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. Example: ID card number.",
   },
   message: {
     chooseTableFirst: "Please choose a table first",
     uploadExcelFirst: "Please upload Excel file first",
     importSuccess: "Import success",
   },
-  loading: "Loading..."
+  loading: "Loading...",
+
 }
