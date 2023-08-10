@@ -55,7 +55,7 @@ export const en = {
     setOperator: "Set operator",
     setBoolValue: "Set bool value",
     pleaseReferTo: "Please refer to",
-    indexInfo: "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. Example: ID card number.",
+    indexInfo: "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. In a Base, the index of each record should be unique. Example: ID card number.",
   },
   message: {
     chooseTableFirst: "Please choose a table first",
