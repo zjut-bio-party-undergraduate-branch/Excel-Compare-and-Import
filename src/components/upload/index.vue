@@ -26,8 +26,10 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
         const sheets = workbook.SheetNames.map((name) => {
           const sheet = workbook.Sheets[name];
           const tableData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          console.log("tableData", tableData)
+          if (tableData.length <= 1) return null;
           // @ts-ignore
-          const fields = tableData[0].map((name: string) => ({ name }));
+          const fields = tableData[0]?.map((name: string) => ({ name }));
           console.log(tableData);
           const records = tableData
             .slice(1)
@@ -48,7 +50,7 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
             });
           // console.log({ name, tableData: { fields, records } })
           return { name, tableData: { fields, records } };
-        });
+        }).filter(sheet => sheet !== null);
         resolve({ sheets, name: file.name });
       } catch (e) {
         reject(e);
