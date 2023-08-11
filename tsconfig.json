@@ -8,10 +8,13 @@
     "baseUrl": "./",
     "types": ["element-plus/global"],
 
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
     /* Bundler mode */
     "moduleResolution": "node",
     "noEmit": true,
-    // "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": true,
     // "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",

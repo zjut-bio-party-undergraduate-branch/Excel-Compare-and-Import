@@ -27,7 +27,7 @@ const props = defineProps({
   },
 });
 
-const modeList = ref<any[]>([]);
+// const modeList = ref<any[]>([]);
 
 const modeSelect = ref(["append"]);
 
@@ -231,26 +231,6 @@ function autoFill() {
 
 onMounted(() => {
   refresh();
-  modeList.value = [
-    {
-      value: "append",
-      label: t("mode.append"),
-    },
-    {
-      value: "merge",
-      label: t("mode.merge"),
-      children: [
-        {
-          value: "merge_direct",
-          label: t("mode.mergeDirect"),
-        },
-        {
-          value: "compare_merge",
-          label: t("mode.compareMerge"),
-        },
-      ],
-    },
-  ];
 });
 
 // async function deleteTest() {
@@ -288,6 +268,29 @@ function getFormat(value: any) {
     settingColumns.value[currentSettingIndex.value].config.format = value;
   }
   console.log(settingColumns.value[currentSettingIndex.value]);
+}
+
+function getModeList(): any[] {
+  return [
+    {
+      value: "append",
+      label: t("mode.append"),
+    },
+    {
+      value: "merge",
+      label: t("mode.merge"),
+      children: [
+        {
+          value: "merge_direct",
+          label: t("mode.mergeDirect"),
+        },
+        {
+          value: "compare_merge",
+          label: t("mode.compareMerge"),
+        },
+      ],
+    },
+  ];
 }
 
 defineExpose({
@@ -374,7 +377,7 @@ defineExpose({
       </el-table>
     </el-form-item>
     <el-form-item :label="t('form.label.mode')">
-      <el-cascader v-model="modeSelect" :options="modeList" />
+      <el-cascader v-model="modeSelect" :options="getModeList()" />
     </el-form-item>
     <el-form-item :label="t('form.label.index')">
       <template #label="{ label }">
@@ -401,7 +404,7 @@ defineExpose({
       </el-select>
     </el-form-item>
   </el-form>
-  <el-button type="primary" :loading="importLoading" @click="importAction()">{{
+  <el-button type="primary" :loading="importLoading" @click="importAction">{{
     t("button.import")
   }}</el-button>
 

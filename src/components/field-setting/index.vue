@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, watch, computed } from "vue";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import { InfoFilled } from "@element-plus/icons-vue";
 import { FieldType } from "@base-open/web-api";
 import { defaultBoolValue } from "@/components/setting-form/utils/checkBox";

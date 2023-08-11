@@ -1,6 +1,6 @@
-import * as dayjs from "dayjs";
-import * as customParseFormat from "dayjs/plugin/customParseFormat";
-import * as advancedFormat from 'dayjs/plugin/advancedFormat';
+import dayjs from "dayjs/esm/index.js";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import advancedFormat from 'dayjs/plugin/advancedFormat';
 import { IOpenTimestamp, checkers } from "@base-open/web-api";
 
 dayjs.extend(customParseFormat);
