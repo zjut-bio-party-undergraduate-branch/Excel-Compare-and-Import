@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This is a Base extension for Feishu that compares local Excel files with base and imports the differences into the current Excel file.
+This is a Base extension for Feishu that compares local Excel files with base and imports the differences into the current Base.
 
 ## Usage
 
