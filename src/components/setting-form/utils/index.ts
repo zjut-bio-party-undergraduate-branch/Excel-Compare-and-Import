@@ -117,81 +117,81 @@ export async function importExcel(
   mode: "append" | "merge_direct" | "compare_merge" = "append",
   callback?: (e: any) => void
 ) {
-  const optionsFields = fieldsMaps.filter((fieldMap) => optionsFieldType.includes(fieldMap.field.type));
-  // refresh singleSelect and multiSelect options
-  if (optionsFields.length > 0) {
-    const selects: { id: string, config: IFieldConfig }[] = []
-    optionsFields.forEach(optionsField => {
-      // const field = table.getFieldById(optionsField.field.id);
-      const excelValues = excelData.sheets[sheetIndex].tableData.records.map(v => {
-        console.log(v, v[optionsField.excel_field], optionsField.excel_field)
-        return Array.from(new Set(Array.from((v[optionsField.excel_field] ?? "")
-          ?.split(optionsField.config?.separator ?? ",")))) as string[];
-      });
-      const options = Array.from(new Set([...optionsField.field.property.options.map((v: any) => v.name), ...excelValues.flat()])).filter(v => v !== "") as string[];
-      selects.push({
-        id: optionsField.field.id as string,
-        config: {
-          type: optionsField.field.type,
-          name: optionsField.field.name,
-          property: {
-            options: options.map(v => ({ name: v }))
-          }
-        }
-      })
-    });
-    console.log(selects)
-    // const optionsRecords: string[] = [];
-    for (const select of selects) {
-      let field = await table.getFieldById(select.id);
-      const optionsRecords = await field.getFieldValueList();
-      await table.setField(select.id, select.config);
-      field = await table.getFieldById(select.id);
-      const newMeta = await table.getFieldMetaById(select.id);
-      fieldsMaps[fieldsMaps.findIndex(fieldMap => fieldMap.field.id === select.id)].field = newMeta as fieldMap["field"];
-      const newOptions = (newMeta as (ISingleSelectFieldMeta | IMultiSelectFieldMeta)).property.options;
-      console.log("newOptions", newOptions, optionsRecords)
-      for (const record of optionsRecords) {
-        const id: string = record.record_id as string;
-        if (select.config.type === FieldType.MultiSelect) {
-          const value = (record.value as IOpenMultiSelect).map(v => {
-            const option = newOptions.find(option => option.name === v.text);
-            if (option) {
-              return {
-                text: option.name,
-                id: option.id
-              }
-            }
-          });
-          const res = await table.setRecord(id, {
-            // @ts-ignore
-            fields: {
-              [select.id]: value
-            }
-          });
-          console.log("setMultiSelectRecord", res)
-        }
+  // const optionsFields = fieldsMaps.filter((fieldMap) => optionsFieldType.includes(fieldMap.field.type));
+  // // refresh singleSelect and multiSelect options
+  // if (optionsFields.length > 0) {
+  //   const selects: { id: string, config: IFieldConfig }[] = []
+  //   optionsFields.forEach(optionsField => {
+  //     // const field = table.getFieldById(optionsField.field.id);
+  //     const excelValues = excelData.sheets[sheetIndex].tableData.records.map(v => {
+  //       console.log(v, v[optionsField.excel_field], optionsField.excel_field)
+  //       return Array.from(new Set(Array.from((v[optionsField.excel_field] ?? "")
+  //         ?.split(optionsField.config?.separator ?? ",")))) as string[];
+  //     });
+  //     const options = Array.from(new Set([...optionsField.field.property.options.map((v: any) => v.name), ...excelValues.flat()])).filter(v => v !== "") as string[];
+  //     selects.push({
+  //       id: optionsField.field.id as string,
+  //       config: {
+  //         type: optionsField.field.type,
+  //         name: optionsField.field.name,
+  //         property: {
+  //           options: options.map(v => ({ name: v }))
+  //         }
+  //       }
+  //     })
+  //   });
+  //   console.log(selects)
+  //   // const optionsRecords: string[] = [];
+  //   for (const select of selects) {
+  //     let field = await table.getFieldById(select.id);
+  //     const optionsRecords = await field.getFieldValueList();
+  //     await table.setField(select.id, select.config);
+  //     field = await table.getFieldById(select.id);
+  //     const newMeta = await table.getFieldMetaById(select.id);
+  //     fieldsMaps[fieldsMaps.findIndex(fieldMap => fieldMap.field.id === select.id)].field = newMeta as fieldMap["field"];
+  //     const newOptions = (newMeta as (ISingleSelectFieldMeta | IMultiSelectFieldMeta)).property.options;
+  //     console.log("newOptions", newOptions, optionsRecords)
+  //     for (const record of optionsRecords) {
+  //       const id: string = record.record_id as string;
+  //       if (select.config.type === FieldType.MultiSelect) {
+  //         const value = (record.value as IOpenMultiSelect).map(v => {
+  //           const option = newOptions.find(option => option.name === v.text);
+  //           if (option) {
+  //             return {
+  //               text: option.name,
+  //               id: option.id
+  //             }
+  //           }
+  //         });
+  //         const res = await table.setRecord(id, {
+  //           // @ts-ignore
+  //           fields: {
+  //             [select.id]: value
+  //           }
+  //         });
+  //         console.log("setMultiSelectRecord", res)
+  //       }
 
-        if (select.config.type === FieldType.SingleSelect) {
-          const value = (record.value as IOpenSingleSelect);
-          const option = newOptions.find(option => option.name === value.text);
-          if (option) {
-            const res = await table.setRecord(id, {
-              fields: {
-                [select.id]: {
-                  text: option.name,
-                  id: option.id
-                }
-              }
-            });
-            console.log("setSingleSelectRecord", res)
-          }
-        }
+  //       if (select.config.type === FieldType.SingleSelect) {
+  //         const value = (record.value as IOpenSingleSelect);
+  //         const option = newOptions.find(option => option.name === value.text);
+  //         if (option) {
+  //           const res = await table.setRecord(id, {
+  //             fields: {
+  //               [select.id]: {
+  //                 text: option.name,
+  //                 id: option.id
+  //               }
+  //             }
+  //           });
+  //           console.log("setSingleSelectRecord", res)
+  //         }
+  //       }
 
-      }
-    }
+  //     }
+  //   }
 
-  }
+  // }
 
   console.log("fieldMaps", fieldsMaps)
   const excelRecords = excelData.sheets[sheetIndex].tableData.records;
