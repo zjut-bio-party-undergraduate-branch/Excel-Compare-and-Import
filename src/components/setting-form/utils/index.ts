@@ -41,7 +41,6 @@ export const ignoreFieldType = [
   FieldType.User,
   FieldType.Denied,
   FieldType.Attachment,
-  // FieldType.Url
 ];
 
 export const optionsFieldType = [
@@ -86,20 +85,6 @@ export async function getCellValue(fieldMap: fieldMap, value: string, table: IWi
   }
 }
 
-// export const getCellValue = {
-//   [FieldType.Url]: url,
-//   [FieldType.DateTime]: dateTime,
-//   [FieldType.SingleSelect]: singleSelect,
-//   [FieldType.MultiSelect]: multiSelect,
-//   [FieldType.Number]: Number,
-//   [FieldType.Currency]: Number,
-//   [FieldType.Progress]: Number,
-//   [FieldType.Rating]: Number,
-//   [FieldType.Checkbox]: checkBox,
-//   [FieldType.Text]: text,
-//   [FieldType.Phone]: phone,
-// }
-
 function compareCellValue(excelValue: string, tableValue: string, mode: "merge_direct" | "compare_merge"): string {
   if (mode === "compare_merge") {
     return excelValue ?? tableValue;
@@ -108,24 +93,24 @@ function compareCellValue(excelValue: string, tableValue: string, mode: "merge_d
 }
 
 function hasNewElement(target: string[], from: string[]): boolean {
-  return !from.every((v) => target.includes(v));
+  const res = !from.every((v) => target.includes(v));
+  console.log("hasNewElement", target, from, res);
+  return res;
 }
 
 async function setOptionsField(fieldsMaps: fieldMap[], excelData: ExcelDataInfo, sheetIndex: number, table: IWidgetTable): Promise<fieldMap[]> {
   const optionsFields = fieldsMaps.filter((fieldMap) => optionsFieldType.includes(fieldMap.field.type));
   // refresh singleSelect and multiSelect options
+  const selects: { id: string, config: IFieldConfig }[] = []
   if (optionsFields.length > 0) {
-    const selects: { id: string, config: IFieldConfig }[] = []
     optionsFields.forEach(optionsField => {
       // const field = table.getFieldById(optionsField.field.id);
       const tableOptions = optionsField.field.property.options.map((v: any) => v.name);
-      const excelValues = excelData.sheets[sheetIndex].tableData.records.map(v => {
-        console.log(v, v[optionsField.excel_field], optionsField.excel_field)
-        return Array.from(new Set(Array.from((v[optionsField.excel_field] ?? "")
-          ?.split(optionsField.config?.separator ?? ",")))) as string[];
-      }).flat();
+      const excelValues = Array.from(new Set(excelData.sheets[sheetIndex].tableData.records.map(v => {
+        return Array.from((v[optionsField.excel_field] ?? "")?.split(optionsField.config?.separator ?? ",")) as string[];
+      }).flat().filter(v => v !== "")));
       if (hasNewElement(tableOptions, excelValues)) {
-        const options = Array.from(new Set([...tableOptions, ...excelValues])).filter(v => v !== "") as string[];
+        const options = Array.from(new Set([...tableOptions, ...excelValues])) as string[];
         selects.push({
           id: optionsField.field.id as string,
           config: {
@@ -141,7 +126,7 @@ async function setOptionsField(fieldsMaps: fieldMap[], excelData: ExcelDataInfo,
     console.log(selects)
     // const optionsRecords: string[] = [];
     if (selects.length > 0) {
-      for (const select of selects) {
+      await Promise.all(selects.map(async (select) => {
         let field = await table.getFieldById(select.id);
         const optionsRecords = await field.getFieldValueList();
         await table.setField(select.id, select.config);
@@ -150,7 +135,7 @@ async function setOptionsField(fieldsMaps: fieldMap[], excelData: ExcelDataInfo,
         fieldsMaps[fieldsMaps.findIndex(fieldMap => fieldMap.field.id === select.id)].field = newMeta as fieldMap["field"];
         const newOptions = (newMeta as (ISingleSelectFieldMeta | IMultiSelectFieldMeta)).property.options;
         console.log("newOptions", newOptions, optionsRecords)
-        for (const record of optionsRecords) {
+        const setFieldRes = await Promise.all(optionsRecords.map(async (record) => {
           const id: string = record.record_id as string;
           if (select.config.type === FieldType.MultiSelect) {
             const value = (record.value as IOpenMultiSelect).map(v => {
@@ -186,10 +171,9 @@ async function setOptionsField(fieldsMaps: fieldMap[], excelData: ExcelDataInfo,
               console.log("setSingleSelectRecord", res)
             }
           }
-        }
-      }
+        }));
+      }));
     }
-
   }
   return fieldsMaps;
 }
@@ -222,7 +206,6 @@ export async function importExcel(
       // newRecords.push(newRecord);
       console.log("kkrecord", record)
       await Promise.all(fieldsMaps.map(async (fieldMap) => {
-        // return new Promise(async () => {
         const value = record[fieldMap.excel_field];
 
         if (value) {
@@ -232,7 +215,6 @@ export async function importExcel(
             newRecord[fieldMap.field.id] = tempValue;
           }
         }
-        // })
       }));
       newRecords.push(newRecord);
     }
@@ -250,12 +232,6 @@ export async function importExcel(
       console.log("sameRecords", sameRecords, indexValue, tableIndexRecords)
       if (sameRecords.length === 0) {
         const newRecord: { [key: string]: IOpenCellValue } = {};
-        // for (const fieldMap of fieldsMaps) {
-        //   const value = record[fieldMap.excel_field];
-        //   if (value) {
-        //     newRecord[fieldMap.field.id] = await getCellValue(fieldMap, value, table);
-        //   }
-        // }
         await Promise.all(fieldsMaps.map(async (fieldMap) => {
           const value = record[fieldMap.excel_field];
           const tempValue = await getCellValue(fieldMap, value, table);
@@ -268,18 +244,6 @@ export async function importExcel(
       } else {
         deleteList.push(...sameRecords.map(sameRecord => sameRecord.record_id));
         const newRecord: { [key: string]: IOpenCellValue } = {};
-        // for (const fieldMap of fieldsMaps) {
-        //   const field = await table.getFieldById(fieldMap.field.id);
-        //   for (const sameRecord of sameRecords) {
-        //     const tableValue = await field.getCellString(sameRecord.record_id as string);
-        //     console.log("table string value", tableValue)
-        //     const excelValue = record[fieldMap.excel_field];
-        //     const value = compareCellValue(excelValue, tableValue, mode);
-        //     if (value) {
-        //       newRecord[fieldMap.field.id] = await getCellValue(fieldMap, value, table);
-        //     }
-        //   }
-        // }
         await Promise.all(fieldsMaps.map(async (fieldMap) => {
           const field = await table.getFieldById(fieldMap.field.id);
           for (const sameRecord of sameRecords) {
