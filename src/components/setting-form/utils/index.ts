@@ -94,7 +94,7 @@ function compareCellValue(excelValue: string, tableValue: string, mode: "merge_d
 
 function hasNewElement(target: string[], from: string[]): boolean {
   const res = !from.every((v) => target.includes(v));
-  console.log("hasNewElement", target, from, res);
+  // console.log("hasNewElement", target, from, res);
   return res;
 }
 
