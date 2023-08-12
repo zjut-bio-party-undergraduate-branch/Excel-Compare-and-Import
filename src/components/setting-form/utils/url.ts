@@ -8,7 +8,7 @@ export function url(value: string): IOpenUrlSegment[] {
       type: IOpenSegmentType.Url,
       link: value,
     },
-  ];
+  ] as IOpenUrlSegment[];
   if (checkers.isSegments(res)) return res;
   console.log("not a url", value, res);
   return [
