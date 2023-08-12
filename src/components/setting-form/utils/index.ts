@@ -195,21 +195,11 @@ export async function importExcel(
   const excelRecords = excelData.sheets[sheetIndex].tableData.records;
   const newRecords: any[] = [];
   if (mode === "append" || !index) {
-    for (const record of excelRecords) {
+    await Promise.all(excelRecords.map(async (record) => {
       const newRecord: { [key: string]: IOpenCellValue } = {};
-      // for (const fieldMap of fieldsMaps) {
-      //   const value = record[fieldMap.excel_field];
-      //   if (value) {
-      //     newRecord[fieldMap.field.id] = await getCellValue(fieldMap, value, table);
-      //   }
-      // }
-      // newRecords.push(newRecord);
-      console.log("kkrecord", record)
       await Promise.all(fieldsMaps.map(async (fieldMap) => {
         const value = record[fieldMap.excel_field];
-
         if (value) {
-          console.log("kkvalue", value, fieldMap)
           const tempValue = await getCellValue(fieldMap, value, table);
           if (tempValue) {
             newRecord[fieldMap.field.id] = tempValue;
@@ -217,7 +207,7 @@ export async function importExcel(
         }
       }));
       newRecords.push(newRecord);
-    }
+    }));
     console.log("newRecords", newRecords)
   } else {
     let deleteList: any[] = [];
@@ -246,7 +236,7 @@ export async function importExcel(
         const newRecord: { [key: string]: IOpenCellValue } = {};
         await Promise.all(fieldsMaps.map(async (fieldMap) => {
           const field = await table.getFieldById(fieldMap.field.id);
-          for (const sameRecord of sameRecords) {
+          await Promise.all(sameRecords.map(async (sameRecord) => {
             const tableValue = await field.getCellString(sameRecord.record_id as string);
             console.log("table string value", tableValue)
             const excelValue = record[fieldMap.excel_field];
@@ -255,7 +245,7 @@ export async function importExcel(
             if (tempValue) {
               newRecord[fieldMap.field.id] = tempValue;
             }
-          }
+          }));
         }));
         newRecords.push(newRecord);
       }
