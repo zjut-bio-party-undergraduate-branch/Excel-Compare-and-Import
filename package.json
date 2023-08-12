@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview --port 4173"
+    "preview": "vite preview --port 4173",
+    "createData": "npx vite-node ./scripts/createTestData.ts -n"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.0.1",
+    "commander": "^11.0.0",
     "mockjs": "^1.1.0",
     "typescript": "^5.1.6",
     "unplugin-auto-import": "^0.16.4",

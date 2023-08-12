@@ -44,7 +44,6 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
             })
             .filter((record) => {
               return Object.values(record).some((value) => {
-                console.log("test", !!value);
                 return value;
               });
             });
