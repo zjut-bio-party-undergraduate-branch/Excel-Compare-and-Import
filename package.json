@@ -10,7 +10,7 @@
     "createData": "npx vite-node ./scripts/createTestData.ts -n"
   },
   "keywords": [],
-  "author": "",
+  "author": "qww<497363953@qq.com>",
   "license": "MIT",
   "dependencies": {
     "@base-open/web-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@base-open-web-api-0.2.0-alpha.17.tgz",
