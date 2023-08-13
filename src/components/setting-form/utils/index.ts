@@ -135,7 +135,7 @@ async function setOptionsField(fieldsMaps: fieldMap[], excelData: ExcelDataInfo,
         fieldsMaps[fieldsMaps.findIndex(fieldMap => fieldMap.field.id === select.id)].field = newMeta as fieldMap["field"];
         const newOptions = (newMeta as (ISingleSelectFieldMeta | IMultiSelectFieldMeta)).property.options;
         console.log("newOptions", newOptions, optionsRecords)
-        const setFieldRes = await Promise.all(optionsRecords.map(async (record) => {
+        await Promise.all(optionsRecords.map(async (record) => {
           const id: string = record.record_id as string;
           if (select.config.type === FieldType.MultiSelect) {
             const value = (record.value as IOpenMultiSelect).map(v => {
