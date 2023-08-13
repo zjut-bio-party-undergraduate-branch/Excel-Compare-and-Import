@@ -22,6 +22,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   },
   "devDependencies": {
+    "@types/node": "^20.4.10",
     "@vitejs/plugin-vue": "^3.0.1",
     "commander": "^11.0.0",
     "mockjs": "^1.1.0",
