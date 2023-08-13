@@ -101,8 +101,8 @@ function hasNewElement(target: string[], from: string[]): boolean {
 async function setOptionsField(fieldsMaps: fieldMap[], excelData: ExcelDataInfo, sheetIndex: number, table: IWidgetTable): Promise<fieldMap[]> {
   const optionsFields = fieldsMaps.filter((fieldMap) => optionsFieldType.includes(fieldMap.field.type));
   // refresh singleSelect and multiSelect options
-  const selects: { id: string, config: IFieldConfig }[] = []
   if (optionsFields.length > 0) {
+    const selects: { id: string, config: IFieldConfig }[] = []
     optionsFields.forEach(optionsField => {
       // const field = table.getFieldById(optionsField.field.id);
       const tableOptions = optionsField.field.property.options.map((v: any) => v.name);
