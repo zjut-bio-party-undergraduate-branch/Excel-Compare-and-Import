@@ -6,7 +6,6 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "baseUrl": "./",
-    "types": ["element-plus/global"],
 
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
