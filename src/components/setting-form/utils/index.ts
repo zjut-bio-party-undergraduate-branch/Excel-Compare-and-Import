@@ -223,19 +223,12 @@ async function setOptionsField(
 }
 
 async function addRecords(
-  fieldsMaps: fieldMap[],
   records: { [key: string]: IOpenCellValue }[],
   table: IWidgetTable,
   callback?: (e: any) => void
 ): Promise<(string | undefined)[]> {
   const addRes = await Promise.all(
     records.map(async (record, index) => {
-      console.log(
-        "addRecord",
-        record,
-        index,
-        fieldsMaps.map((fieldMap) => fieldMap.field)
-      );
       try {
         const res = await table.addRecord({ fields: record });
         if (callback && typeof callback === "function") callback(res);
@@ -255,7 +248,6 @@ function delay(t: number) {
 }
 
 async function batchRecords(
-  fieldsMaps: fieldMap[],
   records: { [key: string]: IOpenCellValue }[],
   table: IWidgetTable,
   maxNumber: number = 4000,
@@ -264,18 +256,16 @@ async function batchRecords(
 ): Promise<(string | undefined)[]> {
   if (records.length === 0) return [];
   if (records.length <= maxNumber) {
-    return await addRecords(fieldsMaps, records, table, callback);
+    return await addRecords(records, table, callback);
   } else {
     const addRes: (string | undefined)[] = [];
     const currRes = await addRecords(
-      fieldsMaps,
       records.slice(0, maxNumber),
       table,
       callback
     );
     await delay(interval);
     const nextRes = await batchRecords(
-      fieldsMaps,
       records.slice(maxNumber),
       table,
       maxNumber,
