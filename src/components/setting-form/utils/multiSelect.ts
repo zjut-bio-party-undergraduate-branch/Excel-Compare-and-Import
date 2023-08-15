@@ -3,7 +3,7 @@ import {
   IOpenMultiSelect,
   IWidgetTable,
   checkers
-} from "@base-open/web-api";
+} from "@lark-base-open/web-api";
 
 export const defaultSeparator = ","
 

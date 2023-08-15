@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { IFieldMeta } from "@base-open/web-api";
+import { IFieldMeta } from "@lark-base-open/web-api";
 import { i18n } from "@/i18n";
 
 export interface stage {

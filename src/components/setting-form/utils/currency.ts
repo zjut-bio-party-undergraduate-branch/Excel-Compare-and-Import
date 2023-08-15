@@ -1,4 +1,4 @@
-import { checkers } from "@base-open/web-api"
+import { checkers } from "@lark-base-open/web-api"
 
 export function currency(value: string): number | null {
   const res = Number(value.match(/-?\d+\.?\d*/g))

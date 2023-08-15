@@ -13,7 +13,7 @@
   "author": "qww<497363953@qq.com>",
   "license": "MIT",
   "dependencies": {
-    "@base-open/web-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@base-open-web-api-0.2.0-alpha.17.tgz",
+    "@lark-base-open/web-api": "^0.2.1",
     "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.6",

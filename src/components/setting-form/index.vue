@@ -6,7 +6,7 @@ import {
   ViewType,
   bitable,
   IFieldMeta,
-} from "@base-open/web-api";
+} from "@lark-base-open/web-api";
 import type { ExcelDataInfo, fieldMap } from "@/types/types";
 import { ElLoading, ElMessage } from "element-plus";
 import { Setting, Lock, Refresh } from "@element-plus/icons-vue";

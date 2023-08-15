@@ -7,7 +7,7 @@ import {
   IOpenSingleSelect,
   IOpenMultiSelect,
   IFieldConfig,
-} from "@base-open/web-api";
+} from "@lark-base-open/web-api";
 import { dateTime, dateDefaultFormat } from "./date";
 import { multiSelect } from "./multiSelect";
 import { singleSelect } from "./singleSelect";
@@ -545,9 +545,9 @@ export async function importExcel(
   if (deleteList.length > 0) {
     deleteList = Array.from(new Set(deleteList));
     const deleteRes = await Promise.all(
-      deleteList.map((id) => {
+      deleteList.map(async (id) => {
         if (typeof id === "string") {
-          const res = table.deleteRecord(id);
+          const res = await table.deleteRecord(id);
           if (onDeleteRecords && typeof onDeleteRecords === "function") {
             onDeleteRecords({
               state: "onDeleteRecords",
