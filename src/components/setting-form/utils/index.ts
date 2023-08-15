@@ -25,7 +25,6 @@ import {
   IFieldValue,
   IUndefinedFieldValue,
 } from "@/types/types";
-import { on } from "events";
 
 export const ignoreFieldType = [
   FieldType.Lookup,
