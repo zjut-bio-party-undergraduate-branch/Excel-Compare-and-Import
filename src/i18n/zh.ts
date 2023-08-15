@@ -91,5 +91,6 @@ export const zh = {
     waiting: "{waitingNumber} 等待",
     checkFieldsMessage: "共有 {totalNumber} 个单选/多选字段",
     checkOptionsMessage: "共有 {totalNumber} 个单选/多选字段有新选项",
+    addRecordsMessage: "每上传4000条记录会停留3s以便后台存储数据"
   }
 }

@@ -90,5 +90,6 @@ export const en = {
     waiting: "{waitingNumber} waiting",
     checkFieldsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields",
     checkOptionsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
+    addRecordsMessage: "There will be 3 seconds between each 4000 records.",
   }
 }

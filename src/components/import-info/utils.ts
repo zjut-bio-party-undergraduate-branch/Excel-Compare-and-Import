@@ -330,6 +330,7 @@ export function beforeAddRecords({
     (stage) => stage.index === stageIndex["addRecords"]
   );
   stages.value[index].number = records.length;
+  stages.value[index].message = i18n.global.t("importInfo.addRecordsMessage");
   if (records.length > 0) {
     stages.value[index].state = "loading";
     stages.value[index].progress = true;
