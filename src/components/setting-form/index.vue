@@ -411,15 +411,23 @@ defineExpose({
       </el-select>
     </el-form-item>
   </el-form>
-  <el-button type="primary" :loading="importLoading" @click="importAction">{{
-    t("button.import")
-  }}</el-button>
-  <el-tooltip effect="dark">
-    <template #content>
-      {{ t("toolTip.importInfo") }}
-    </template>
-    <el-icon class="is-loading"><Refresh /></el-icon>
-  </el-tooltip>
+  <el-space>
+    <el-button type="primary" :loading="importLoading" @click="importAction">{{
+      t("button.import")
+    }}</el-button>
+    <el-tooltip v-if="importLoading" effect="dark">
+      <template #content>
+        {{ t("toolTip.importInfo") }}
+      </template>
+      <el-icon
+        size="20"
+        @click="importInfoRef.toggleVisible"
+        style="cursor: pointer"
+        class="is-loading"
+        ><Refresh
+      /></el-icon>
+    </el-tooltip>
+  </el-space>
 
   <fieldSetting
     ref="settingRef"
