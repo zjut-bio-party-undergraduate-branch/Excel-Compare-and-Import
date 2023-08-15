@@ -25,6 +25,7 @@ import {
   IFieldValue,
   IUndefinedFieldValue,
 } from "@/types/types";
+import { on } from "events";
 
 export const ignoreFieldType = [
   FieldType.Lookup,
@@ -112,13 +113,52 @@ async function setOptionsField(
   fieldsMaps: fieldMap[],
   excelData: ExcelDataInfo,
   sheetIndex: number,
-  table: IWidgetTable
+  table: IWidgetTable,
+  callback?: {
+    beforeCheckFields?: (e: any) => void;
+    onCheckFields?: (e: any) => void;
+    beforeCheckOptions?: (e: any) => void;
+    onCheckOptions?: (e: any) => void;
+    beforeSetOptions?: (e: any) => void;
+    onSetOptions?: (e: any) => void;
+    onSetOptionsFieldEnd?: (e: any) => void;
+  }
 ): Promise<fieldMap[]> {
-  const optionsFields = fieldsMaps.filter((fieldMap) =>
-    optionsFieldType.includes(fieldMap.field.type)
-  );
+  if (
+    callback?.beforeCheckFields &&
+    typeof callback.beforeCheckFields === "function"
+  ) {
+    callback.beforeCheckFields({
+      state: "beforeCheckFields",
+      number: fieldsMaps.length,
+    });
+  }
+  const optionsFields = fieldsMaps.filter((fieldMap) => {
+    const res = optionsFieldType.includes(fieldMap.field.type);
+    if (
+      callback?.onCheckFields &&
+      typeof callback.onCheckFields === "function"
+    ) {
+      callback.onCheckFields({
+        state: "onCheckFields",
+        field: fieldMap.field,
+        res,
+      });
+    }
+    return res;
+  });
+
   // refresh singleSelect and multiSelect options
   if (optionsFields.length > 0) {
+    if (
+      callback?.beforeCheckOptions &&
+      typeof callback.beforeCheckOptions === "function"
+    ) {
+      callback.beforeCheckOptions({
+        state: "beforeCheckOptions",
+        number: optionsFields.length,
+      });
+    }
     const selects: { id: string; config: IFieldConfig }[] = [];
     optionsFields.forEach((optionsField) => {
       // const field = table.getFieldById(optionsField.field.id);
@@ -154,9 +194,28 @@ async function setOptionsField(
           },
         });
       }
+      if (
+        callback?.onCheckOptions &&
+        typeof callback.onCheckOptions === "function"
+      ) {
+        callback.onCheckOptions({
+          state: "onCheckOptions",
+          field: optionsField.field,
+          selects,
+        });
+      }
     });
     console.log(selects);
     // const optionsRecords: string[] = [];
+    if (
+      callback?.beforeSetOptions &&
+      typeof callback.beforeSetOptions === "function"
+    ) {
+      callback.beforeSetOptions({
+        state: "beforeSetOptions",
+        number: selects.length,
+      });
+    }
     if (selects.length > 0) {
       await Promise.all(
         selects.map(async (select) => {
@@ -194,6 +253,16 @@ async function setOptionsField(
                   },
                 });
                 console.log("setMultiSelectRecord", res);
+                if (
+                  callback?.onSetOptions &&
+                  typeof callback.onSetOptions === "function"
+                ) {
+                  callback.onSetOptions({
+                    state: "onSetOptions",
+                    field: select,
+                    record: res,
+                  });
+                }
               }
 
               if (select.config.type === FieldType.SingleSelect) {
@@ -211,6 +280,16 @@ async function setOptionsField(
                     },
                   });
                   console.log("setSingleSelectRecord", res);
+                  if (
+                    callback?.onSetOptions &&
+                    typeof callback.onSetOptions === "function"
+                  ) {
+                    callback.onSetOptions({
+                      state: "onSetOptions",
+                      field: select,
+                      record: res,
+                    });
+                  }
                 }
               }
             })
@@ -218,6 +297,14 @@ async function setOptionsField(
         })
       );
     }
+  }
+  if (
+    callback?.onSetOptionsFieldEnd &&
+    typeof callback.onSetOptionsFieldEnd === "function"
+  ) {
+    callback.onSetOptionsFieldEnd({
+      state: "onEnd",
+    });
   }
   return fieldsMaps;
 }
@@ -231,7 +318,7 @@ async function addRecords(
     records.map(async (record, index) => {
       try {
         const res = await table.addRecord({ fields: record });
-        if (callback && typeof callback === "function") callback(res);
+        if (callback && typeof callback === "function") callback({ res, index });
         return res;
       } catch (e) {
         console.error("addRecord error", e, index);
@@ -277,6 +364,16 @@ async function batchRecords(
   }
 }
 
+// async function getRecordsNumber(
+//   table: IWidgetTable,
+//   deleteNumber: number,
+//   addNumber: number
+// ) {
+//   const idList = await table.getRecordIdList();
+//   const recordsNumber = idList.length - deleteNumber + addNumber;
+//   return recordsNumber;
+// }
+
 export async function importExcel(
   fieldsMaps: fieldMap[],
   excelData: ExcelDataInfo,
@@ -284,12 +381,59 @@ export async function importExcel(
   table: IWidgetTable,
   index: string | null = null,
   mode: "append" | "merge_direct" | "compare_merge" = "append",
-  callback?: (e: any) => void
+  callback?: {
+    beforeCheckFields?: (e: any) => void;
+    onCheckFields?: (e: any) => void;
+    beforeCheckOptions?: (e: any) => void;
+    onCheckOptions?: (e: any) => void;
+    beforeSetOptions?: (e: any) => void;
+    onSetOptions?: (e: any) => void;
+    onSetOptionsFieldEnd?: (e: any) => void;
+    beforeAnalysisRecords?: (e: any) => void;
+    onAnalysisRecords?: (e: any) => void;
+    beforeDeleteRecords?: (e: any) => void;
+    onDeleteRecords?: (e: any) => void;
+    beforeAddRecords?: (e: any) => void;
+    onAddRecords?: (e: any) => void;
+    end?: (e: any) => void;
+  }
 ) {
-  fieldsMaps = await setOptionsField(fieldsMaps, excelData, sheetIndex, table);
+  const {
+    beforeCheckFields,
+    onCheckFields,
+    beforeCheckOptions,
+    onCheckOptions,
+    beforeSetOptions,
+    onSetOptions,
+    onSetOptionsFieldEnd,
+    beforeAnalysisRecords,
+    onAnalysisRecords: analysisRecords,
+    beforeAddRecords,
+    onAddRecords,
+    beforeDeleteRecords,
+    onDeleteRecords,
+    end,
+  } = callback || {};
+  fieldsMaps = await setOptionsField(fieldsMaps, excelData, sheetIndex, table, {
+    beforeCheckFields,
+    onCheckFields,
+    beforeCheckOptions,
+    onCheckOptions,
+    beforeSetOptions,
+    onSetOptions,
+    onSetOptionsFieldEnd,
+  });
   console.log("fieldMaps", fieldsMaps);
   const excelRecords = excelData.sheets[sheetIndex].tableData.records;
   const newRecords: any[] = [];
+  let deleteList: any[] = [];
+  if (beforeAnalysisRecords && typeof beforeAnalysisRecords === "function") {
+    beforeAnalysisRecords({
+      state: "onStart",
+      number: excelRecords.length,
+      mode,
+    });
+  }
   if (mode === "append" || !index) {
     await Promise.all(
       excelRecords.map(async (record) => {
@@ -306,11 +450,18 @@ export async function importExcel(
           })
         );
         newRecords.push(newRecord);
+        if (analysisRecords && typeof analysisRecords === "function") {
+          analysisRecords({
+            state: "onAnalysisRecords",
+            records: newRecords,
+            number: excelRecords.length,
+            mode,
+          });
+        }
       })
     );
     console.log("newRecords", newRecords);
   } else {
-    let deleteList: any[] = [];
     const excelIndexField: fieldMap = fieldsMaps.find(
       (fieldMap) => fieldMap.excel_field === index
     ) as fieldMap;
@@ -339,6 +490,14 @@ export async function importExcel(
           );
           newRecords.push(newRecord);
           console.log("newRecord", newRecord);
+          if (analysisRecords && typeof analysisRecords === "function") {
+            analysisRecords({
+              state: "onAnalysisRecords",
+              records: newRecords,
+              number: excelRecords.length,
+              mode,
+            });
+          }
         } else {
           deleteList.push(
             ...sameRecords.map((sameRecord) => sameRecord.record_id)
@@ -364,22 +523,58 @@ export async function importExcel(
             })
           );
           newRecords.push(newRecord);
+          if (analysisRecords && typeof analysisRecords === "function") {
+            analysisRecords({
+              state: "onAnalysisRecords",
+              records: newRecords,
+              number: excelRecords.length,
+              mode,
+            });
+          }
         }
       })
     );
     console.log(newRecords, deleteList);
-    if (deleteList.length > 0) {
-      deleteList = Array.from(new Set(deleteList));
-      const deleteRes = await Promise.all(
-        deleteList.map((id) => {
-          if (typeof id === "string") return table.deleteRecord(id);
-        })
-      );
-      console.log("deleteRes", deleteRes);
-    }
+  }
+  if (beforeDeleteRecords && typeof beforeDeleteRecords === "function") {
+    beforeDeleteRecords({
+      state: "beforeDeleteRecords",
+      deleteList,
+    });
+  }
+  if (deleteList.length > 0) {
+    deleteList = Array.from(new Set(deleteList));
+    const deleteRes = await Promise.all(
+      deleteList.map((id) => {
+        if (typeof id === "string") {
+          const res = table.deleteRecord(id);
+          if (onDeleteRecords && typeof onDeleteRecords === "function") {
+            onDeleteRecords({
+              state: "onDeleteRecords",
+              res,
+              number: deleteList.length,
+            });
+          }
+          return res;
+        }
+      })
+    );
+    console.log("deleteRes", deleteRes);
   }
   console.log("start addRecords", newRecords);
-  const addRes = await batchRecords(newRecords, table, 4000, 3000);
+  if (beforeAddRecords && typeof beforeAddRecords === "function") {
+    beforeAddRecords({
+      state: "beforeAddRecords",
+      records: newRecords,
+    });
+  }
+  const addRes = await batchRecords(
+    newRecords,
+    table,
+    4000,
+    3000,
+    onAddRecords
+  );
   console.log("addRes", addRes);
-  if (callback && typeof callback === "function") callback(addRes);
+  if (end && typeof end === "function") end({ state: "end", res: addRes });
 }

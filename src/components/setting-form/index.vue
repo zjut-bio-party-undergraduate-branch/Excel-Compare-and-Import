@@ -17,6 +17,7 @@ import { defaultSeparator } from "./utils/multiSelect";
 import { defaultBoolValue } from "./utils/checkBox";
 import { useI18n } from "vue-i18n";
 import fieldIcon from "@/components/field-icon/index.vue";
+import importInfo from "@/components/import-info/index.vue";
 
 const { t } = useI18n();
 
@@ -35,6 +36,7 @@ const isActive = ref(false);
 const form = ref();
 const chooseRef = ref();
 const settingRef = ref();
+const importInfoRef = ref();
 const Index = ref("");
 const tableId = ref("");
 const tableFields = ref<IFieldMeta[]>();
@@ -173,6 +175,7 @@ async function importAction() {
   const table = await bitable.base.getTableById(id);
   const index = Index.value === "" ? null : Index.value;
   importLoading.value = true;
+  importInfoRef.value.toggleVisible();
   await importExcel(
     toRaw(settingColumns.value),
     toRaw(props.excelData),
@@ -180,14 +183,18 @@ async function importAction() {
     table,
     index,
     mode.value,
-    () => {
-      ElMessage({
-        message: t("message.importSuccess"),
-        grouping: true,
-        type: "success",
-        duration: 2000,
-      });
-      importLoading.value = false;
+    {
+      ...importInfoRef.value.importCallback,
+      end: () => {
+        ElMessage({
+          message: t("message.importSuccess"),
+          grouping: true,
+          type: "success",
+          duration: 2000,
+        });
+        importLoading.value = false;
+        importInfoRef.value.refresh();
+      },
     }
   );
 }
@@ -414,6 +421,7 @@ defineExpose({
     :default="defaultSetting"
     :type="settingType"
   ></fieldSetting>
+  <importInfo ref="importInfoRef" />
   <!-- <el-button type="default" @click="autoFill">Auto Fill</el-button> -->
   <!-- <el-button type="danger" @click="deleteTest">Delete Test</el-button> -->
 </template>

@@ -77,5 +77,19 @@ export const zh = {
     progress: "进度",
     phone: "电话号码",
     url: "超链接",
+  },
+  importInfo: {
+    title: "导入进度",
+    checkOptions: "检查单选与多选选项",
+    checkFieldTypes: "检查字段类型",
+    setOptions: "设置单选与多选选项",
+    analysisRecords: "解析记录",
+    deleteRecords: "删除重复记录",
+    addRecords: "添加新记录",
+    success: "{successNumber} 成功",
+    error: "{errorNumber} 失败",
+    waiting: "{waitingNumber} 等待",
+    checkFieldsMessage: "共有 {totalNumber} 个单选/多选字段",
+    checkOptionsMessage: "共有 {totalNumber} 个单选/多选字段有新选项",
   }
 }
