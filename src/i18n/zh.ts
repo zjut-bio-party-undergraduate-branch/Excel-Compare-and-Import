@@ -55,8 +55,8 @@ export const zh = {
     setOperator: "设置分隔符",
     setBoolValue: "设置布尔值",
     pleaseReferTo: "请参考",
-    indexInfo: "索引列：用于标识每条记录，合并记录的依据。在一个多维表格中，每条记录的索引都应该是唯一的。例：身份证号。"
-
+    indexInfo: "索引列：用于标识每条记录，合并记录的依据。在一个多维表格中，每条记录的索引都应该是唯一的。例：身份证号。",
+    importInfo: "点击查看导入进度",
   },
   message: {
     chooseTableFirst: "请先选择一个表格",

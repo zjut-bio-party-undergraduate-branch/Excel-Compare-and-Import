@@ -9,7 +9,7 @@ import {
 } from "@base-open/web-api";
 import type { ExcelDataInfo, fieldMap } from "@/types/types";
 import { ElLoading, ElMessage } from "element-plus";
-import { Setting, Lock } from "@element-plus/icons-vue";
+import { Setting, Lock, Refresh } from "@element-plus/icons-vue";
 import { ignoreFieldType, importExcel } from "./utils";
 import { dateDefaultFormat } from "./utils/date";
 import fieldSetting from "@/components/field-setting/index.vue";
@@ -414,6 +414,12 @@ defineExpose({
   <el-button type="primary" :loading="importLoading" @click="importAction">{{
     t("button.import")
   }}</el-button>
+  <el-tooltip effect="dark">
+    <template #content>
+      {{ t("toolTip.importInfo") }}
+    </template>
+    <el-icon class="is-loading"><Refresh /></el-icon>
+  </el-tooltip>
 
   <fieldSetting
     ref="settingRef"
