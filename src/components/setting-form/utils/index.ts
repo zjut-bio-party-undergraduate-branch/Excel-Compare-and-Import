@@ -379,23 +379,7 @@ export async function importExcel(
     }
   }
   console.log("start addRecords", newRecords);
-  // const addRes = await Promise.all(
-  //   newRecords.map(async (record, index) => {
-  //     console.log(
-  //       "addRecord",
-  //       record,
-  //       index,
-  //       fieldsMaps.map((fieldMap) => fieldMap.field)
-  //     );
-  //     try {
-  //       const res = await table.addRecord({ fields: record });
-  //       return res;
-  //     } catch (e) {
-  //       console.error("addRecord error", e, index);
-  //     }
-  //   })
-  // );
-  const addRes = await batchRecords(fieldsMaps, newRecords, table, 4000, 3000);
+  const addRes = await batchRecords(newRecords, table, 4000, 3000);
   console.log("addRes", addRes);
   if (callback && typeof callback === "function") callback(addRes);
 }
