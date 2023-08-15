@@ -3,7 +3,7 @@ import {
   IOpenSingleSelect,
   IWidgetTable,
   checkers
-} from "@base-open/web-api";
+} from "@lark-base-open/web-api";
 
 export async function singleSelect(value: string, field: ISingleSelectFieldMeta, table: IWidgetTable): Promise<IOpenSingleSelect> {
   if (value === "") {

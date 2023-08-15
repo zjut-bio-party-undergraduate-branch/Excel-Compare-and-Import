@@ -6,13 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview --port 4173"
+    "preview": "vite preview --port 4173",
+    "createData": "npx vite-node ./scripts/createTestData.ts -n"
   },
   "keywords": [],
-  "author": "",
+  "author": "qww<497363953@qq.com>",
   "license": "MIT",
   "dependencies": {
-    "@base-open/web-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/base-open-web-api-0.2.0-alpha.11.tgz",
+    "@lark-base-open/web-api": "^0.2.1",
     "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.6",
@@ -21,7 +22,10 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   },
   "devDependencies": {
+    "@types/node": "^20.4.10",
     "@vitejs/plugin-vue": "^3.0.1",
+    "commander": "^11.0.0",
+    "mockjs": "^1.1.0",
     "typescript": "^5.1.6",
     "unplugin-auto-import": "^0.16.4",
     "unplugin-vue-components": "^0.25.1",

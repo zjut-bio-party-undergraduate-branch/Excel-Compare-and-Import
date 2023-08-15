@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Calendar, Phone } from "@element-plus/icons-vue";
-import { FieldType } from "@base-open/web-api";
+import { FieldType } from "@lark-base-open/web-api";
 import textIcon from "@/components/icons/text-icon.vue";
 import barCodeIcon from "@/components/icons/barCode-icon.vue";
 import multiSelectIcon from "@/components/icons/multiSelect-icon.vue";

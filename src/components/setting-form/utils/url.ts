@@ -1,4 +1,4 @@
-import { IOpenSegmentType, IOpenUrlSegment, checkers } from '@base-open/web-api';
+import { IOpenSegmentType, IOpenUrlSegment, checkers } from '@lark-base-open/web-api';
 
 
 export function url(value: string): IOpenUrlSegment[] {
@@ -8,7 +8,7 @@ export function url(value: string): IOpenUrlSegment[] {
       type: IOpenSegmentType.Url,
       link: value,
     },
-  ];
+  ] as IOpenUrlSegment[];
   if (checkers.isSegments(res)) return res;
   console.log("not a url", value, res);
   return [

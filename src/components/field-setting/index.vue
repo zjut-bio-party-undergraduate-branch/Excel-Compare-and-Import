@@ -2,7 +2,7 @@
 import { ref, watch, computed } from "vue";
 import dayjs from "dayjs";
 import { InfoFilled } from "@element-plus/icons-vue";
-import { FieldType } from "@base-open/web-api";
+import { FieldType } from "@lark-base-open/web-api";
 import { defaultBoolValue } from "@/components/setting-form/utils/checkBox";
 import { useI18n } from "vue-i18n";
 

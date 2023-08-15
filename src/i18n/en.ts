@@ -56,6 +56,7 @@ export const en = {
     setBoolValue: "Set bool value",
     pleaseReferTo: "Please refer to",
     indexInfo: "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. In a Base, the index of each record should be unique. Example: ID card number.",
+    importInfo: "Click to see the import info",
   },
   message: {
     chooseTableFirst: "Please choose a table first",
@@ -76,5 +77,20 @@ export const en = {
     progress: "Progress",
     phone: "Phone",
     url: "Url",
+  },
+  importInfo: {
+    title: "Import Info",
+    checkOptions: "Check Options of SingleSelect/MultiSelect",
+    checkFieldTypes: "Check Field Types",
+    setOptions: "Set Options of SingleSelect/MultiSelect",
+    analysisRecords: "Analysis Records",
+    deleteRecords: "Delete same Records",
+    addRecords: "Add new Records",
+    success: "{successNumber} success",
+    error: "{errorNumber} failed",
+    waiting: "{waitingNumber} waiting",
+    checkFieldsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields",
+    checkOptionsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
+    addRecordsMessage: "There will be 3 seconds between each 4000 records.",
   }
 }

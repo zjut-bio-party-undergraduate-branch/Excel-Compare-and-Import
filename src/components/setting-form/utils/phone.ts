@@ -1,4 +1,4 @@
-import { IOpenPhone, checkers } from "@base-open/web-api"
+import { IOpenPhone, checkers } from "@lark-base-open/web-api"
 
 export function phone(value: string): IOpenPhone {
   const res = String(value)

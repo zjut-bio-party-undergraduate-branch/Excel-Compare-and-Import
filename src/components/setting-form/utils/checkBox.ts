@@ -1,4 +1,4 @@
-import type { IOpenCheckbox } from "@base-open/web-api";
+import type { IOpenCheckbox } from "@lark-base-open/web-api";
 
 export const defaultBoolValue = {
   true: ["是", "True", "true", "TRUE", "1", "☑️"],
