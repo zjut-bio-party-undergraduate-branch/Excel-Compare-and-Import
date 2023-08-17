@@ -3,7 +3,7 @@ import settingForm from "@/components/setting-form/index.vue";
 import upload from "@/components/upload/index.vue";
 import { ref, onMounted, watch, onUnmounted } from "vue";
 import { bitable, ThemeModeType } from "@lark-base-open/web-api";
-import { isDark } from "./utils";
+import { isDark } from "@/utils/index";
 import { useI18n } from "vue-i18n";
 
 const settingRef = ref();

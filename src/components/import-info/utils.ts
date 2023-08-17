@@ -1,6 +1,7 @@
 import { ref } from "vue";
-import { IFieldMeta } from "@lark-base-open/web-api";
 import { i18n } from "@/i18n";
+import { lifeCircleEventParams } from "@/utils/import/lifeCircle";
+import { ElMessage } from "element-plus";
 
 export interface stage {
   state: string;
@@ -110,12 +111,8 @@ export const defaultStages = () => [
 
 export const stages = ref<stage[]>(defaultStages());
 
-export function beforeCheckFields({
-  number,
-}: {
-  state: string;
-  number: number;
-}) {
+export function beforeCheckFields(e: lifeCircleEventParams) {
+  const { number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["checkFieldTypes"]
   );
@@ -134,13 +131,8 @@ export function beforeCheckFields({
 
 const optionsFieldsNumber = ref(0);
 
-export function onCheckFields({
-  res,
-}: {
-  state?: string;
-  field?: IFieldMeta;
-  res?: boolean;
-}) {
+export function onCheckFields(e: lifeCircleEventParams) {
+  const { res } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["checkFieldTypes"]
   );
@@ -163,12 +155,8 @@ export function onCheckFields({
   }
 }
 
-export function beforeCheckOptions({
-  number,
-}: {
-  state: string;
-  number: number;
-}) {
+export function beforeCheckOptions(e: lifeCircleEventParams) {
+  const { number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["checkOptions"]
   );
@@ -184,13 +172,8 @@ export function beforeCheckOptions({
   currentStage.value = stageIndex["checkOptions"];
 }
 
-export function onCheckOptions({
-  selects,
-}: {
-  selects: any[];
-  state?: string;
-  field?: IFieldMeta;
-}) {
+export function onCheckOptions(e: lifeCircleEventParams) {
+  const { selects } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["checkOptions"]
   );
@@ -211,12 +194,8 @@ export function onCheckOptions({
   }
 }
 
-export function beforeSetOptions({
-  number,
-}: {
-  state: string;
-  number: number;
-}) {
+export function beforeSetOptions(e: lifeCircleEventParams) {
+  const { number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["setOptions"]
   );
@@ -231,7 +210,8 @@ export function beforeSetOptions({
   currentStage.value = stageIndex["setOptions"];
 }
 
-export function onSetOptions({ record }: { state?: string; record?: string }) {
+export function onSetOptions(e: lifeCircleEventParams) {
+  const { record } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["setOptions"]
   );
@@ -242,13 +222,8 @@ export function onSetOptions({ record }: { state?: string; record?: string }) {
   }
 }
 
-export function beforeAnalysisRecords({
-  number,
-}: {
-  state: string;
-  number: number;
-  mode: string;
-}) {
+export function beforeAnalysisRecords(e: lifeCircleEventParams) {
+  const { number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["analysisRecords"]
   );
@@ -264,13 +239,8 @@ export function beforeAnalysisRecords({
   currentStage.value = stageIndex["analysisRecords"];
 }
 
-export function onAnalysisRecords({
-  records,
-}: {
-  state?: string;
-  records: any[];
-  mode?: string;
-}) {
+export function onAnalysisRecords(e: lifeCircleEventParams) {
+  const { records } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["analysisRecords"]
   );
@@ -281,12 +251,8 @@ export function onAnalysisRecords({
   }
 }
 
-export function beforeDeleteRecords({
-  deleteList,
-}: {
-  state: string;
-  deleteList: any[];
-}) {
+export function beforeDeleteRecords(e: lifeCircleEventParams) {
+  const { deleteList } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["deleteRecords"]
   );
@@ -302,7 +268,8 @@ export function beforeDeleteRecords({
   currentStage.value = stageIndex["deleteRecords"];
 }
 
-export function onDeleteRecords({ res }: { state?: string; res?: boolean }) {
+export function onDeleteRecords(e: lifeCircleEventParams) {
+  const { res } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["deleteRecords"]
   );
@@ -320,18 +287,14 @@ export function onDeleteRecords({ res }: { state?: string; res?: boolean }) {
   }
 }
 
-export function beforeAddRecords({
-  records,
-}: {
-  state: string;
-  records: any[];
-}) {
+export function beforeAddRecords(e: lifeCircleEventParams) {
+  const { number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["addRecords"]
   );
-  stages.value[index].number = records.length;
+  stages.value[index].number = number;
   stages.value[index].message = i18n.global.t("importInfo.addRecordsMessage");
-  if (records.length > 0) {
+  if (number > 0) {
     stages.value[index].state = "loading";
     stages.value[index].progress = true;
   } else {
@@ -342,7 +305,8 @@ export function beforeAddRecords({
   currentStage.value = stageIndex["addRecords"];
 }
 
-export function onAddRecords({ res }: { res: string }) {
+export function onAddRecords(e: lifeCircleEventParams) {
+  const { res } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["addRecords"]
   );
