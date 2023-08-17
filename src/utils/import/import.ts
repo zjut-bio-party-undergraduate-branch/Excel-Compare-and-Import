@@ -223,20 +223,16 @@ async function batchRecords(
     return await addRecords(records, table, lifeCircleHook);
   } else {
     const addRes: (string | undefined)[] = [];
-    const currRes = await addRecords(
-      records.slice(0, maxNumber),
-      table,
-      lifeCircleHook
-    );
-    await delay(interval);
-    const nextRes = await batchRecords(
-      records.slice(maxNumber),
-      table,
-      maxNumber,
-      interval,
-      lifeCircleHook
-    );
-    addRes.push(...currRes, ...nextRes);
+    const count = Math.ceil(records.length / maxNumber);
+    for (let i = 0; i < count; i++) {
+      const currRes = await addRecords(
+        records.slice(i * maxNumber, (i + 1) * maxNumber),
+        table,
+        lifeCircleHook
+      );
+      await delay(interval);
+      addRes.push(...currRes);
+    }
     return addRes;
   }
 }
