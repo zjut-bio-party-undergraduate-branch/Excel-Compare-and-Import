@@ -189,7 +189,7 @@ async function setOptionsField(
 async function addRecords(
   records: { [key: string]: IOpenCellValue }[],
   table: IWidgetTable,
-  lifeCircleHook: any,
+  lifeCircleHook: any
 ): Promise<(string | undefined)[]> {
   const addRes = await Promise.all(
     records.map(async (record, index) => {
@@ -216,14 +216,18 @@ async function batchRecords(
   table: IWidgetTable,
   maxNumber: number = 4000,
   interval: number = 3000,
-  lifeCircleHook: any,
+  lifeCircleHook: any
 ): Promise<(string | undefined)[]> {
   if (records.length === 0) return [];
   if (records.length <= maxNumber) {
     return await addRecords(records, table, lifeCircleHook);
   } else {
     const addRes: (string | undefined)[] = [];
-    const currRes = await addRecords(records.slice(0, maxNumber), table, lifeCircleHook);
+    const currRes = await addRecords(
+      records.slice(0, maxNumber),
+      table,
+      lifeCircleHook
+    );
     await delay(interval);
     const nextRes = await batchRecords(
       records.slice(maxNumber),
@@ -263,7 +267,13 @@ export async function importExcel(
   mode: importModes = importModes.append,
   lifeCircleHook: any = runLifeCircleEvent
 ) {
-  fieldsMaps = await setOptionsField(fieldsMaps, excelData, sheetIndex, table, lifeCircleHook);
+  fieldsMaps = await setOptionsField(
+    fieldsMaps,
+    excelData,
+    sheetIndex,
+    table,
+    lifeCircleHook
+  );
   console.log("fieldMaps", fieldsMaps);
   const excelRecords = excelData.sheets[sheetIndex].tableData.records;
   const newRecords: any[] = [];
@@ -410,7 +420,13 @@ export async function importExcel(
       number: newRecords.length,
     },
   });
-  const addRes = await batchRecords(newRecords, table, 4000, 3000, lifeCircleHook);
+  const addRes = await batchRecords(
+    newRecords,
+    table,
+    4000,
+    3000,
+    lifeCircleHook
+  );
   console.log("addRes", addRes);
   await lifeCircleHook(importLifeCircles.onEnd, {
     stage: importLifeCircles.onEnd,
