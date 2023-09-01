@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Upload, Close } from "@element-plus/icons-vue";
-import { genFileId } from "element-plus";
+import { genFileId, ElMessage } from "element-plus";
 import type { UploadInstance, UploadFile, UploadRawFile } from "element-plus";
 import * as XLSX from "xlsx";
 import type { ExcelDataInfo } from "@/types/types";
@@ -26,27 +26,35 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
           const sheet = workbook.Sheets[name];
           const tableData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
           if (tableData.length <= 1) return null;
-          // @ts-ignore
-          const fields = tableData[0]?.map((name: string) => ({
-            name: String(name),
-          }));
-          const records = tableData
-            .slice(1)
+
+          try {
             // @ts-ignore
-            .map((row: string[]) => {
-              const record: { [key: string]: string } = {};
-              row.forEach((value, index) => {
-                record[fields[index].name] = value ? String(value) : "";
+            const fields = tableData[0]?.map((name: string) => ({
+              name: String(name),
+            }));
+            const records = tableData
+              .slice(1)
+              // @ts-ignore
+              .map((row: string[]) => {
+                const record: { [key: string]: string } = {};
+                row.forEach((value, index) => {
+                  record[fields[index].name] = value ? String(value) : "";
+                });
+                return record;
+              })
+              .filter((record) => {
+                return Object.values(record).some((value) => {
+                  return value;
+                });
               });
-              return record;
-            })
-            .filter((record) => {
-              return Object.values(record).some((value) => {
-                return value;
-              });
-            });
+            return { name, tableData: { fields, records } };
+          } catch (e) {
+            console.log(e);
+            ElMessage.error(t("message.sheetError", { sheetName: name }));
+            return null;
+          }
+
           // console.log({ name, tableData: { fields, records } })
-          return { name, tableData: { fields, records } };
         }).filter((sheet) => sheet !== null);
         resolve({ sheets, name: file.name });
       } catch (e) {

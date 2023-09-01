@@ -62,6 +62,7 @@ export const zh = {
     chooseTableFirst: "请先选择一个表格",
     uploadExcelFirst: "请先上传Excel文件",
     importSuccess: "导入成功",
+    sheetError: "工作表“{sheetName}”格式错误"
   },
   loading: "加载中...",
   fieldType: {
