@@ -1,7 +1,7 @@
 import dayjs from "dayjs/esm/index.js";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import advancedFormat from 'dayjs/plugin/advancedFormat';
-import { IOpenTimestamp, checkers } from "@lark-base-open/web-api";
+import { IOpenTimestamp, checkers } from "@lark-base-open/js-sdk";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);

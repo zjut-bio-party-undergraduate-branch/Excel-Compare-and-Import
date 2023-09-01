@@ -1,5 +1,5 @@
 import { importModes, importExcel } from "./import";
-import { importWorkerInstance } from "./worker";
+// import { importWorkerInstance } from "./worker";
 import {
   importLifeCircles,
   addLifeCircleEvent,
@@ -7,16 +7,18 @@ import {
   removeLifeCircleEvent,
   clearLifeCircleEvent,
   runLifeCircleEvent,
+  lifeCircleEventParams
 } from "./lifeCircle";
 
 export {
   importModes,
-  importWorkerInstance,
+  // importWorkerInstance,
   importLifeCircles,
   addLifeCircleEvent,
   removeLifeCircleEvent,
   clearLifeCircleEvent,
   runLifeCircleEvent,
-  importExcel
+  importExcel,
+  
 };
-export type { lifeCircleEvent };
+export type { lifeCircleEvent, lifeCircleEventParams };

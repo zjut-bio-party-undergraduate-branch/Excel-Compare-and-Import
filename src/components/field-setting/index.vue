@@ -2,7 +2,7 @@
 import { ref, watch, computed } from "vue";
 import dayjs from "dayjs";
 import { InfoFilled } from "@element-plus/icons-vue";
-import { FieldType } from "@lark-base-open/web-api";
+import { FieldType } from "@lark-base-open/js-sdk";
 import { defaultBoolValue } from "@/utils/cellValue/checkBox";
 import { useI18n } from "vue-i18n";
 
@@ -21,6 +21,7 @@ const canSetType = [
   FieldType.DateTime,
   FieldType.MultiSelect,
   FieldType.Checkbox,
+  FieldType.User,
 ];
 
 const isVisible = ref(false);
@@ -127,6 +128,12 @@ defineExpose({
       </el-form-item>
       <el-form-item
         v-if="type === FieldType.MultiSelect"
+        :label="t('form.label.separator')"
+      >
+        <el-input v-model="settingInput"></el-input>
+      </el-form-item>
+      <el-form-item
+        v-if="type === FieldType.User"
         :label="t('form.label.separator')"
       >
         <el-input v-model="settingInput"></el-input>

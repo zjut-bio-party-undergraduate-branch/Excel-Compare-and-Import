@@ -1,7 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import { en } from './en'
 import { zh } from './zh'
-import { bitable } from '@lark-base-open/web-api'
+import { bitable } from '@lark-base-open/js-sdk'
 
 export const i18n = createI18n({
   locale: 'en',

@@ -6,7 +6,7 @@ import {
   ViewType,
   bitable,
   IFieldMeta,
-} from "@lark-base-open/web-api";
+} from "@lark-base-open/js-sdk";
 import type { ExcelDataInfo, fieldMap } from "@/types/types";
 import { ElLoading, ElMessage } from "element-plus";
 import { Setting, Lock, Refresh } from "@element-plus/icons-vue";
@@ -20,6 +20,7 @@ import fieldIcon from "@/components/field-icon/index.vue";
 import importInfo from "@/components/import-info/index.vue";
 import { importModes, importExcel, runLifeCircleEvent } from "@/utils/import";
 import { addLifeCircleEvent, importLifeCircles } from "@/utils/import";
+// import { importWorkerInstance } from "@/utils/import";
 
 const { t } = useI18n();
 
@@ -80,6 +81,9 @@ watch(
       }
       if (field.type === FieldType.MultiSelect) {
         field_map.config.separator = defaultSeparator;
+      }
+      if (field.type === FieldType.User) {
+        field_map.config.separator = ",";
       }
       if (field.type === FieldType.Checkbox) {
         field_map.config.bool_value = defaultBoolValue;
@@ -185,14 +189,6 @@ async function importAction() {
   const index = Index.value === "" ? null : Index.value;
   importLoading.value = true;
   importInfoRef.value.toggleVisible();
-  console.log({
-    fieldsMaps: JSON.parse(JSON.stringify(toRaw(settingColumns.value))),
-    excelData: toRaw(props.excelData),
-    sheet_index,
-    table: id,
-    index,
-    mode: mode.value,
-  });
   await importExcel(
     toRaw(settingColumns.value),
     toRaw(props.excelData),
@@ -250,6 +246,9 @@ function settingField(index: number, config: fieldMap["config"]) {
   if (type === FieldType.MultiSelect) {
     defaultSetting.value = config.separator;
   }
+  if (type === FieldType.User) {
+    defaultSetting.value = config.separator;
+  }
   if (type === FieldType.Checkbox) {
     defaultSetting.value = config.bool_value;
   }
@@ -264,6 +263,9 @@ function settingField(index: number, config: fieldMap["config"]) {
 function getFormat(value: any) {
   const type = settingColumns.value[currentSettingIndex.value].field.type;
   if (type === FieldType.MultiSelect) {
+    settingColumns.value[currentSettingIndex.value].config.separator = value;
+  }
+  if (type === FieldType.User) {
     settingColumns.value[currentSettingIndex.value].config.separator = value;
   }
   if (type === FieldType.Checkbox) {

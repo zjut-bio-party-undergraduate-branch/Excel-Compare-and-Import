@@ -3,8 +3,7 @@ import {
   FieldType,
   IMultiSelectFieldMeta,
   ISingleSelectFieldMeta,
-  IWidgetTable,
-} from "@lark-base-open/web-api";
+} from "@lark-base-open/js-sdk";
 import { fieldMap } from "@/types/types";
 import { dateTime, dateDefaultFormat } from "./date";
 import { multiSelect } from "./multiSelect";
@@ -17,13 +16,12 @@ import { currency } from "./currency";
 import { progress } from "./progress";
 import { rating } from "./rating";
 import { barCode } from "./barCode";
+import {User} from "./user";
 
-export async function getCellValue(
+export function getCellValue(
   fieldMap: fieldMap,
   value: string,
-  table: IWidgetTable
-): Promise<IOpenCellValue> {
-  console.log("input value", value);
+): IOpenCellValue {
   const type = fieldMap.field.type;
   const field = fieldMap.field;
   const config = fieldMap.config;
@@ -34,12 +32,11 @@ export async function getCellValue(
     case FieldType.DateTime:
       return dateTime(value, config?.format ?? dateDefaultFormat);
     case FieldType.SingleSelect:
-      return singleSelect(value, field as ISingleSelectFieldMeta, table);
+      return singleSelect(value, field as ISingleSelectFieldMeta);
     case FieldType.MultiSelect:
       return multiSelect(
         value,
         field as IMultiSelectFieldMeta,
-        table,
         config?.separator ?? ","
       );
     case FieldType.Number:
@@ -58,6 +55,8 @@ export async function getCellValue(
       return barCode(value) as IOpenCellValue;
     case FieldType.Phone:
       return phone(value);
+    case FieldType.User:
+      return User(value);
     default:
       return value;
   }

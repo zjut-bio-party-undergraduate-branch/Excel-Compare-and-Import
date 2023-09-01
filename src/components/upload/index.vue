@@ -22,22 +22,20 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
       try {
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: "binary" });
-        console.log("workbook", workbook);
         const sheets = workbook.SheetNames.map((name) => {
           const sheet = workbook.Sheets[name];
           const tableData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-          console.log("tableData", tableData)
           if (tableData.length <= 1) return null;
           // @ts-ignore
-          const fields = tableData[0]?.map((name: string) => ({ name }));
-          console.log(tableData);
+          const fields = tableData[0]?.map((name: string) => ({
+            name: String(name),
+          }));
           const records = tableData
             .slice(1)
             // @ts-ignore
             .map((row: string[]) => {
               const record: { [key: string]: string } = {};
               row.forEach((value, index) => {
-                console.log({ value, index }, value ? String(value) : "");
                 record[fields[index].name] = value ? String(value) : "";
               });
               return record;
@@ -49,7 +47,7 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
             });
           // console.log({ name, tableData: { fields, records } })
           return { name, tableData: { fields, records } };
-        }).filter(sheet => sheet !== null);
+        }).filter((sheet) => sheet !== null);
         resolve({ sheets, name: file.name });
       } catch (e) {
         reject(e);

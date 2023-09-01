@@ -8,6 +8,8 @@ export enum importLifeCircles {
   onSetOptionsFieldEnd = "onSetOptionsFieldEnd",
   beforeAnalysisRecords = "beforeAnalysisRecords",
   onAnalysisRecords = "onAnalysisRecords",
+  beforeUpdateRecords = "beforeUpdateRecords",
+  onUpdateRecords = "onUpdateRecords",
   beforeDeleteRecords = "beforeDeleteRecords",
   onDeleteRecords = "onDeleteRecords",
   beforeAddRecords = "beforeAddRecords",
@@ -24,22 +26,9 @@ export type lifeCircleEvent = (
   e: lifeCircleEventParams
 ) => Promise<void> | void;
 
-export interface importLifeCircleEvents {
-  beforeCheckFields: lifeCircleEvent[];
-  onCheckFields: lifeCircleEvent[];
-  beforeCheckOptions: lifeCircleEvent[];
-  onCheckOptions: lifeCircleEvent[];
-  beforeSetOptions: lifeCircleEvent[];
-  onSetOptions: lifeCircleEvent[];
-  onSetOptionsFieldEnd: lifeCircleEvent[];
-  beforeAnalysisRecords: lifeCircleEvent[];
-  onAnalysisRecords: lifeCircleEvent[];
-  beforeDeleteRecords: lifeCircleEvent[];
-  onDeleteRecords: lifeCircleEvent[];
-  beforeAddRecords: lifeCircleEvent[];
-  onAddRecords: lifeCircleEvent[];
-  onEnd: lifeCircleEvent[];
-}
+export type importLifeCircleEvents = {
+  [key in importLifeCircles]: lifeCircleEvent[];
+};
 
 export const lifeCircleEvents: importLifeCircleEvents = {
   beforeCheckFields: [],
@@ -51,6 +40,8 @@ export const lifeCircleEvents: importLifeCircleEvents = {
   onSetOptionsFieldEnd: [],
   beforeAnalysisRecords: [],
   onAnalysisRecords: [],
+  beforeUpdateRecords: [],
+  onUpdateRecords: [],
   beforeDeleteRecords: [],
   onDeleteRecords: [],
   beforeAddRecords: [],

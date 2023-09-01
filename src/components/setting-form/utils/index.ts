@@ -1,4 +1,4 @@
-import { FieldType } from "@lark-base-open/web-api";
+import { FieldType } from "@lark-base-open/js-sdk";
 
 export const ignoreFieldType = [
   FieldType.Lookup,
@@ -13,7 +13,7 @@ export const ignoreFieldType = [
   FieldType.Location,
   FieldType.AutoNumber,
   FieldType.GroupChat,
-  FieldType.User,
+  // FieldType.User,
   FieldType.Denied,
   FieldType.Attachment,
 ];

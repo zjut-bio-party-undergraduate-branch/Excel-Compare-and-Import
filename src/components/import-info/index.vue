@@ -14,6 +14,8 @@ import {
   onAnalysisRecords,
   beforeCheckOptions,
   onCheckOptions,
+  beforeUpdateRecords,
+  onUpdateRecords,
   beforeDeleteRecords,
   onDeleteRecords,
   beforeSetOptions,
@@ -32,6 +34,8 @@ addLifeCircleEvent(
 addLifeCircleEvent(importLifeCircles.onAnalysisRecords, onAnalysisRecords);
 addLifeCircleEvent(importLifeCircles.beforeCheckOptions, beforeCheckOptions);
 addLifeCircleEvent(importLifeCircles.onCheckOptions, onCheckOptions);
+addLifeCircleEvent(importLifeCircles.beforeUpdateRecords, beforeUpdateRecords);
+addLifeCircleEvent(importLifeCircles.onUpdateRecords, onUpdateRecords)
 addLifeCircleEvent(importLifeCircles.beforeDeleteRecords, beforeDeleteRecords);
 addLifeCircleEvent(importLifeCircles.onDeleteRecords, onDeleteRecords);
 addLifeCircleEvent(importLifeCircles.beforeSetOptions, beforeSetOptions);

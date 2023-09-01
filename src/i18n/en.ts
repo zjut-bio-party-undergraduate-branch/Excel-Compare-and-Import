@@ -84,6 +84,7 @@ export const en = {
     checkFieldTypes: "Check Field Types",
     setOptions: "Set Options of SingleSelect/MultiSelect",
     analysisRecords: "Analysis Records",
+    updateRecords: "Update Records",
     deleteRecords: "Delete same Records",
     addRecords: "Add new Records",
     success: "{successNumber} success",
@@ -91,6 +92,6 @@ export const en = {
     waiting: "{waitingNumber} waiting",
     checkFieldsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields",
     checkOptionsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
-    addRecordsMessage: "There will be 3 seconds between each 4000 records.",
+    addRecordsMessage: "There will be 4 seconds between each 4000 records.",
   }
 }

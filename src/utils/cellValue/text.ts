@@ -1,4 +1,4 @@
-import { IOpenSegmentType } from "@lark-base-open/web-api";
+import { IOpenSegmentType } from "@lark-base-open/js-sdk";
 
 export function text(value: string) {
   const res= {
