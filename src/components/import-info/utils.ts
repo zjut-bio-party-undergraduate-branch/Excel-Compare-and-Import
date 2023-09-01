@@ -1,7 +1,6 @@
 import { ref } from "vue";
 import { i18n } from "@/i18n";
 import { lifeCircleEventParams } from "@/utils/import/lifeCircle";
-import { ElMessage } from "element-plus";
 
 export interface stage {
   state: string;
@@ -22,8 +21,9 @@ const stageIndex = {
   checkOptions: 1,
   setOptions: 2,
   analysisRecords: 3,
-  deleteRecords: 4,
-  addRecords: 5,
+  updateRecords: 4,
+  deleteRecords: 5,
+  addRecords: 6,
 };
 
 export const currentStage = ref(0);
@@ -80,6 +80,19 @@ export const defaultStages = () => [
     name: stageIndex["analysisRecords"],
     title: "importInfo.analysisRecords",
     index: stageIndex["analysisRecords"],
+  },
+  {
+    state: "waiting",
+    disabled: true,
+    message: "",
+    progress: false,
+    stage: "updateRecords",
+    success: 0,
+    error: 0,
+    number: 0,
+    name: stageIndex["updateRecords"],
+    title: "importInfo.updateRecords",
+    index: stageIndex["updateRecords"],
   },
   {
     state: "waiting",
@@ -240,12 +253,49 @@ export function beforeAnalysisRecords(e: lifeCircleEventParams) {
 }
 
 export function onAnalysisRecords(e: lifeCircleEventParams) {
-  const { records } = e.data;
+  const { updateNumber, addNumber, message } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["analysisRecords"]
   );
-  stages.value[index].success = records.length;
-  if (records.length === stages.value[index].number) {
+  stages.value[index].success = updateNumber + addNumber;
+  stages.value[index].message = message;
+  if (stages.value[index].success === stages.value[index].number) {
+    stages.value[index].progress = false;
+    stages.value[index].state = "success";
+  }
+}
+
+export function beforeUpdateRecords(e: lifeCircleEventParams) {
+  const { updateList } = e.data;
+  const index = stages.value.findIndex(
+    (stage) => stage.index === stageIndex["updateRecords"]
+  );
+  stages.value[index].number = updateList.length;
+  if (updateList.length > 0) {
+    stages.value[index].state = "loading";
+    stages.value[index].progress = true;
+  } else {
+    stages.value[index].state = "success";
+    stages.value[index].progress = false;
+  }
+  stages.value[index].disabled = false;
+  currentStage.value = stageIndex["updateRecords"];
+}
+
+export function onUpdateRecords(e: lifeCircleEventParams) {
+  const { res } = e.data;
+  const index = stages.value.findIndex(
+    (stage) => stage.index === stageIndex["updateRecords"]
+  );
+  if (res) {
+    stages.value[index].success += 500;
+  } else {
+    stages.value[index].error += 500;
+  }
+  if (
+    stages.value[index].success + stages.value[index].error ===
+    stages.value[index].number
+  ) {
     stages.value[index].progress = false;
     stages.value[index].state = "success";
   }
@@ -274,9 +324,9 @@ export function onDeleteRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["deleteRecords"]
   );
   if (res) {
-    stages.value[index].success += 1;
+    stages.value[index].success += 500;
   } else {
-    stages.value[index].error += 1;
+    stages.value[index].error += 500;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -311,9 +361,9 @@ export function onAddRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["addRecords"]
   );
   if (res) {
-    stages.value[index].success += 1;
+    stages.value[index].success += 500;
   } else {
-    stages.value[index].error += 1;
+    stages.value[index].error += 500;
   }
   if (
     stages.value[index].success + stages.value[index].error ===

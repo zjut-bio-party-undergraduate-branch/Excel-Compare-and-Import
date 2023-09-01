@@ -1,4 +1,4 @@
-import { IOpenSegmentType, IOpenUrlSegment, checkers } from '@lark-base-open/web-api';
+import { IOpenSegmentType, IOpenUrlSegment, checkers } from '@lark-base-open/js-sdk';
 
 
 export function url(value: string): IOpenUrlSegment[] {
@@ -10,7 +10,6 @@ export function url(value: string): IOpenUrlSegment[] {
     },
   ] as IOpenUrlSegment[];
   if (checkers.isSegments(res)) return res;
-  console.log("not a url", value, res);
   return [
     {
       text: "",

@@ -1,10 +1,11 @@
-import { IWidgetTable, bitable } from "@lark-base-open/web-api";
+import { IWidgetTable, bitable } from "@lark-base-open/js-sdk";
 import { importExcel, importModes } from "./import";
 import {
   importLifeCircles,
   lifeCircleEventParams,
 } from "./lifeCircle";
 import { fieldMap, ExcelDataInfo } from "@/types/types";
+
 function postLifeCircleEventInWorker(
   lifeCircle: importLifeCircles,
   e: lifeCircleEventParams
@@ -15,7 +16,7 @@ function postLifeCircleEventInWorker(
   });
 }
 
-onmessage = async (e) => {
+self.onmessage = async (e) => {
   console.log("onmessage", e);
   const {
     fieldsMaps,
@@ -39,4 +40,5 @@ onmessage = async (e) => {
     mode as importModes,
     postLifeCircleEventInWorker
   );
+  postMessage("end");
 };

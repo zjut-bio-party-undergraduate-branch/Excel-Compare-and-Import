@@ -84,6 +84,7 @@ export const zh = {
     checkFieldTypes: "检查字段类型",
     setOptions: "设置单选与多选选项",
     analysisRecords: "解析记录",
+    updateRecords: "更新记录",
     deleteRecords: "删除重复记录",
     addRecords: "添加新记录",
     success: "{successNumber} 成功",
@@ -91,6 +92,10 @@ export const zh = {
     waiting: "{waitingNumber} 等待",
     checkFieldsMessage: "共有 {totalNumber} 个单选/多选字段",
     checkOptionsMessage: "共有 {totalNumber} 个单选/多选字段有新选项",
-    addRecordsMessage: "每上传4000条记录会停留3s以便后台存储数据"
+    addRecordsMessage: "按照500条/次的速度添加新记录",
+    analysisRecordsMessage: "{updateNumber}更新，{deleteNumber}删除，{addNumber}添加",
+    findSameRecord: "正在检索记录{indexValue}，找到{sameNumber}条相同记录",
+    compareRecord: "正在比对记录“{indexValue}”的{fieldName}字段",
+    analysisRecord: "正在解析记录“{indexValue}”",
   }
 }
