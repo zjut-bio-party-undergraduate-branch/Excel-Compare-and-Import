@@ -62,6 +62,7 @@ export const en = {
     chooseTableFirst: "Please choose a table first",
     uploadExcelFirst: "Please upload Excel file first",
     importSuccess: "Import success",
+    sheetError: "Sheet \"{sheetName}\" has wrong format",
   },
   loading: "Loading...",
   fieldType: {
