@@ -97,5 +97,7 @@ export const zh = {
     findSameRecord: "正在检索记录{indexValue}，找到{sameNumber}条相同记录",
     compareRecord: "正在比对记录“{indexValue}”的{fieldName}字段",
     analysisRecord: "正在解析记录“{indexValue}”",
+    getIndexField: "正在获取索引字段...",
+    getIndexFieldValue: "正在获取索引字段值...",
   }
 }

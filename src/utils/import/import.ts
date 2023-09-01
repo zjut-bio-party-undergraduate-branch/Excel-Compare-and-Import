@@ -453,7 +453,25 @@ export async function importExcel(
     const excelIndexField: fieldMap = fieldsMaps.find(
       (fieldMap) => fieldMap.excel_field === index
     ) as fieldMap;
+    await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
+      stage: importLifeCircles.onAnalysisRecords,
+      data: {
+        addNumber: newRecords.length,
+        updateNumber: updateList.length,
+        deleteNumber: deleteList.length,
+        message: i18n.global.t("importInfo.getIndexField"),
+      },
+    });
     const indexField = await table.getFieldByName(index);
+    await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
+      stage: importLifeCircles.onAnalysisRecords,
+      data: {
+        addNumber: newRecords.length,
+        updateNumber: updateList.length,
+        deleteNumber: deleteList.length,
+        message: i18n.global.t("importInfo.getIndexFieldValue"),
+      },
+    });
     const tableIndexRecords: (IFieldValue | IUndefinedFieldValue)[] =
       await indexField.getFieldValueList();
     console.log("excelIndexField", excelIndexField, tableIndexRecords);
