@@ -47,7 +47,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-link href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc"><el-icon><Link/></el-icon>使用指南</el-link>
+  <el-link target="blank" href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc"><el-icon><Link/></el-icon>使用指南</el-link>
   <div v-if="isActive">
     <upload ref="uploadRef" />
   </div>
