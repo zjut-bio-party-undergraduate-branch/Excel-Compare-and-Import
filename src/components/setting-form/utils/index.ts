@@ -13,7 +13,6 @@ export const ignoreFieldType = [
   FieldType.Location,
   FieldType.AutoNumber,
   FieldType.GroupChat,
-  // FieldType.User,
   FieldType.Denied,
   FieldType.Attachment,
 ];
