@@ -56,6 +56,7 @@ async function readExcel(file: UploadFile): Promise<ExcelDataInfo | null> {
 
           // console.log({ name, tableData: { fields, records } })
         }).filter((sheet) => sheet !== null);
+        //@ts-ignore
         resolve({ sheets, name: file.name });
       } catch (e) {
         reject(e);
