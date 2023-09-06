@@ -5,9 +5,10 @@ on:
     branches:
       - main
   pull_request:
-    branches: [main, master]
-  schedule:
-    - cron: 30 17 * * *
+    branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
@@ -34,5 +35,4 @@ jobs:
       - name: Deploy GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          BRANCH: pages
-          FOLDER: dist
+          folder: dist
