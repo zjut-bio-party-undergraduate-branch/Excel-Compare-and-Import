@@ -18,7 +18,7 @@ import { defaultBoolValue } from "@/utils/cellValue/checkBox";
 import { useI18n } from "vue-i18n";
 import fieldIcon from "@/components/field-icon/index.vue";
 import importInfo from "@/components/import-info/index.vue";
-import { importExcel } from "@/utils/import";
+import { importExcel, importModes } from "@/utils/import";
 
 const { t } = useI18n();
 
@@ -47,7 +47,7 @@ const excelFields = computed(
   () => props.excelData?.sheets[sheetIndex.value]?.tableData.fields ?? []
 );
 const defaultSetting = ref<any>(dateDefaultFormat);
-const mode = ref<"append" | "merge_direct" | "compare_merge">("append");
+const mode = ref<importModes>(importModes.append);
 const importLoading = ref(false);
 const currentSettingIndex = ref(0);
 const settingType = ref<FieldType>(FieldType.DateTime);
@@ -95,12 +95,26 @@ watch([() => props.excelData, () => tableFields.value], () => {
 watch(
   () => modeSelect.value,
   (newVal) => {
-    mode.value = newVal[newVal.length - 1] as
-      | "append"
-      | "merge_direct"
-      | "compare_merge";
+    mode.value = newVal[newVal.length - 1] as importModes;
   }
 );
+
+const filters = computed(() => {
+  return settingColumns.value.map((item) => {
+    return {
+      text: item.field.name,
+      value: item.field.name,
+    };
+  });
+});
+
+function filterHandler(
+  value: string,
+  row: fieldMap
+  // column: TableColumnCtx<fieldMap>
+) {
+  return row.field.name === value;
+}
 
 async function getActiveTable(ignoreFields = ignoreFieldType) {
   const selection = await bitable.base.getSelection();
@@ -348,7 +362,13 @@ defineExpose({
         </div>
       </template>
       <el-table ref="chooseRef" stripe max-height="250" :data="settingColumns">
-        <el-table-column :label="t('table.baseField')" prop="field.name">
+        <el-table-column
+          :label="t('table.baseField')"
+          :filters="filters"
+          :filter-method="filterHandler"
+          prop="field.name"
+          filter-placement="bottom-end"
+        >
           <template #default="scope">
             <field-icon :type="scope.row.field.type" />
             {{ scope.row.field.name }}
