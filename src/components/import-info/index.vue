@@ -14,11 +14,32 @@ import {
   onAnalysisRecords,
   beforeCheckOptions,
   onCheckOptions,
+  beforeUpdateRecords,
+  onUpdateRecords,
   beforeDeleteRecords,
   onDeleteRecords,
   beforeSetOptions,
   onSetOptions,
 } from "./utils";
+import { addLifeCircleEvent, importLifeCircles } from "@/utils/import";
+
+addLifeCircleEvent(importLifeCircles.beforeCheckFields, beforeCheckFields);
+addLifeCircleEvent(importLifeCircles.onCheckFields, onCheckFields);
+addLifeCircleEvent(importLifeCircles.beforeAddRecords, beforeAddRecords);
+addLifeCircleEvent(importLifeCircles.onAddRecords, onAddRecords);
+addLifeCircleEvent(
+  importLifeCircles.beforeAnalysisRecords,
+  beforeAnalysisRecords
+);
+addLifeCircleEvent(importLifeCircles.onAnalysisRecords, onAnalysisRecords);
+addLifeCircleEvent(importLifeCircles.beforeCheckOptions, beforeCheckOptions);
+addLifeCircleEvent(importLifeCircles.onCheckOptions, onCheckOptions);
+addLifeCircleEvent(importLifeCircles.beforeUpdateRecords, beforeUpdateRecords);
+addLifeCircleEvent(importLifeCircles.onUpdateRecords, onUpdateRecords)
+addLifeCircleEvent(importLifeCircles.beforeDeleteRecords, beforeDeleteRecords);
+addLifeCircleEvent(importLifeCircles.onDeleteRecords, onDeleteRecords);
+addLifeCircleEvent(importLifeCircles.beforeSetOptions, beforeSetOptions);
+addLifeCircleEvent(importLifeCircles.onSetOptions, onSetOptions);
 
 const { t } = useI18n();
 
@@ -35,20 +56,6 @@ function refresh() {
 }
 
 defineExpose({
-  importCallback: {
-    beforeCheckFields,
-    onCheckFields,
-    beforeAddRecords,
-    onAddRecords,
-    beforeAnalysisRecords,
-    onAnalysisRecords,
-    beforeCheckOptions,
-    onCheckOptions,
-    beforeDeleteRecords,
-    onDeleteRecords,
-    beforeSetOptions,
-    onSetOptions,
-  },
   toggleVisible,
   refresh,
 });

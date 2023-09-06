@@ -62,6 +62,7 @@ export const en = {
     chooseTableFirst: "Please choose a table first",
     uploadExcelFirst: "Please upload Excel file first",
     importSuccess: "Import success",
+    sheetError: "Sheet \"{sheetName}\" has wrong format",
   },
   loading: "Loading...",
   fieldType: {
@@ -84,6 +85,7 @@ export const en = {
     checkFieldTypes: "Check Field Types",
     setOptions: "Set Options of SingleSelect/MultiSelect",
     analysisRecords: "Analysis Records",
+    updateRecords: "Update Records",
     deleteRecords: "Delete same Records",
     addRecords: "Add new Records",
     success: "{successNumber} success",
@@ -91,6 +93,10 @@ export const en = {
     waiting: "{waitingNumber} waiting",
     checkFieldsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields",
     checkOptionsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
-    addRecordsMessage: "There will be 3 seconds between each 4000 records.",
+    addRecordsMessage: "There will be 4 seconds between each 4000 records.",
+    analysisRecordsMessage: "{updateNumber} Update, {deleteNumber}Delete, {addNumber}Add",
+    findSameRecord: "Searching for record {indexValue}, finding {sameNumber} same records",
+    compareRecord: "Comparing record \"{indexValue}\"'s {fieldName} field",
+    analysisRecord: "Analyzing record \"{indexValue}\"",
   }
 }

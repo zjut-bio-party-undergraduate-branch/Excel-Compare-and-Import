@@ -2,9 +2,10 @@
 import settingForm from "@/components/setting-form/index.vue";
 import upload from "@/components/upload/index.vue";
 import { ref, onMounted, watch, onUnmounted } from "vue";
-import { bitable, ThemeModeType } from "@lark-base-open/web-api";
-import { isDark } from "./utils";
+import { bitable, ThemeModeType } from "@lark-base-open/js-sdk";
+import { isDark } from "@/utils/index";
 import { useI18n } from "vue-i18n";
+import { Link } from "@element-plus/icons-vue";
 
 const settingRef = ref();
 const uploadRef = ref();
@@ -46,6 +47,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <el-link target="blank" href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc"><el-icon><Link/></el-icon>使用指南</el-link>
   <div v-if="isActive">
     <upload ref="uploadRef" />
   </div>

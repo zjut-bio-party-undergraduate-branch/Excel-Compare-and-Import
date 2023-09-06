@@ -6,18 +6,21 @@ import {
   ViewType,
   bitable,
   IFieldMeta,
-} from "@lark-base-open/web-api";
+} from "@lark-base-open/js-sdk";
 import type { ExcelDataInfo, fieldMap } from "@/types/types";
 import { ElLoading, ElMessage } from "element-plus";
 import { Setting, Lock, Refresh } from "@element-plus/icons-vue";
-import { ignoreFieldType, importExcel } from "./utils";
-import { dateDefaultFormat } from "./utils/date";
+import { ignoreFieldType } from "./utils";
+import { dateDefaultFormat } from "@/utils/cellValue/date";
 import fieldSetting from "@/components/field-setting/index.vue";
-import { defaultSeparator } from "./utils/multiSelect";
-import { defaultBoolValue } from "./utils/checkBox";
+import { defaultSeparator } from "@/utils/cellValue/multiSelect";
+import { defaultBoolValue } from "@/utils/cellValue/checkBox";
 import { useI18n } from "vue-i18n";
 import fieldIcon from "@/components/field-icon/index.vue";
 import importInfo from "@/components/import-info/index.vue";
+import { importModes, importExcel, runLifeCircleEvent } from "@/utils/import";
+import { addLifeCircleEvent, importLifeCircles } from "@/utils/import";
+// import { importWorkerInstance } from "@/utils/import";
 
 const { t } = useI18n();
 
@@ -30,7 +33,7 @@ const props = defineProps({
 
 // const modeList = ref<any[]>([]);
 
-const modeSelect = ref(["append"]);
+const modeSelect = ref([importModes.append]);
 
 const isActive = ref(false);
 const form = ref();
@@ -46,12 +49,22 @@ const excelFields = computed(
   () => props.excelData?.sheets[sheetIndex.value]?.tableData.fields ?? []
 );
 const defaultSetting = ref<any>(dateDefaultFormat);
-const mode = ref<"append" | "merge_direct" | "compare_merge">("append");
+const mode = ref<importModes>(importModes.append);
 const importLoading = ref(false);
 const currentSettingIndex = ref(0);
 const settingType = ref<FieldType>(FieldType.DateTime);
 const settingColumns = ref<fieldMap[]>([]);
 
+addLifeCircleEvent(importLifeCircles.onEnd, () => {
+  ElMessage({
+    message: t("message.importSuccess"),
+    grouping: true,
+    type: "success",
+    duration: 2000,
+  });
+  importLoading.value = false;
+  importInfoRef.value.refresh();
+});
 watch(
   () => tableFields.value,
   (newVal) => {
@@ -68,6 +81,9 @@ watch(
       }
       if (field.type === FieldType.MultiSelect) {
         field_map.config.separator = defaultSeparator;
+      }
+      if (field.type === FieldType.User) {
+        field_map.config.separator = ",";
       }
       if (field.type === FieldType.Checkbox) {
         field_map.config.bool_value = defaultBoolValue;
@@ -94,10 +110,7 @@ watch([() => props.excelData, () => tableFields.value], () => {
 watch(
   () => modeSelect.value,
   (newVal) => {
-    mode.value = newVal[newVal.length - 1] as
-      | "append"
-      | "merge_direct"
-      | "compare_merge";
+    mode.value = newVal[newVal.length - 1] as importModes;
   }
 );
 
@@ -183,19 +196,7 @@ async function importAction() {
     table,
     index,
     mode.value,
-    {
-      ...importInfoRef.value.importCallback,
-      end: () => {
-        ElMessage({
-          message: t("message.importSuccess"),
-          grouping: true,
-          type: "success",
-          duration: 2000,
-        });
-        importLoading.value = false;
-        importInfoRef.value.refresh();
-      },
-    }
+    runLifeCircleEvent
   );
 }
 
@@ -240,16 +241,12 @@ onMounted(() => {
   refresh();
 });
 
-// async function deleteTest() {
-//   const table = await bitable.base.getTableById(tableId.value);
-//   const recordIds = await table.getRecordIdList(); // 获取所有记录id
-//   const res = await table.deleteRecord(recordIds[0]);
-//   console.log("delete", recordIds[0], res);
-// }
-
 function settingField(index: number, config: fieldMap["config"]) {
   const type = settingColumns.value[index].field.type;
   if (type === FieldType.MultiSelect) {
+    defaultSetting.value = config.separator;
+  }
+  if (type === FieldType.User) {
     defaultSetting.value = config.separator;
   }
   if (type === FieldType.Checkbox) {
@@ -268,6 +265,9 @@ function getFormat(value: any) {
   if (type === FieldType.MultiSelect) {
     settingColumns.value[currentSettingIndex.value].config.separator = value;
   }
+  if (type === FieldType.User) {
+    settingColumns.value[currentSettingIndex.value].config.separator = value;
+  }
   if (type === FieldType.Checkbox) {
     settingColumns.value[currentSettingIndex.value].config.bool_value = value;
   }
@@ -280,7 +280,7 @@ function getFormat(value: any) {
 function getModeList(): any[] {
   return [
     {
-      value: "append",
+      value: importModes.append,
       label: t("mode.append"),
     },
     {
@@ -288,11 +288,11 @@ function getModeList(): any[] {
       label: t("mode.merge"),
       children: [
         {
-          value: "merge_direct",
+          value: importModes.merge_direct,
           label: t("mode.mergeDirect"),
         },
         {
-          value: "compare_merge",
+          value: importModes.compare_merge,
           label: t("mode.compareMerge"),
         },
       ],
@@ -436,6 +436,4 @@ defineExpose({
     :type="settingType"
   ></fieldSetting>
   <importInfo ref="importInfoRef" />
-  <!-- <el-button type="default" @click="autoFill">Auto Fill</el-button> -->
-  <!-- <el-button type="danger" @click="deleteTest">Delete Test</el-button> -->
 </template>

@@ -1,6 +1,6 @@
 {
   "name": "Excel Compare and Import",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "Excel Compare and Import",
   "scripts": {

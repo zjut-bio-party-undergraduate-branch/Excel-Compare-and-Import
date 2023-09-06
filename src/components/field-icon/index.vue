@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Calendar, Phone } from "@element-plus/icons-vue";
-import { FieldType } from "@lark-base-open/web-api";
+import { Calendar, Phone, User } from "@element-plus/icons-vue";
+import { FieldType } from "@lark-base-open/js-sdk";
 import textIcon from "@/components/icons/text-icon.vue";
 import barCodeIcon from "@/components/icons/barCode-icon.vue";
 import multiSelectIcon from "@/components/icons/multiSelect-icon.vue";
@@ -32,29 +32,31 @@ const iconList: { [key: number]: any } = {
   [FieldType.Progress]: progressIcon,
   [FieldType.Rating]: ratingIcon,
   [FieldType.Url]: urlIcon,
+  [FieldType.User]: User
 };
 
 const nameList: { [key: number]: string } = {
-  [FieldType.DateTime]: 'dateTime',
-  [FieldType.Checkbox]: 'checkBox',
-  [FieldType.Phone]: 'phone',
-  [FieldType.Text]: 'text',
-  [FieldType.Barcode]: 'barCode',
-  [FieldType.MultiSelect]: 'multiSelect',
-  [FieldType.SingleSelect]: 'singleSelect',
-  [FieldType.Currency]: 'currency',
-  [FieldType.Number]: 'number',
-  [FieldType.Progress]: 'progress',
-  [FieldType.Rating]: 'rating',
-  [FieldType.Url]: 'url',
+  [FieldType.DateTime]: "dateTime",
+  [FieldType.Checkbox]: "checkBox",
+  [FieldType.Phone]: "phone",
+  [FieldType.Text]: "text",
+  [FieldType.Barcode]: "barCode",
+  [FieldType.MultiSelect]: "multiSelect",
+  [FieldType.SingleSelect]: "singleSelect",
+  [FieldType.Currency]: "currency",
+  [FieldType.Number]: "number",
+  [FieldType.Progress]: "progress",
+  [FieldType.Rating]: "rating",
+  [FieldType.Url]: "url",
+  [FieldType.User]: "user",
 };
 </script>
 
 <template>
   <el-tooltip>
-  <template #content>
-    <span>{{ $t(`fieldType.${nameList[type]}`) }}</span>
-  </template>
+    <template #content>
+      <span>{{ $t(`fieldType.${nameList[type]}`) }}</span>
+    </template>
     <el-icon><component :is="iconList[type]" /></el-icon>
   </el-tooltip>
 </template>
