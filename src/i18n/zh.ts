@@ -6,6 +6,7 @@ export const zh = {
     import: '导入',
     autoFill: '自动填充',
   },
+  guide: "使用指南",
   h: {
     upload: "上传",
     settings: "设置",

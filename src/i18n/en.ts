@@ -6,6 +6,7 @@ export const en = {
     import: 'Import',
     autoFill: 'Auto Fill',
   },
+  guide: "Guide Book",
   h: {
     upload: "Upload",
     settings: "Settings",
