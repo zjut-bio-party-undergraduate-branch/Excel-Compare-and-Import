@@ -5,6 +5,7 @@
   "description": "Excel Compare and Import",
   "scripts": {
     "dev": "vite",
+    "github:build": "vite build --base /Excel-Compare-and-Import/",
     "build": "vite build",
     "preview": "vite preview --port 4173",
     "createData": "npx vite-node ./scripts/createTestData.ts -n"
@@ -17,7 +18,7 @@
     "url": "git+https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import.git"
   },
   "dependencies": {
-    "@lark-base-open/js-sdk": "^0.2.0-alpha.0",
+    "@lark-base-open/js-sdk": "^0.2.1",
     "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.6",
