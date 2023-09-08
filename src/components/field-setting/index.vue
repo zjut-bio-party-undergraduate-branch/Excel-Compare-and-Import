@@ -124,7 +124,7 @@ defineExpose({
         v-if="type === FieldType.DateTime"
         :label="t('form.label.example')"
       >
-        <el-input v-model="dateExample" disabled></el-input>
+        <el-input v-model="dateExample" readonly></el-input>
       </el-form-item>
       <el-form-item
         v-if="type === FieldType.MultiSelect"
