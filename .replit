@@ -1,4 +1,4 @@
-run = "npm run dev"
+run = "npm run dev:Beta"
 hidden = [".config", "package-lock.json", "tsconfig.json"]
 
 [packager]
@@ -26,5 +26,5 @@ requiredFiles = [".replit", "replit.nix", ".config"]
     start = "typescript-language-server --stdio"
 
 [deployment]
-build = ["sh", "-c", "npm run build"]
+build = ["sh", "-c", "npm run build:Stable"]
 run = ["sh", "-c", "npm run preview"]
