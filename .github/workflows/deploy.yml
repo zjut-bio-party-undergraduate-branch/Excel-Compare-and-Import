@@ -19,19 +19,13 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: npm
       - run: npm install --frozen-lockfile
 
       - name: Build
         run: npm run github:build
 
-      # - name: Deploy
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: docs/.vitepress/dist
-          # cname: example.com # if wanna deploy to custom domain
       - name: Deploy GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

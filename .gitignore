@@ -1,6 +1,7 @@
 node_modules
 dist
 test/data/
+.config
 
 # IDEs and editors
 
