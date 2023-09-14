@@ -1,48 +1,110 @@
 /// <reference types="vitest" />
 import path from "path"
-import { defineConfig } from "vite"
+import { defineConfig, loadEnv } from "vite"
 import vue from "@vitejs/plugin-vue"
 import AutoImport from "unplugin-auto-import/vite"
 import Components from "unplugin-vue-components/vite"
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers"
-import { Stage } from "./plugins/stage"
+import { Meta } from "./plugins/meta"
+import fs from "fs-extra"
+
+type Author = {
+  name: string
+  email: string
+  url: string
+}
+
+function resolveAuthor(author: string | Author) {
+  if (typeof author === "string") {
+    const authorArr = author.split(" ")
+    if (authorArr.length === 1) {
+      return {
+        name: authorArr[0],
+        email: "",
+        url: "",
+      }
+    } else {
+      const email = author.match(/(?<=\<)(.*)(?=\>)/g)?.[0] ?? ""
+
+      const url = author.match(/(?<=\()(.*)(?=\))/g)?.[0] ?? ""
+
+      const name = author
+        .replace(/\<.*\>/g, "")
+        .replace(/\(.*\)/g, "")
+        .trim()
+      return {
+        name,
+        email,
+        url,
+      }
+    }
+  } else {
+    return author
+  }
+}
+
+const pkg = fs.readJSONSync(path.resolve("./package.json"))
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  server: {
-    host: true,
-  },
-  plugins: [
-    vue(),
-    AutoImport({
-      resolvers: [ElementPlusResolver()],
-    }),
-    Components({
-      resolvers: [ElementPlusResolver()],
-    }),
-    Stage({
-      stage: process.env.stage ?? "Stable",
-    }),
-  ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "vue-i18n": "vue-i18n/dist/vue-i18n.esm-bundler.js",
+export default ({ mode }) => {
+  const env = loadEnv(mode, process.cwd())
+  console.log(env)
+  return defineConfig({
+    server: {
+      host: true,
     },
-  },
-  test: {
-    environment: "jsdom",
-    reporters: ["html", "default"],
-    outputFile: "./dist/test/report.html",
-    coverage: {
-      reporter: ["html", "json", "text"],
-      provider: "v8",
-      enabled: true,
-      reportsDirectory: "./dist/test/coverage",
+    plugins: [
+      vue(),
+      AutoImport({
+        resolvers: [ElementPlusResolver()],
+      }),
+      Components({
+        resolvers: [ElementPlusResolver()],
+      }),
+      Meta({
+        stage: env.VITE_STAGE,
+        dependencies: Object.keys(pkg.dependencies).map((v: string) => {
+          const dependencePkg = fs.readJSONSync(
+            path.resolve("./node_modules", v, "package.json"),
+          )
+          return {
+            name: v,
+            version: pkg.dependencies[v],
+            description: dependencePkg.description,
+            homepage: dependencePkg.homepage,
+            author: resolveAuthor(dependencePkg.author),
+          }
+        }),
+        author: resolveAuthor(pkg.author),
+        version: pkg.version,
+        description: pkg.description,
+        homepage: pkg.homepage,
+        bugs: pkg.bugs,
+        repository: pkg.repository,
+        name: pkg.name,
+        license: pkg.license,
+      }),
+    ],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+        "vue-i18n": "vue-i18n/dist/vue-i18n.esm-bundler.js",
+      },
     },
-    deps: {
-      interopDefault: true,
-      moduleDirectories: ["node_modules"],
+    test: {
+      environment: "jsdom",
+      reporters: ["html", "default"],
+      outputFile: path.resolve("./dist/test/report.html"),
+      coverage: {
+        reporter: ["html", "json", "text"],
+        provider: "v8",
+        enabled: true,
+        reportsDirectory: path.resolve("./dist/test/coverage"),
+      },
+      deps: {
+        interopDefault: true,
+        moduleDirectories: ["node_modules"],
+      },
     },
-  },
-})
+  })
+}

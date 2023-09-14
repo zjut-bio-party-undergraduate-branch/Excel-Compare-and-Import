@@ -26,5 +26,5 @@ requiredFiles = [".replit", "replit.nix", ".config"]
     start = "typescript-language-server --stdio"
 
 [deployment]
-build = ["sh", "-c", "npm run build:Stable"]
+build = ["sh", "-c", "npm run build"]
 run = ["sh", "-c", "npm run preview"]

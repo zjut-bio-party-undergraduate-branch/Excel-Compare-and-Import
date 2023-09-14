@@ -1,3 +1,4 @@
-import { useDark } from '@vueuse/core';
+import { useDark } from "@vueuse/core"
+export * from "./useBitable"
 
-export const isDark = useDark();
+export const isDark = useDark()

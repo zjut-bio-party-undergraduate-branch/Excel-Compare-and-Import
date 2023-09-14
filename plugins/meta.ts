@@ -1,8 +1,8 @@
-const ID = "/virtual-stage"
+const ID = "/virtual-meta"
 
-export function Stage(stage: { [key: string]: any }) {
+export function Meta(stage: { [key: string]: any }) {
   return {
-    name: "stage",
+    name: "meta",
     resolveId(id: string) {
       return id === ID ? ID : null
     },
