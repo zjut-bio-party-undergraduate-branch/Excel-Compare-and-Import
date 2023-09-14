@@ -2,6 +2,7 @@ node_modules
 dist
 test/data/
 .config
+coverage
 
 # IDEs and editors
 
