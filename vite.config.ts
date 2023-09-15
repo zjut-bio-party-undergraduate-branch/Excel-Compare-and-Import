@@ -48,7 +48,6 @@ const pkg = fs.readJSONSync(path.resolve("./package.json"))
 // https://vitejs.dev/config/
 export default ({ mode }) => {
   const env = loadEnv(mode, process.cwd())
-  console.log(env)
   return defineConfig({
     server: {
       host: true,
