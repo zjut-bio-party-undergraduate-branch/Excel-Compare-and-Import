@@ -13,6 +13,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.repository == 'zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import'
     steps:
       - uses: actions/checkout@v3
         with:
