@@ -80,8 +80,12 @@ export default ({ mode }) => {
         homepage: pkg.homepage,
         bugs: pkg.bugs,
         repository: pkg.repository,
-        name: pkg.name,
+        name: pkg.name
+          .replace(/_/g, " ")
+          .toLowerCase()
+          .replace(/( |^)[a-z]/g, (L: string) => L.toUpperCase()),
         license: pkg.license,
+        keywords: pkg.keywords,
       }),
     ],
     resolve: {
@@ -93,17 +97,18 @@ export default ({ mode }) => {
     test: {
       environment: "jsdom",
       reporters: ["html", "default"],
-      outputFile: path.resolve("./dist/test/report.html"),
+      outputFile: path.resolve("./public/test/index.html"),
       coverage: {
         reporter: ["html", "json", "text"],
         provider: "v8",
         enabled: true,
-        reportsDirectory: path.resolve("./dist/test/coverage"),
+        reportsDirectory: path.resolve("./public/test/coverage"),
       },
       deps: {
         interopDefault: true,
         moduleDirectories: ["node_modules"],
       },
+      include: ["test/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
     },
   })
 }

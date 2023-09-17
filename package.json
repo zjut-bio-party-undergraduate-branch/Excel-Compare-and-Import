@@ -12,7 +12,9 @@
     "createData": "npx vite-node ./scripts/createTestData.ts -n",
     "prepare": "husky install",
     "style": "npx prettier . --write",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:u": "vitest -u",
+    "typecheck": "vitest typecheck"
   },
   "keywords": [
     "Excel",
@@ -32,6 +34,7 @@
   },
   "dependencies": {
     "@lark-base-open/js-sdk": "^0.2.2",
+    "@unhead/vue": "^1.7.3",
     "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.6",
