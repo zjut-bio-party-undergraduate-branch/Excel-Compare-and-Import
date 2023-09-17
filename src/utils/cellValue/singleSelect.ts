@@ -1,34 +1,28 @@
 import {
   ISingleSelectFieldMeta,
   IOpenSingleSelect,
-  IWidgetTable,
-  checkers,
-} from "@lark-base-open/js-sdk";
+} from "@lark-base-open/js-sdk"
 
+/**
+ * Get singleSelect cell value
+ * @param value
+ * @param field
+ * @returns
+ */
 export function singleSelect(
   value: string,
   field: ISingleSelectFieldMeta,
-  // table: IWidgetTable
 ): IOpenSingleSelect {
   if (value === "") {
     return {
       text: "",
       id: "",
-    };
+    }
   }
-  let id =
-    field.property.options.find((option) => option.name === value)?.id ?? "";
-  // if (id === "") {
-  //   const fieldItem = await table.getFieldMetaById(field.id) as ISingleSelectFieldMeta;
-  //   id = fieldItem.property.options.find((option) => option.name === value)?.id ?? "";
-  // }
-  const res = {
+  const id =
+    field.property.options.find((option) => option.name === value)?.id ?? ""
+  return {
     text: value,
     id,
-  };
-  if (checkers.isSingleSelect(res)) return res;
-  return {
-    text: "",
-    id: "",
-  };
+  }
 }

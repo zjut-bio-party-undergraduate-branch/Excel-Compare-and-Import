@@ -1,6 +1,10 @@
-import { IOpenSegmentType, IOpenUrlSegment, checkers } from '@lark-base-open/js-sdk';
+import { IOpenSegmentType, IOpenUrlSegment } from "@lark-base-open/js-sdk"
 
-
+/**
+ * Get url cell value
+ * @param value
+ * @returns
+ */
 export function url(value: string): IOpenUrlSegment[] {
   const res = [
     {
@@ -8,13 +12,6 @@ export function url(value: string): IOpenUrlSegment[] {
       type: IOpenSegmentType.Url,
       link: value,
     },
-  ] as IOpenUrlSegment[];
-  if (checkers.isSegments(res)) return res;
-  return [
-    {
-      text: "",
-      type: IOpenSegmentType.Url,
-      link: "",
-    },
-  ];
+  ] as IOpenUrlSegment[]
+  return res
 }
