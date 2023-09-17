@@ -1,10 +1,10 @@
 export const en = {
   button: {
-    confirm: 'Confirm',
-    cancel: 'Cancel',
-    close: 'Close',
-    import: 'Import',
-    autoFill: 'Auto Fill',
+    confirm: "Confirm",
+    cancel: "Cancel",
+    close: "Close",
+    import: "Import",
+    autoFill: "Auto Fill",
   },
   guide: "Guide Book",
   h: {
@@ -18,7 +18,7 @@ export const en = {
       chooseIndex: "Choose Index",
       chooseSheet: "Choose Sheet",
       chooseOrCreateFormat: "Choose or Create Input Format",
-    }
+    },
   },
   form: {
     label: {
@@ -30,8 +30,8 @@ export const en = {
       separator: "Separator",
       trueValue: "True Value",
       falseValue: "False Value",
-      mode: "mode"
-    }
+      mode: "mode",
+    },
   },
   table: {
     baseField: "Base Field",
@@ -49,21 +49,22 @@ export const en = {
     append: "Append records directly",
     mergeDirect: "Cover original records",
     compareMerge: "Save original records",
-    merge: "merge records"
+    merge: "merge records",
   },
   toolTip: {
     setInputFormat: "Set input format",
     setOperator: "Set operator",
     setBoolValue: "Set bool value",
     pleaseReferTo: "Please refer to",
-    indexInfo: "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. In a Base, the index of each record should be unique. Example: ID card number.",
+    indexInfo:
+      "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. In a Base, the index of each record should be unique. Example: ID card number.",
     importInfo: "Click to see the import info",
   },
   message: {
     chooseTableFirst: "Please choose a table first",
     uploadExcelFirst: "Please upload Excel file first",
     importSuccess: "Import success",
-    sheetError: "Sheet \"{sheetName}\" has wrong format",
+    sheetError: 'Sheet "{sheetName}" has wrong format',
   },
   loading: "Loading...",
   fieldType: {
@@ -79,6 +80,9 @@ export const en = {
     progress: "Progress",
     phone: "Phone",
     url: "Url",
+    user: "User",
+    singleLink: "SingleLink",
+    duplexLink: "DuplexLink",
   },
   importInfo: {
     title: "Import Info",
@@ -93,11 +97,14 @@ export const en = {
     error: "{errorNumber} failed",
     waiting: "{waitingNumber} waiting",
     checkFieldsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields",
-    checkOptionsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
+    checkOptionsMessage:
+      "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
     addRecordsMessage: "There will be 4 seconds between each 4000 records.",
-    analysisRecordsMessage: "{updateNumber} Update, {deleteNumber}Delete, {addNumber}Add",
-    findSameRecord: "Searching for record {indexValue}, finding {sameNumber} same records",
-    compareRecord: "Comparing record \"{indexValue}\"'s {fieldName} field",
-    analysisRecord: "Analyzing record \"{indexValue}\"",
-  }
+    analysisRecordsMessage:
+      "{updateNumber} Update, {deleteNumber}Delete, {addNumber}Add",
+    findSameRecord:
+      "Searching for record {indexValue}, finding {sameNumber} same records",
+    compareRecord: 'Comparing record "{indexValue}"\'s {fieldName} field',
+    analysisRecord: 'Analyzing record "{indexValue}"',
+  },
 }

@@ -1,10 +1,10 @@
 export const zh = {
   button: {
-    confirm: '确认',
-    cancel: '取消',
-    close: '关闭',
-    import: '导入',
-    autoFill: '自动填充',
+    confirm: "确认",
+    cancel: "取消",
+    close: "关闭",
+    import: "导入",
+    autoFill: "自动填充",
   },
   guide: "使用指南",
   h: {
@@ -18,7 +18,7 @@ export const zh = {
       chooseIndex: "选择索引",
       chooseSheet: "选择工作表",
       chooseOrCreateFormat: "选择或创建输入格式",
-    }
+    },
   },
   form: {
     label: {
@@ -30,8 +30,8 @@ export const zh = {
       separator: "分隔符",
       trueValue: "真值",
       falseValue: "假值",
-      mode: "模式"
-    }
+      mode: "模式",
+    },
   },
   table: {
     baseField: "多维表格字段",
@@ -49,21 +49,22 @@ export const zh = {
     append: "批量追加记录",
     mergeDirect: "覆盖原记录",
     compareMerge: "保留原记录",
-    merge: "合并记录"
+    merge: "合并记录",
   },
   toolTip: {
     setInputFormat: "设置输入格式",
     setOperator: "设置分隔符",
     setBoolValue: "设置布尔值",
     pleaseReferTo: "请参考",
-    indexInfo: "索引列：用于标识每条记录，合并记录的依据。在一个多维表格中，每条记录的索引都应该是唯一的。例：身份证号。",
+    indexInfo:
+      "索引列：用于标识每条记录，合并记录的依据。在一个多维表格中，每条记录的索引都应该是唯一的。例：身份证号。",
     importInfo: "点击查看导入进度",
   },
   message: {
     chooseTableFirst: "请先选择一个表格",
     uploadExcelFirst: "请先上传Excel文件",
     importSuccess: "导入成功",
-    sheetError: "工作表“{sheetName}”格式错误"
+    sheetError: "工作表“{sheetName}”格式错误",
   },
   loading: "加载中...",
   fieldType: {
@@ -79,6 +80,9 @@ export const zh = {
     progress: "进度",
     phone: "电话号码",
     url: "超链接",
+    user: "人员",
+    singleLink: "单向关联",
+    duplexLink: "双向关联",
   },
   importInfo: {
     title: "导入进度",
@@ -95,11 +99,12 @@ export const zh = {
     checkFieldsMessage: "共有 {totalNumber} 个单选/多选字段",
     checkOptionsMessage: "共有 {totalNumber} 个单选/多选字段有新选项",
     addRecordsMessage: "按照500条/次的速度添加新记录",
-    analysisRecordsMessage: "{updateNumber}更新，{deleteNumber}删除，{addNumber}添加",
+    analysisRecordsMessage:
+      "{updateNumber}更新，{deleteNumber}删除，{addNumber}添加",
     findSameRecord: "正在检索记录{indexValue}，找到{sameNumber}条相同记录",
     compareRecord: "正在比对记录“{indexValue}”的{fieldName}字段",
     analysisRecord: "正在解析记录“{indexValue}”",
     getIndexField: "正在获取索引字段...",
     getIndexFieldValue: "正在获取索引字段值...",
-  }
+  },
 }
