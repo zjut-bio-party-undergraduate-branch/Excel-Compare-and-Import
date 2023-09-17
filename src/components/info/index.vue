@@ -2,9 +2,12 @@
 import { InfoFilled } from "@element-plus/icons-vue"
 import { ref } from "vue"
 //@ts-ignore
-import { default as Meta } from "/virtual-meta"
+import { default as Meta } from "virtual:meta"
+import modulesIcon from "@/components/icons/modules-icon.vue"
 
 const isShow = ref(false)
+
+type color = "success" | "warning" | "danger" | "info"
 
 enum Stage {
   DEV = "Dev",
@@ -18,7 +21,7 @@ const stageColor = {
   [Stage.DEV]: "info",
   [Stage.ALPHA]: "danger",
   [Stage.BETA]: "warning",
-  [Stage.Stable]: "success",
+  [Stage.Stable]: "primary",
 }
 </script>
 
@@ -47,27 +50,24 @@ const stageColor = {
       </el-row>
       <el-row justify="center">
         <el-text tag="b">
-          {{
-            Meta.name
-              .replace(/_/g, " ")
-              .toLowerCase()
-              .replace(/( |^)[a-z]/g, (L: string) => L.toUpperCase())
-          }}
+          {{ Meta.name }}
         </el-text>
       </el-row>
       <el-row justify="center">
-        <el-text tag="b">
-          v{{
-            Meta.version +
-            (stage !== Stage.Stable ? `-${stage.toLowerCase()}` : "")
-          }}
-          <el-tag
-            :type="stageColor[stage]"
-            effect="dark"
+        <el-badge
+          :type="stageColor[stage] as color"
+          :value="stage as string"
+        >
+          <el-text
+            style="padding: 8px"
+            tag="b"
           >
-            {{ stage }}
-          </el-tag>
-        </el-text>
+            v{{
+              Meta.version +
+              (stage !== Stage.Stable ? `-${stage.toLowerCase()}` : "")
+            }}
+          </el-text>
+        </el-badge>
       </el-row>
       <el-row justify="center">
         <el-link
@@ -87,10 +87,13 @@ const stageColor = {
       </el-row>
       <el-row justify="center">
         <el-card
-          width="100%"
-          header="Dependencies"
+          style="width: 100%"
           shadow="hover"
         >
+          <h2>
+            <el-icon><modulesIcon /></el-icon>
+            Dependencies
+          </h2>
           <el-scrollbar max-height="100px">
             <ul class="dependencies">
               <li v-for="i of dependencies">
@@ -116,12 +119,10 @@ const stageColor = {
                     target="_blank"
                   >
                     <code>
-                      <b>{{ i.name }}</b>
+                      <b>{{ i.name }}: {{ i.version }}</b>
                     </code>
                   </el-link>
                 </el-tooltip>
-                :
-                <code>{{ i.version }}</code>
               </li>
             </ul>
           </el-scrollbar>
@@ -165,7 +166,7 @@ p {
 }
 
 .dependencies li {
-  margin-bottom: 2px;
+  margin-bottom: 5px;
 }
 
 .dependencies code {
@@ -173,5 +174,9 @@ p {
   /* padding: 2px 5px; */
   background-color: var(--el-border-color-light);
   font-size: 14px;
+}
+
+.dependencies code b {
+  font-size: 16px;
 }
 </style>

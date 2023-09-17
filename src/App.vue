@@ -9,6 +9,30 @@ import { useI18n } from "vue-i18n"
 import { Link } from "@element-plus/icons-vue"
 import { useBitableTheme } from "@/utils/index"
 import { ExcelDataInfo } from "./types/types"
+import { useHead } from "@unhead/vue"
+//@ts-ignore
+import { default as Meta } from "virtual:meta"
+
+useHead({
+  meta: [
+    {
+      name: "description",
+      content: Meta.description,
+    },
+    {
+      name: "keywords",
+      content: String(Meta.keywords),
+    },
+    {
+      name: "author",
+      content: Meta.author.name,
+    },
+    {
+      name: "viewport",
+      content: "width=device-width, initial-scale=1.0",
+    },
+  ],
+})
 
 const settingRef = ref()
 const uploadRef = ref()
@@ -59,7 +83,9 @@ onMounted(async () => {
       </el-icon>
       {{ t("guide") }}
     </el-link>
-    <Info />
+    <span>
+      <Info />
+    </span>
   </el-row>
 
   <div v-if="isActive">
