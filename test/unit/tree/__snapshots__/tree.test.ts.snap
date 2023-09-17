@@ -1,0 +1,67 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`tree test > clearTree 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": undefined,
+        "config": {},
+        "excel_field": "tbl",
+        "field": {
+          "description": {
+            "content": [],
+          },
+          "id": "field_id",
+          "isPrimary": true,
+          "name": "tbl1",
+          "property": null,
+          "type": 1,
+        },
+        "hasChildren": false,
+        "key": "tbl1",
+        "root": false,
+        "table": "tbl2",
+      },
+    ],
+    "config": {},
+    "excel_field": "tbl",
+    "field": {
+      "description": {
+        "content": [],
+      },
+      "id": "field_id",
+      "isPrimary": false,
+      "name": "tbl",
+      "property": {
+        "multiple": false,
+        "tableId": "tbl",
+      },
+      "type": 18,
+    },
+    "hasChildren": true,
+    "key": "tbl",
+    "root": true,
+    "table": "tbl",
+  },
+  {
+    "children": undefined,
+    "config": {},
+    "excel_field": "tbl1",
+    "field": {
+      "description": {
+        "content": [],
+      },
+      "id": "field_id",
+      "isPrimary": false,
+      "name": "tbl1",
+      "property": null,
+      "type": 1,
+    },
+    "hasChildren": false,
+    "key": "tbl3",
+    "root": true,
+    "table": "tbl1",
+  },
+]
+`;

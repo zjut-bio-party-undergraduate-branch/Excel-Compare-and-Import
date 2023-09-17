@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`useLog > should push a LogItem to log.value 1`] = `
+{
+  "message": "Hello world",
+  "time": 949381200000,
+  "type": "info",
+}
+`;
+
+exports[`useLog > should push a LogItem to log.value 2`] = `
+{
+  "message": "Hello world",
+  "time": 949381200000,
+  "type": "warn",
+}
+`;
+
+exports[`useLog > should push a LogItem to log.value 3`] = `
+{
+  "message": "Hello world",
+  "time": 949381200000,
+  "type": "error",
+}
+`;
+
+exports[`useLog > should push a LogItem to log.value 4`] = `
+{
+  "message": "Hello world",
+  "time": 949381200000,
+  "type": "log",
+}
+`;
