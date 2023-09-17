@@ -306,25 +306,26 @@ export enum importModes {
  */
 async function compareCellValue(
   excelValue: string,
+  mode: importModes.compare_merge | importModes.merge_direct,
   table: BitableTable,
   fieldId: string,
   recordId: string,
-  mode: importModes,
 ): Promise<string | null> {
-  if (mode === importModes.append) {
-    return excelValue
+  const field = table.fields[fieldId]
+  const tableValue = await field.getCellString(recordId)
+  if (excelValue === tableValue) {
+    return null
   } else {
-    const field = table.fields[fieldId]
-    const tableValue = await field.getCellString(recordId)
-    if (excelValue === tableValue) {
-      return null
+    if (mode === importModes.merge_direct) {
+      return excelValue
     } else {
-      if (mode === importModes.merge_direct) {
+      if (!tableValue) {
         return excelValue
+      } else {
+        return tableValue
       }
     }
   }
-  return excelValue
 }
 
 /**
@@ -476,14 +477,9 @@ export async function getImportTasks(
           if (fieldMap.excel_field) {
             const value = record[fieldMap.excel_field]
             if (value) {
-              const tempValue = getCellValue(fieldMap, value)
-              // if (tempValue) {
-              //   recordFields[fieldMap.field.id] = tempValue
-              // }
               if (mode === importModes.append || !rootIndex) {
-                if (tempValue) {
-                  recordFields[fieldMap.field.id] = tempValue
-                }
+                recordFields[fieldMap.field.id] = value
+              } else {
               }
             }
           }
