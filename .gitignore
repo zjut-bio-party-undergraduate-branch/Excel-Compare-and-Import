@@ -3,7 +3,7 @@ dist
 test/data/
 .config
 coverage
-
+public/test
 # IDEs and editors
 
 *.iml
