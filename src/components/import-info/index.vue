@@ -38,8 +38,8 @@ addLifeCircleEvent(importLifeCircles.beforeUpdateRecords, beforeUpdateRecords);
 addLifeCircleEvent(importLifeCircles.onUpdateRecords, onUpdateRecords)
 addLifeCircleEvent(importLifeCircles.beforeDeleteRecords, beforeDeleteRecords);
 addLifeCircleEvent(importLifeCircles.onDeleteRecords, onDeleteRecords);
-addLifeCircleEvent(importLifeCircles.beforeSetOptions, beforeSetOptions);
-addLifeCircleEvent(importLifeCircles.onSetOptions, onSetOptions);
+// addLifeCircleEvent(importLifeCircles.beforeSetOptions, beforeSetOptions);
+// addLifeCircleEvent(importLifeCircles.onSetOptions, onSetOptions);
 
 const { t } = useI18n();
 

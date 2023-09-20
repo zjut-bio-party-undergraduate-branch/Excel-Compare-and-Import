@@ -9,6 +9,7 @@ import {
   IFieldConfig,
   IRecordValue,
   IRecord,
+  IOpenSingleCellValue,
 } from "@lark-base-open/js-sdk";
 import {
   fieldMap,
@@ -28,7 +29,7 @@ async function setOptionsField(
   excelData: ExcelDataInfo,
   sheetIndex: number,
   table: IWidgetTable,
-  lifeCircleHook: any
+  lifeCircleHook: any,
 ): Promise<fieldMap[]> {
   await lifeCircleHook(importLifeCircles.beforeCheckFields, {
     stage: importLifeCircles.beforeCheckFields,
@@ -64,7 +65,7 @@ async function setOptionsField(
     optionsFields.forEach((optionsField) => {
       // const field = table.getFieldById(optionsField.field.id);
       const tableOptions = optionsField.field.property.options.map(
-        (v: any) => v.name
+        (v: any) => v.name,
       );
       const excelValues = Array.from(
         new Set(
@@ -72,17 +73,17 @@ async function setOptionsField(
             .map((v) => {
               return Array.from(
                 (v[optionsField.excel_field] ?? "")?.split(
-                  optionsField.config?.separator ?? ","
-                )
+                  optionsField.config?.separator ?? ",",
+                ),
               ) as string[];
             })
             .flat()
-            .filter((v) => v !== "")
-        )
+            .filter((v) => v !== ""),
+        ),
       );
       if (hasNewElement(tableOptions, excelValues)) {
         const options = Array.from(
-          new Set([...tableOptions, ...excelValues])
+          new Set([...tableOptions, ...excelValues]),
         ) as string[];
         selects.push({
           id: optionsField.field.id as string,
@@ -90,7 +91,12 @@ async function setOptionsField(
             type: optionsField.field.type,
             name: optionsField.field.name,
             property: {
-              options: options.map((v) => ({ name: v })),
+              options: options.map((v) => ({
+                name: v,
+                id: optionsField.property.options.find(
+                  (i: ISingleSelectFieldMeta) => i.name === v,
+                ).id,
+              })),
             },
           },
         });
@@ -104,92 +110,121 @@ async function setOptionsField(
       });
     });
     console.log(selects);
-    await lifeCircleHook(importLifeCircles.beforeSetOptions, {
-      stage: importLifeCircles.beforeSetOptions,
-      data: {
-        number: selects.length,
-      },
-    });
-    if (selects.length > 0) {
-      await Promise.all(
-        selects.map(async (select) => {
-          let field = await table.getFieldById(select.id);
-          const optionsRecords = await field.getFieldValueList();
-          await table.setField(select.id, select.config);
-          field = await table.getFieldById(select.id);
-          const newMeta = await table.getFieldMetaById(select.id);
-          fieldsMaps[
-            fieldsMaps.findIndex((fieldMap) => fieldMap.field.id === select.id)
-          ].field = newMeta as fieldMap["field"];
-          const newOptions = (
-            newMeta as ISingleSelectFieldMeta | IMultiSelectFieldMeta
-          ).property.options;
-          console.log("newOptions", newOptions, optionsRecords);
-          await Promise.all(
-            optionsRecords.map(async (record) => {
-              const id: string = record.record_id as string;
-              if (select.config.type === FieldType.MultiSelect) {
-                const value = (record.value as IOpenMultiSelect).map((v) => {
-                  const option = newOptions.find(
-                    (option) => option.name === v.text
-                  );
-                  if (option) {
-                    return {
-                      text: option.name,
-                      id: option.id,
-                    };
-                  }
-                });
-                const res = await table.setRecord(id, {
-                  // @ts-ignore
-                  fields: {
-                    [select.id]: value,
-                  },
-                });
-                console.log("setMultiSelectRecord", res);
-                lifeCircleHook(importLifeCircles.onSetOptions, {
-                  stage: importLifeCircles.onSetOptions,
-                  data: {
-                    field: select,
-                    record: res,
-                  },
-                });
-              }
+    // await lifeCircleHook(importLifeCircles.beforeSetOptions, {
+    //   stage: importLifeCircles.beforeSetOptions,
+    //   data: {
+    //     number: selects.length,
+    //   },
+    // });
+    // if (selects.length > 0) {
+    //   const update: {
+    //     [key: string]: IRecord[];
+    //   } = {};
+    //   await Promise.all(
+    //     selects.map(async (select) => {
+    //       let field = await table.getFieldById(select.id);
+    //       const optionsRecords = await field.getFieldValueList();
+    //       await table.setField(select.id, select.config);
+    //       field = await table.getFieldById(select.id);
+    //       const newMeta = await table.getFieldMetaById(select.id);
+    //       fieldsMaps[
+    //         fieldsMaps.findIndex((fieldMap) => fieldMap.field.id === select.id)
+    //       ].field = newMeta as fieldMap["field"];
+    //       const newOptions = (
+    //         newMeta as ISingleSelectFieldMeta | IMultiSelectFieldMeta
+    //       ).property.options;
+    //       console.log("newOptions", newOptions, optionsRecords);
 
-              if (select.config.type === FieldType.SingleSelect) {
-                const value = record.value as IOpenSingleSelect;
-                const option = newOptions.find(
-                  (option) => option.name === value.text
-                );
-                if (option) {
-                  const res = await table.setRecord(id, {
-                    fields: {
-                      [select.id]: {
-                        text: option.name,
-                        id: option.id,
-                      },
-                    },
-                  });
-                  console.log("setSingleSelectRecord", res);
-                  await lifeCircleHook(importLifeCircles.onSetOptions, {
-                    stage: importLifeCircles.onSetOptions,
-                    data: {
-                      field: select,
-                      record: res,
-                    },
-                  });
-                }
-              }
-            })
-          );
-        })
-      );
-    }
+    //       await Promise.all(
+    //         optionsRecords.map(async (record) => {
+    //           const id: string = record.record_id as string;
+    //           if (select.config.type === FieldType.MultiSelect) {
+    //             const value = (record.value as IOpenMultiSelect).map((v) => {
+    //               const option = newOptions.find(
+    //                 (option) => option.name === v.text,
+    //               );
+    //               if (option) {
+    //                 return {
+    //                   text: option.name,
+    //                   id: option.id,
+    //                 };
+    //               }
+    //             }) as IOpenSingleCellValue[];
+    //             // const res = await table.setRecord(id, {
+    //             //   // @ts-ignore
+    //             //   fields: {
+    //             //     [select.id]: value,
+    //             //   },
+    //             // });
+    //             if (!update[select.id]) {
+    //               update[select.id] = [];
+    //             } else {
+    //               update[select.id].push({
+    //                 recordId: id,
+    //                 fields: {
+    //                   [select.id]: value,
+    //                 },
+    //               });
+    //             }
+    //             // console.log("setMultiSelectRecord", res);
+    //             // lifeCircleHook(importLifeCircles.onSetOptions, {
+    //             //   stage: importLifeCircles.onSetOptions,
+    //             //   data: {
+    //             //     field: select,
+    //             //     record: res,
+    //             //   },
+    //             // });
+    //           }
+
+    //           if (select.config.type === FieldType.SingleSelect) {
+    //             const value = record.value as IOpenSingleSelect;
+    //             const option = newOptions.find(
+    //               (option) => option.name === value.text,
+    //             );
+    //             if (option) {
+    //               // const res = await table.setRecord(id, {
+    //               //   fields: {
+    //               //     [select.id]: {
+    //               //       text: option.name,
+    //               //       id: option.id,
+    //               //     },
+    //               //   },
+    //               // });
+    //               if (!update[select.id]) {
+    //                 update[select.id] = [];
+    //               }
+    //               update[select.id].push({
+    //                 recordId: id,
+    //                 fields: {
+    //                   [select.id]: {
+    //                     text: option.name,
+    //                     id: option.id,
+    //                   },
+    //                 },
+    //               });
+    //             }
+    //           }
+    //         }),
+    //       );
+    //     }),
+    //   );
+    //   for (const key in update) {
+    //     await batchUpdateRecords(update[key], table, 500, 500, () =>
+    //       lifeCircleHook(importLifeCircles.onSetOptions, {
+    //         stage: importLifeCircles.onSetOptions,
+    //         data: {
+    //           field: key,
+    //           record: update[key],
+    //         },
+    //       }),
+    //     );
+    //   }
+    // }
   }
-  await lifeCircleHook(importLifeCircles.onSetOptionsFieldEnd, {
-    stage: importLifeCircles.onSetOptionsFieldEnd,
-    data: {},
-  });
+  // await lifeCircleHook(importLifeCircles.onSetOptionsFieldEnd, {
+  //   stage: importLifeCircles.onSetOptionsFieldEnd,
+  //   data: {},
+  // });
   return fieldsMaps;
 }
 
@@ -197,7 +232,7 @@ async function batch(
   maxNumber: number = 500,
   interval: number = 500,
   records: any[],
-  action: (records: any[]) => Promise<any> | any
+  action: (records: any[]) => Promise<any> | any,
 ) {
   if (records.length === 0) return [];
   if (records.length <= maxNumber) {
@@ -207,7 +242,7 @@ async function batch(
     const count = Math.ceil(records.length / maxNumber);
     for (let i = 0; i < count; i++) {
       const currRes = (await action(
-        records.slice(i * maxNumber, (i + 1) * maxNumber)
+        records.slice(i * maxNumber, (i + 1) * maxNumber),
       )) as any[];
       // await delay(interval);
       res.push(currRes);
@@ -220,7 +255,7 @@ function addRecords(table: IWidgetTable, lifeCircleHook: any) {
   return async (records: { [key: string]: IOpenCellValue }[]) => {
     try {
       const addRes = await table.addRecords(
-        records.map((record) => ({ fields: record }))
+        records.map((record) => ({ fields: record })),
       );
       await lifeCircleHook(importLifeCircles.onAddRecords, {
         stage: importLifeCircles.onAddRecords,
@@ -295,13 +330,13 @@ async function batchRecords(
   table: IWidgetTable,
   maxNumber: number = 500,
   interval: number = 500,
-  lifeCircleHook: any
+  lifeCircleHook: any,
 ): Promise<(string | undefined)[]> {
   return await batch(
     maxNumber,
     interval,
     records,
-    addRecords(table, lifeCircleHook)
+    addRecords(table, lifeCircleHook),
   );
 }
 
@@ -310,13 +345,13 @@ async function batchUpdateRecords(
   table: IWidgetTable,
   maxNumber: number = 500,
   interval: number = 500,
-  lifeCircleHook: any
+  lifeCircleHook: any,
 ) {
   return await batch(
     maxNumber,
     interval,
     records,
-    updateRecords(table, lifeCircleHook)
+    updateRecords(table, lifeCircleHook),
   );
 }
 
@@ -325,13 +360,13 @@ async function batchDeleteRecords(
   table: IWidgetTable,
   maxNumber: number = 500,
   interval: number = 500,
-  lifeCircleHook: any
+  lifeCircleHook: any,
 ) {
   return await batch(
     maxNumber,
     interval,
     records,
-    deleteRecords(table, lifeCircleHook)
+    deleteRecords(table, lifeCircleHook),
   );
 }
 
@@ -344,7 +379,7 @@ export enum importModes {
 function compareCellValue(
   excelValue: string,
   tableValue: string,
-  mode: importModes.compare_merge | importModes.merge_direct
+  mode: importModes.compare_merge | importModes.merge_direct,
 ): string {
   if (mode === importModes.compare_merge) {
     return excelValue ?? tableValue;
@@ -390,17 +425,17 @@ export async function importExcel(
   table: IWidgetTable,
   index: string | null = null,
   mode: importModes = importModes.append,
-  lifeCircleHook: any = runLifeCircleEvent
+  lifeCircleHook: any = runLifeCircleEvent,
 ) {
   fieldsMaps = fieldsMaps.filter(
-    (fieldMap) => fieldMap.excel_field
+    (fieldMap) => fieldMap.excel_field,
   ) as fieldMap[];
   fieldsMaps = await setOptionsField(
     fieldsMaps,
     excelData,
     sheetIndex,
     table,
-    lifeCircleHook
+    lifeCircleHook,
   );
   console.log("fieldMaps", fieldsMaps);
   const excelRecords = excelData.sheets[sheetIndex].tableData.records;
@@ -427,7 +462,7 @@ export async function importExcel(
                 newRecord[fieldMap.field.id] = tempValue;
               }
             }
-          })
+          }),
         );
         newRecords.push(newRecord);
         await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
@@ -446,12 +481,12 @@ export async function importExcel(
             }),
           },
         });
-      })
+      }),
     );
     console.log("newRecords", newRecords);
   } else {
     const excelIndexField: fieldMap = fieldsMaps.find(
-      (fieldMap) => fieldMap.excel_field === index
+      (fieldMap) => fieldMap.excel_field === index,
     ) as fieldMap;
     const indexField = await table.getFieldByName(index);
     const tableIndexRecords: (IFieldValue | IUndefinedFieldValue)[] =
@@ -469,7 +504,7 @@ export async function importExcel(
               return true;
             }
             return false;
-          }
+          },
         );
         await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
           stage: importLifeCircles.onAnalysisRecords,
@@ -508,7 +543,7 @@ export async function importExcel(
               if (tempValue) {
                 newRecord[fieldMap.field.id] = tempValue;
               }
-            })
+            }),
           );
           newRecords.push(newRecord);
           console.log("newRecord", newRecord);
@@ -548,7 +583,7 @@ export async function importExcel(
                 },
               });
               const tableValue = await field.getCellString(
-                sameRecords[0].record_id as string
+                sameRecords[0].record_id as string,
               );
               const excelValue = record[fieldMap.excel_field];
               const value = compareCellValue(excelValue, tableValue, mode);
@@ -556,7 +591,7 @@ export async function importExcel(
               if (tempValue) {
                 newRecord[fieldMap.field.id] = tempValue;
               }
-            })
+            }),
           );
           updateList.push({
             recordId: sameRecords[0].record_id as string,
@@ -580,7 +615,7 @@ export async function importExcel(
           });
         } else {
           deleteList.push(
-            ...sameRecords.map((sameRecord) => sameRecord.record_id as string)
+            ...sameRecords.map((sameRecord) => sameRecord.record_id as string),
           );
           const newRecord: { [key: string]: IOpenCellValue } = {};
           await Promise.all(
@@ -603,7 +638,7 @@ export async function importExcel(
               await Promise.all(
                 sameRecords.map(async (sameRecord) => {
                   const tableValue = await field.getCellString(
-                    sameRecord.record_id as string
+                    sameRecord.record_id as string,
                   );
                   console.log("table string value", tableValue);
                   const excelValue = record[fieldMap.excel_field];
@@ -612,9 +647,9 @@ export async function importExcel(
                   if (tempValue) {
                     newRecord[fieldMap.field.id] = tempValue;
                   }
-                })
+                }),
               );
-            })
+            }),
           );
           newRecords.push(newRecord);
           await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
@@ -634,7 +669,7 @@ export async function importExcel(
             },
           });
         }
-      })
+      }),
     );
     console.log(newRecords, deleteList);
   }
@@ -650,7 +685,7 @@ export async function importExcel(
       table,
       500,
       500,
-      lifeCircleHook
+      lifeCircleHook,
     );
     console.log("updateRes", updateRes);
   }
@@ -668,7 +703,7 @@ export async function importExcel(
       table,
       500,
       500,
-      lifeCircleHook
+      lifeCircleHook,
     );
     console.log("deleteRes", deleteRes);
   }
@@ -686,7 +721,7 @@ export async function importExcel(
       table,
       500,
       500,
-      lifeCircleHook
+      lifeCircleHook,
     );
     console.log("addRes", addRes);
   }
