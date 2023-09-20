@@ -56,7 +56,7 @@ export function getCellValue(
     case FieldType.Phone:
       return phone(value);
     case FieldType.User:
-      return User(value);
+      return User(value, config.separator);
     default:
       return value;
   }

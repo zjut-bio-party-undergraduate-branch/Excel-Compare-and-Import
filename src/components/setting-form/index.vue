@@ -18,9 +18,7 @@ import { defaultBoolValue } from "@/utils/cellValue/checkBox";
 import { useI18n } from "vue-i18n";
 import fieldIcon from "@/components/field-icon/index.vue";
 import importInfo from "@/components/import-info/index.vue";
-import { importModes, importExcel, runLifeCircleEvent } from "@/utils/import";
-import { addLifeCircleEvent, importLifeCircles } from "@/utils/import";
-// import { importWorkerInstance } from "@/utils/import";
+import { importExcel, importModes } from "@/utils/import";
 
 const { t } = useI18n();
 
@@ -33,7 +31,7 @@ const props = defineProps({
 
 // const modeList = ref<any[]>([]);
 
-const modeSelect = ref([importModes.append]);
+const modeSelect = ref(["append"]);
 
 const isActive = ref(false);
 const form = ref();
@@ -55,16 +53,6 @@ const currentSettingIndex = ref(0);
 const settingType = ref<FieldType>(FieldType.DateTime);
 const settingColumns = ref<fieldMap[]>([]);
 
-addLifeCircleEvent(importLifeCircles.onEnd, () => {
-  ElMessage({
-    message: t("message.importSuccess"),
-    grouping: true,
-    type: "success",
-    duration: 2000,
-  });
-  importLoading.value = false;
-  importInfoRef.value.refresh();
-});
 watch(
   () => tableFields.value,
   (newVal) => {
@@ -81,9 +69,6 @@ watch(
       }
       if (field.type === FieldType.MultiSelect) {
         field_map.config.separator = defaultSeparator;
-      }
-      if (field.type === FieldType.User) {
-        field_map.config.separator = ",";
       }
       if (field.type === FieldType.Checkbox) {
         field_map.config.bool_value = defaultBoolValue;
@@ -113,6 +98,23 @@ watch(
     mode.value = newVal[newVal.length - 1] as importModes;
   }
 );
+
+const filters = computed(() => {
+  return settingColumns.value.map((item) => {
+    return {
+      text: item.field.name,
+      value: item.field.name,
+    };
+  });
+});
+
+function filterHandler(
+  value: string,
+  row: fieldMap
+  // column: TableColumnCtx<fieldMap>
+) {
+  return row.field.name === value;
+}
 
 async function getActiveTable(ignoreFields = ignoreFieldType) {
   const selection = await bitable.base.getSelection();
@@ -196,7 +198,19 @@ async function importAction() {
     table,
     index,
     mode.value,
-    runLifeCircleEvent
+    {
+      ...importInfoRef.value.importCallback,
+      end: () => {
+        ElMessage({
+          message: t("message.importSuccess"),
+          grouping: true,
+          type: "success",
+          duration: 2000,
+        });
+        importLoading.value = false;
+        importInfoRef.value.refresh();
+      },
+    }
   );
 }
 
@@ -241,12 +255,16 @@ onMounted(() => {
   refresh();
 });
 
+// async function deleteTest() {
+//   const table = await bitable.base.getTableById(tableId.value);
+//   const recordIds = await table.getRecordIdList(); // 获取所有记录id
+//   const res = await table.deleteRecord(recordIds[0]);
+//   console.log("delete", recordIds[0], res);
+// }
+
 function settingField(index: number, config: fieldMap["config"]) {
   const type = settingColumns.value[index].field.type;
   if (type === FieldType.MultiSelect) {
-    defaultSetting.value = config.separator;
-  }
-  if (type === FieldType.User) {
     defaultSetting.value = config.separator;
   }
   if (type === FieldType.Checkbox) {
@@ -265,9 +283,6 @@ function getFormat(value: any) {
   if (type === FieldType.MultiSelect) {
     settingColumns.value[currentSettingIndex.value].config.separator = value;
   }
-  if (type === FieldType.User) {
-    settingColumns.value[currentSettingIndex.value].config.separator = value;
-  }
   if (type === FieldType.Checkbox) {
     settingColumns.value[currentSettingIndex.value].config.bool_value = value;
   }
@@ -280,7 +295,7 @@ function getFormat(value: any) {
 function getModeList(): any[] {
   return [
     {
-      value: importModes.append,
+      value: "append",
       label: t("mode.append"),
     },
     {
@@ -288,11 +303,11 @@ function getModeList(): any[] {
       label: t("mode.merge"),
       children: [
         {
-          value: importModes.merge_direct,
+          value: "merge_direct",
           label: t("mode.mergeDirect"),
         },
         {
-          value: importModes.compare_merge,
+          value: "compare_merge",
           label: t("mode.compareMerge"),
         },
       ],
@@ -347,7 +362,13 @@ defineExpose({
         </div>
       </template>
       <el-table ref="chooseRef" stripe max-height="250" :data="settingColumns">
-        <el-table-column :label="t('table.baseField')" prop="field.name">
+        <el-table-column
+          :label="t('table.baseField')"
+          :filters="filters"
+          :filter-method="filterHandler"
+          prop="field.name"
+          filter-placement="bottom-end"
+        >
           <template #default="scope">
             <field-icon :type="scope.row.field.type" />
             {{ scope.row.field.name }}
@@ -436,4 +457,6 @@ defineExpose({
     :type="settingType"
   ></fieldSetting>
   <importInfo ref="importInfoRef" />
+  <!-- <el-button type="default" @click="autoFill">Auto Fill</el-button> -->
+  <!-- <el-button type="danger" @click="deleteTest">Delete Test</el-button> -->
 </template>

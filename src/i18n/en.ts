@@ -6,6 +6,7 @@ export const en = {
     import: 'Import',
     autoFill: 'Auto Fill',
   },
+  guide: "Guide Book",
   h: {
     upload: "Upload",
     settings: "Settings",
@@ -62,6 +63,7 @@ export const en = {
     chooseTableFirst: "Please choose a table first",
     uploadExcelFirst: "Please upload Excel file first",
     importSuccess: "Import success",
+    sheetError: "Sheet \"{sheetName}\" has wrong format",
   },
   loading: "Loading...",
   fieldType: {
@@ -93,5 +95,9 @@ export const en = {
     checkFieldsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields",
     checkOptionsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
     addRecordsMessage: "There will be 4 seconds between each 4000 records.",
+    analysisRecordsMessage: "{updateNumber} Update, {deleteNumber}Delete, {addNumber}Add",
+    findSameRecord: "Searching for record {indexValue}, finding {sameNumber} same records",
+    compareRecord: "Comparing record \"{indexValue}\"'s {fieldName} field",
+    analysisRecord: "Analyzing record \"{indexValue}\"",
   }
 }

@@ -6,6 +6,7 @@ export const zh = {
     import: '导入',
     autoFill: '自动填充',
   },
+  guide: "使用指南",
   h: {
     upload: "上传",
     settings: "设置",
@@ -62,6 +63,7 @@ export const zh = {
     chooseTableFirst: "请先选择一个表格",
     uploadExcelFirst: "请先上传Excel文件",
     importSuccess: "导入成功",
+    sheetError: "工作表“{sheetName}”格式错误"
   },
   loading: "加载中...",
   fieldType: {
@@ -97,5 +99,7 @@ export const zh = {
     findSameRecord: "正在检索记录{indexValue}，找到{sameNumber}条相同记录",
     compareRecord: "正在比对记录“{indexValue}”的{fieldName}字段",
     analysisRecord: "正在解析记录“{indexValue}”",
+    getIndexField: "正在获取索引字段...",
+    getIndexFieldValue: "正在获取索引字段值...",
   }
 }

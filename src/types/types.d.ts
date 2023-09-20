@@ -1,3 +1,5 @@
+import { IFieldMeta } from "@lark-base-open/js-sdk";
+
 export interface SheetInfo {
   name: string;
   tableData: {
