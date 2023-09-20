@@ -91,15 +91,33 @@ async function setOptionsField(
             type: optionsField.field.type,
             name: optionsField.field.name,
             property: {
-              options: options.map((v) => ({
-                name: v,
-                id: optionsField.property.options.find(
+              options: options.map((v) => {
+                const opt = optionsField.field?.property?.options.find(
                   (i: ISingleSelectFieldMeta) => i.name === v,
-                ).id,
-              })),
+                );
+                console.log(
+                  "v",
+                  v,
+                  optionsField,
+                  opt,
+                  optionsField?.property?.options,
+                );
+                if (opt) {
+                  return {
+                    name: v,
+                    id: opt.id,
+                    color: opt.color,
+                  };
+                } else {
+                  return {
+                    name: v,
+                  };
+                }
+              }),
             },
           },
         });
+        console.log("Selects", selects, optionsField);
       }
       lifeCircleHook(importLifeCircles.onCheckOptions, {
         stage: importLifeCircles.onCheckOptions,
@@ -110,121 +128,22 @@ async function setOptionsField(
       });
     });
     console.log(selects);
-    // await lifeCircleHook(importLifeCircles.beforeSetOptions, {
-    //   stage: importLifeCircles.beforeSetOptions,
-    //   data: {
-    //     number: selects.length,
-    //   },
-    // });
-    // if (selects.length > 0) {
-    //   const update: {
-    //     [key: string]: IRecord[];
-    //   } = {};
-    //   await Promise.all(
-    //     selects.map(async (select) => {
-    //       let field = await table.getFieldById(select.id);
-    //       const optionsRecords = await field.getFieldValueList();
-    //       await table.setField(select.id, select.config);
-    //       field = await table.getFieldById(select.id);
-    //       const newMeta = await table.getFieldMetaById(select.id);
-    //       fieldsMaps[
-    //         fieldsMaps.findIndex((fieldMap) => fieldMap.field.id === select.id)
-    //       ].field = newMeta as fieldMap["field"];
-    //       const newOptions = (
-    //         newMeta as ISingleSelectFieldMeta | IMultiSelectFieldMeta
-    //       ).property.options;
-    //       console.log("newOptions", newOptions, optionsRecords);
-
-    //       await Promise.all(
-    //         optionsRecords.map(async (record) => {
-    //           const id: string = record.record_id as string;
-    //           if (select.config.type === FieldType.MultiSelect) {
-    //             const value = (record.value as IOpenMultiSelect).map((v) => {
-    //               const option = newOptions.find(
-    //                 (option) => option.name === v.text,
-    //               );
-    //               if (option) {
-    //                 return {
-    //                   text: option.name,
-    //                   id: option.id,
-    //                 };
-    //               }
-    //             }) as IOpenSingleCellValue[];
-    //             // const res = await table.setRecord(id, {
-    //             //   // @ts-ignore
-    //             //   fields: {
-    //             //     [select.id]: value,
-    //             //   },
-    //             // });
-    //             if (!update[select.id]) {
-    //               update[select.id] = [];
-    //             } else {
-    //               update[select.id].push({
-    //                 recordId: id,
-    //                 fields: {
-    //                   [select.id]: value,
-    //                 },
-    //               });
-    //             }
-    //             // console.log("setMultiSelectRecord", res);
-    //             // lifeCircleHook(importLifeCircles.onSetOptions, {
-    //             //   stage: importLifeCircles.onSetOptions,
-    //             //   data: {
-    //             //     field: select,
-    //             //     record: res,
-    //             //   },
-    //             // });
-    //           }
-
-    //           if (select.config.type === FieldType.SingleSelect) {
-    //             const value = record.value as IOpenSingleSelect;
-    //             const option = newOptions.find(
-    //               (option) => option.name === value.text,
-    //             );
-    //             if (option) {
-    //               // const res = await table.setRecord(id, {
-    //               //   fields: {
-    //               //     [select.id]: {
-    //               //       text: option.name,
-    //               //       id: option.id,
-    //               //     },
-    //               //   },
-    //               // });
-    //               if (!update[select.id]) {
-    //                 update[select.id] = [];
-    //               }
-    //               update[select.id].push({
-    //                 recordId: id,
-    //                 fields: {
-    //                   [select.id]: {
-    //                     text: option.name,
-    //                     id: option.id,
-    //                   },
-    //                 },
-    //               });
-    //             }
-    //           }
-    //         }),
-    //       );
-    //     }),
-    //   );
-    //   for (const key in update) {
-    //     await batchUpdateRecords(update[key], table, 500, 500, () =>
-    //       lifeCircleHook(importLifeCircles.onSetOptions, {
-    //         stage: importLifeCircles.onSetOptions,
-    //         data: {
-    //           field: key,
-    //           record: update[key],
-    //         },
-    //       }),
-    //     );
-    //   }
-    // }
+    if (selects.length > 0) {
+      await Promise.all(
+        selects.map(async (select) => {
+          let field = await table.getFieldById(select.id);
+          const optionsRecords = await field.getFieldValueList();
+          await table.setField(select.id, select.config);
+          field = await table.getFieldById(select.id);
+          const newMeta = await table.getFieldMetaById(select.id);
+          fieldsMaps[
+            fieldsMaps.findIndex((fieldMap) => fieldMap.field.id === select.id)
+          ].field = newMeta as fieldMap["field"];
+        }),
+      );
+    }
   }
-  // await lifeCircleHook(importLifeCircles.onSetOptionsFieldEnd, {
-  //   stage: importLifeCircles.onSetOptionsFieldEnd,
-  //   data: {},
-  // });
+
   return fieldsMaps;
 }
 
