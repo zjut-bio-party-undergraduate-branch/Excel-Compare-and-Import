@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "github:build": "vite build --base /Excel-Compare-and-Import/",
     "preview": "vite preview --port 4173",
     "createData": "npx vite-node ./scripts/createTestData.ts -n"
   },
