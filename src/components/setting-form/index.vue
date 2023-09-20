@@ -8,7 +8,7 @@ import {
   ISingleLinkFieldProperty,
 } from "@lark-base-open/js-sdk"
 import type { ExcelDataInfo, fieldMap } from "@/types/types"
-import { ElLoading, ElMessage } from "element-plus"
+import { ElLoading, ElMessage, TableColumnCtx } from "element-plus"
 import { Setting, Lock, Refresh } from "@element-plus/icons-vue"
 import {
   ignoreFieldType,
@@ -100,8 +100,9 @@ const filters = computed(() => {
 function filterHandler(
   value: string,
   row: fieldMap,
-  // column: TableColumnCtx<fieldMap>
+  column: TableColumnCtx<fieldMap>,
 ) {
+  console.log(value, row, column)
   return row.field.name === value
 }
 
@@ -135,11 +136,8 @@ async function loadLinkTable(
           children: [],
         }
       })
-
-    resolve(row.children)
-  } else {
-    resolve([])
   }
+  resolve(row.children as fieldMap[])
 }
 
 async function importAction() {

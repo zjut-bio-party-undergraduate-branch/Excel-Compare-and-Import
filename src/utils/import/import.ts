@@ -1,13 +1,11 @@
 import {
   IOpenCellValue,
   FieldType,
-  IMultiSelectFieldMeta,
-  ISingleSelectFieldMeta,
   IWidgetTable,
-  ISelectFieldConfig,
   IRecordValue,
   IRecord,
   bitable,
+  ICell,
 } from "@lark-base-open/js-sdk"
 
 import {
@@ -20,130 +18,25 @@ import {
   Task,
   SheetInfo,
 } from "@/types/types"
-import { getCellValue, cellValueToString } from "../cellValue"
-import { hasNewElement, delay } from "./helper"
+import { TaskAction } from "@/utils/import/tasks"
+import { getCell, cellValueToString } from "../cellValue"
+import { delay, isArrayStrictEqual } from "./helper"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
 import { i18n } from "@/i18n"
 import { clearTree, walkTree, getTreeLength } from "./tree"
-import { P } from "vitest/dist/reporters-cb94c88b.js"
 
 export const optionsFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
-async function setOptionsField(
-  fieldsMaps: fieldMap[],
-  sheet: SheetInfo,
-  tables: { [key: IWidgetTable["id"]]: BitableTable },
-  lifeCircleHook: any,
-) {
-  lifeCircleHook(importLifeCircles.beforeCheckFields, {
-    stage: importLifeCircles.beforeCheckFields,
-    data: {
-      number: fieldsMaps.length,
-    },
-  })
+export const linkFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
 
-  const optionsFields: fieldMap[] = []
-  const length = getTreeLength(fieldsMaps)
-  walkTree(fieldsMaps, (v) => {
-    lifeCircleHook(importLifeCircles.onCheckFields, {
-      stage: importLifeCircles.onCheckFields,
-      data: {
-        field: v.field,
-        res: optionsFieldType.includes(v.field.type),
-        progress: {
-          number: length,
-          current: fieldsMaps.findIndex((i) => i === v),
-        },
-      },
-    })
-    if (optionsFieldType.includes(v.field.type) && v.excel_field) {
-      optionsFields.push(v)
-    }
-  })
-
-  // refresh singleSelect and multiSelect options
-  if (optionsFields.length > 0) {
-    lifeCircleHook(importLifeCircles.beforeCheckOptions, {
-      stage: importLifeCircles.beforeCheckOptions,
-      data: {
-        number: optionsFields.length,
-      },
-    })
-    const selects: {
-      id: string
-      config: ISelectFieldConfig
-      table: IWidgetTable["id"]
-      field: fieldMap
-    }[] = []
-    optionsFields.forEach((optionsField) => {
-      const tableOptions = (
-        optionsField.field as ISingleSelectFieldMeta | IMultiSelectFieldMeta
-      ).property.options.map((v: any) => v.name)
-      const excelValues = Array.from(
-        new Set(
-          sheet.tableData.records
-            .map((v) => {
-              return Array.from(
-                (v[optionsField.excel_field as string] ?? "")?.split(
-                  optionsField.config?.separator ?? ",",
-                ),
-              ) as string[]
-            })
-            .flat()
-            .filter((v) => v !== ""),
-        ),
-      )
-      if (hasNewElement(tableOptions, excelValues)) {
-        const options = Array.from(
-          new Set([...tableOptions, ...excelValues]),
-        ) as string[]
-        selects.push({
-          id: optionsField.field.id,
-          table: optionsField.table,
-          field: optionsField,
-          config: {
-            type: optionsField.field.type as
-              | FieldType.SingleSelect
-              | FieldType.MultiSelect,
-            name: optionsField.field.name,
-            property: {
-              options: options.map((v) => ({ name: v })),
-            },
-          },
-        })
-      }
-      lifeCircleHook(importLifeCircles.onCheckOptions, {
-        stage: importLifeCircles.onCheckOptions,
-        data: {
-          field: optionsField.field,
-          selects,
-        },
-      })
-    })
-    console.log(selects)
-    lifeCircleHook(importLifeCircles.beforeSetOptions, {
-      stage: importLifeCircles.beforeSetOptions,
-      data: {
-        number: selects.length,
-      },
-    })
-    if (selects.length > 0) {
-      await Promise.all(
-        selects.map(async (select) => {
-          const table = tables[select.table].table
-          await table.setField(select.id, select.config)
-          const newMeta = await table.getFieldMetaById(select.id)
-          select.field.field = newMeta as fieldMap["field"]
-        }),
-      )
-    }
-  }
-  await lifeCircleHook(importLifeCircles.onSetOptionsFieldEnd, {
-    stage: importLifeCircles.onSetOptionsFieldEnd,
-    data: {},
-  })
-}
-
+/**
+ * Batch processing
+ * @param maxNumber
+ * @param interval
+ * @param records
+ * @param action
+ * @returns
+ */
 async function batch(
   maxNumber: number = 5000,
   interval: number = 0,
@@ -163,7 +56,6 @@ async function batch(
       if (interval > 0) {
         await delay(interval)
       }
-
       res.push(...currRes)
     }
     return res
@@ -196,6 +88,12 @@ function addRecords(table: IWidgetTable, lifeCircleHook: any) {
   }
 }
 
+/**
+ * Update records
+ * @param table
+ * @param lifeCircleHook
+ * @returns
+ */
 function updateRecords(table: IWidgetTable, lifeCircleHook: any) {
   return async (records: IRecord[]) => {
     try {
@@ -220,6 +118,12 @@ function updateRecords(table: IWidgetTable, lifeCircleHook: any) {
   }
 }
 
+/**
+ * Delete records
+ * @param table
+ * @param lifeCircleHook
+ * @returns
+ */
 function deleteRecords(table: IWidgetTable, lifeCircleHook: any) {
   return async (records: string[]) => {
     try {
@@ -244,6 +148,15 @@ function deleteRecords(table: IWidgetTable, lifeCircleHook: any) {
   }
 }
 
+/**
+ * Batch add records
+ * @param records
+ * @param table
+ * @param maxNumber
+ * @param interval
+ * @param lifeCircleHook
+ * @returns
+ */
 async function batchRecords(
   records: { [key: string]: IOpenCellValue }[],
   table: IWidgetTable,
@@ -328,6 +241,28 @@ async function compareCellValue(
   }
 }
 
+async function getBitableTableById(id: string, root: boolean = false) {
+  const table = await bitable.base.getTableById(id)
+  const name = await table.getName()
+  const fields = await table.getFieldMetaList()
+  return {
+    id,
+    table,
+    name,
+    indexId: [fields.filter((v) => v.isPrimary)[0].id],
+    root,
+    fields: await fields.reduce(
+      async (c, o) => {
+        const f = await c
+        const field = await table.getFieldById(o.id)
+        f[o.id] = field
+        return f
+      },
+      {} as Promise<BitableTable["fields"]>,
+    ),
+  } as BitableTable
+}
+
 /**
  * @description Collect the tables in the fieldMaps
  * @param fieldMaps
@@ -338,48 +273,14 @@ async function collect(fieldMaps: fieldMap[]) {
   fieldMaps.forEach(async (i) => {
     if (!Object.keys(tables).includes(i.table)) {
       const id = i.table
-      const table = await bitable.base.getTableById(id)
-      const name = await table.getName()
-      const fields = await table.getFieldMetaList()
-      tables[id] = {
-        id,
-        table,
-        name,
-        indexName: [fields.filter((v) => v.isPrimary)[0].name],
-        fields: await fields.reduce(
-          async (c, o) => {
-            const f = await c
-            const field = await table.getFieldById(o.id)
-            f[o.id] = field
-            return f
-          },
-          {} as Promise<BitableTable["fields"]>,
-        ),
-      }
+      tables[id] = await getBitableTableById(id, i.root)
     }
     if (
       i.hasChildren &&
       !Object.keys(tables).includes((i.field as LinkField).property.tableId)
     ) {
       const id = (i.field as LinkField).property.tableId
-      const table = await bitable.base.getTableById(id)
-      const name = await table.getName()
-      const fields = await table.getFieldMetaList()
-      tables[id] = {
-        table,
-        id,
-        name,
-        indexName: [fields.filter((v) => v.isPrimary)[0].name],
-        fields: await fields.reduce(
-          async (c, o) => {
-            const f = await c
-            const field = await table.getFieldById(o.id)
-            f[o.id] = field
-            return f
-          },
-          {} as Promise<BitableTable["fields"]>,
-        ),
-      }
+      tables[id] = await getBitableTableById(id)
     }
     if (i.children?.length) {
       tables = { ...tables, ...(await collect(i.children)) }
@@ -446,47 +347,161 @@ export async function getImportTasks(
   /**
    * Collect the tables
    */
-  const tables: {
-    [key: IWidgetTable["id"]]: BitableTable
-  } = await collect(fieldsMaps)
-
-  /**
-   * Set options
-   */
-  await setOptionsField(fieldsMaps, sheet, tables, lifeCircleHook)
+  const tables: Record<IWidgetTable["id"], BitableTable> =
+    await collect(fieldsMaps)
 
   /**
    * Get Indexes
    */
-  const rootIndex: {
+  const rootIndex: Array<{
     indexValue: string[]
     table: IWidgetTable["id"]
     recordId: string
-  }[] = []
+  }> = []
   if (index) {
     const rootTable = tables[fieldsMaps[0].table].table
     rootIndex.push(...(await getTableIndex(rootTable, index, lifeCircleHook)))
   }
-  const tasks: Task[] = []
-  const excelRecords = sheet.tableData.records
+  const linkIndexes: Record<
+    IWidgetTable["id"],
+    {
+      indexValue: string[]
+      table: IWidgetTable["id"]
+      recordId: string
+    }[]
+  > = {}
   await Promise.all(
-    excelRecords.map(async (record) => {
-      const recordFields: IRecordValue["fields"] = {}
-      await Promise.all(
-        fieldsMaps.map(async (fieldMap) => {
-          if (fieldMap.excel_field) {
-            const value = record[fieldMap.excel_field]
-            if (value) {
-              if (mode === importModes.append || !rootIndex) {
-                recordFields[fieldMap.field.id] = value
-              } else {
-              }
-            }
-          }
-        }),
+    Object.values(tables).map(async (linkTable) => {
+      const index = linkTable.indexId
+      const indexValue = await getTableIndex(
+        linkTable.table,
+        index,
+        lifeCircleHook,
       )
+      linkIndexes[linkTable.id] = indexValue
     }),
   )
+
+  const tasks: Array<Task> = []
+  const excelRecords = sheet.tableData.records
+  // async function analysisChildren(
+  //   excelRecord: { [key: string]: string },
+  //   table: IWidgetTable["id"],
+  //   fieldsMaps: fieldMap[],
+  //   fromRecord: {
+  //     fields: IRecordValue["fields"]
+  //     id: string
+  //     table: IWidgetTable["id"]
+  //     action: TaskAction
+  //   },
+  // ) {
+  //   const recordItem: {
+  //     fields: IRecordValue["fields"]
+  //     id: string
+  //     table: IWidgetTable["id"]
+  //     action: TaskAction
+  //   } = {
+  //     fields: {},
+  //     id: "",
+  //     action: TaskAction.Add,
+  //     table,
+  //   }
+  //   await Promise.all(
+  //     fieldsMaps.map(async (fieldMap) => {
+  //       if (fieldMap.excel_field) {
+  //         if (linkFieldType.includes(fieldMap.field.type)) {
+  //           await analysisChildren(excelRecord, recordItem)
+  //         } else {
+  //           const value = excelRecord[fieldMap.excel_field]
+  //           const tempValue = getCell(fieldMap, value)
+  //           if (tempValue) {
+  //             recordItem.fields[fieldMap.field.id] = tempValue
+  //           }
+  //         }
+  //       }
+  //     }),
+  //   )
+  // }
+  function linkTableTask(table: string) {}
+  if (mode === importModes.append || !rootIndex) {
+    await Promise.all(
+      excelRecords.map(async (record) => {
+        const recordItem: {
+          cells: ICell[]
+          id: string
+          table: IWidgetTable["id"]
+          action: TaskAction
+        } = {
+          cells: [],
+          id: "",
+          action: TaskAction.Add,
+          table: record.table,
+        }
+        await Promise.all(
+          fieldsMaps.map(async (fieldMap) => {
+            if (fieldMap.excel_field) {
+              if (linkFieldType.includes(fieldMap.field.type)) {
+                const value = record[fieldMap.excel_field]
+                const values = value.split(fieldMap.config?.separator ?? ",")
+                const linkId = (fieldMap.field as LinkField).property.tableId
+                const targetRecordIds = linkIndexes[linkId]
+                  .filter((v) => values.includes(v.indexValue[0]))
+                  .map((v) => v.recordId)
+
+                const field = tables[linkId].fields[tables[linkId].indexId[0]]
+                if (targetRecordIds?.length) {
+                  const cell = await getCell(
+                    field,
+                    fieldMap,
+                    targetRecordIds.join(","),
+                  )
+                  if (cell) {
+                    recordItem.cells.push(cell)
+                  }
+                } else {
+                }
+              } else {
+                const prop = (fieldMap.field as LinkField).property
+              }
+            }
+          }),
+        )
+        const task = tasks.find(
+          (i) =>
+            i.table.id === recordItem.table && i.action === recordItem.action,
+        )
+        if (task) {
+          task.data.push(recordItem)
+        } else {
+          tasks.push({
+            table: {
+              name: tables[recordItem.table].name,
+              id: recordItem.table,
+            },
+            action: recordItem.action,
+            index: 0,
+            data: [recordItem],
+            result: undefined,
+          })
+        }
+      }),
+    )
+  } else {
+    await Promise.all(
+      excelRecords.map(async (record) => {
+        const recordFields: IRecordValue["fields"] = {}
+        await Promise.all(
+          fieldsMaps.map(async (fieldMap) => {
+            if (fieldMap.excel_field) {
+              const value = record[fieldMap.excel_field]
+              if (value) {
+              }
+            }
+          }),
+        )
+      }),
+    )
+  }
 }
 
 /**
@@ -501,7 +516,7 @@ export async function getImportTasks(
  */
 export async function importExcel(
   fieldsMaps: fieldMap[],
-  excelData: ExcelDataInfo["sheets"],
+  excelData: ExcelDataInfo,
   sheetIndex: number,
   index: string[] | null = null,
   mode: importModes = importModes.append,
@@ -521,13 +536,13 @@ export async function importExcel(
   /**
    * Set options
    */
-  await setOptionsField(
-    fieldsMaps,
-    excelData,
-    sheetIndex,
-    tables,
-    lifeCircleHook,
-  )
+  // await setOptionsField(
+  //   fieldsMaps,
+  //   excelData,
+  //   sheetIndex,
+  //   tables,
+  //   lifeCircleHook,
+  // )
 
   const tasks: any[] = []
 

@@ -1,7 +1,12 @@
-import { checkers } from "@lark-base-open/js-sdk"
+import { ICurrencyField } from "@lark-base-open/js-sdk"
 
-export function currency(value: string): number | null {
+/**
+ * Get currency cell
+ * @param field
+ * @param value
+ * @returns
+ */
+export async function currency(field: ICurrencyField, value: string) {
   const res = Number(value.match(/-?\d+\.?\d*/g))
-  if (checkers.isNumber(res)) return res;
-  return null
+  return await field.createCell(res)
 }

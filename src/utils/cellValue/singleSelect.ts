@@ -1,28 +1,16 @@
-import {
-  ISingleSelectFieldMeta,
-  IOpenSingleSelect,
-} from "@lark-base-open/js-sdk"
+import { ISingleSelectField } from "@lark-base-open/js-sdk"
 
 /**
- * Get singleSelect cell value
- * @param value
+ * Get singleSelect cell
  * @param field
+ * @param value
  * @returns
  */
-export function singleSelect(
-  value: string,
-  field: ISingleSelectFieldMeta,
-): IOpenSingleSelect {
-  if (value === "") {
-    return {
-      text: "",
-      id: "",
-    }
+export async function singleSelect(field: ISingleSelectField, value: string) {
+  const options = await field.getOptions()
+  const option = options.find((option) => option.id === value)
+  if (!option) {
+    await field.addOption(value)
   }
-  const id =
-    field.property.options.find((option) => option.name === value)?.id ?? ""
-  return {
-    text: value,
-    id,
-  }
+  return await field.createCell(value)
 }

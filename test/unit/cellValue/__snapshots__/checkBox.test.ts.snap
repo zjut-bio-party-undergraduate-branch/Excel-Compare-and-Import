@@ -1,5 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`checkBox > "" should return false 1`] = `false`;
-
-exports[`checkBox > ☑️ should return true 1`] = `true`;

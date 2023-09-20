@@ -68,7 +68,7 @@ export const zh = {
   },
   loading: "加载中...",
   fieldType: {
-    text: "多行文本",
+    text: "文本",
     singleSelect: "单选",
     multiSelect: "多选",
     number: "数字",

@@ -1,13 +1,14 @@
-import { checkers } from "@lark-base-open/js-sdk"
+import { IProgressField } from "@lark-base-open/js-sdk"
+import { divide } from "mathjs"
 
 /**
- * Get progress cell value
+ * Get progress cell
+ * @param field
  * @param value
  * @returns
  */
-export function progress(value: string) {
+export async function progress(field: IProgressField, value: string) {
   const v = Number(value.match(/-?\d+\.?\d*/g))
-  const res = v > 1 ? v / 100 : v
-  if (checkers.isNumber(res)) return res
-  return 0
+  const res = value.match(/-?\d+\.?\d*%/g) ? divide(v, 100) : v
+  return await field.createCell(res)
 }

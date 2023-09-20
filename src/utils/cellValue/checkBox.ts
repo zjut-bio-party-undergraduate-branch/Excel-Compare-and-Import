@@ -1,22 +1,21 @@
-import type { IOpenCheckbox } from "@lark-base-open/js-sdk"
+import type { ICheckBoxField } from "@lark-base-open/js-sdk"
 
 export const defaultBoolValue = {
   true: ["是", "True", "true", "TRUE", "1", "☑️"],
   false: ["否", "False", "false", "FALSE", "0", ""],
 }
+
 /**
- * Get checkbox cell value
+ * Get checkBox cell
+ * @param field
  * @param value
- * @param boolValue Default: true: ["是", "True", "true", "TRUE", "1", "☑️"], false: ["否", "False", "false", "FALSE", "0", ""]
+ * @param boolValue Default value is { true: ["是", "True", "true", "TRUE", "1", "☑️"], false: ["否", "False", "false", "FALSE", "0", ""] }
  * @returns
  */
-export function checkBox(
+export async function checkBox(
+  field: ICheckBoxField,
   value: string,
   boolValue: { true: string[]; false: string[] } = defaultBoolValue,
-): IOpenCheckbox {
-  if (!value) return false
-  // const boolValue = config?.boolValue;
-  if (boolValue.true.includes(value)) return true
-  if (boolValue.false.includes(value)) return false
-  return false
+) {
+  return await field.createCell(boolValue.true.includes(value))
 }

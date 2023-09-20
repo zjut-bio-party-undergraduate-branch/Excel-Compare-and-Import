@@ -1,7 +1,7 @@
 import dayjs from "dayjs/esm/index.js"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 import advancedFormat from "dayjs/plugin/advancedFormat"
-import { IOpenTimestamp, checkers } from "@lark-base-open/js-sdk"
+import { IDateTimeField } from "@lark-base-open/js-sdk"
 
 dayjs.extend(customParseFormat)
 dayjs.extend(advancedFormat)
@@ -9,16 +9,17 @@ dayjs.extend(advancedFormat)
 export const dateDefaultFormat = "YYYY/MM/DD"
 
 /**
- * Get dateTime cell value
+ * Get dateTime cell
+ * @param field
  * @param value
  * @param format Default: "YYYY/MM/DD"
  * @returns
  */
-export function dateTime(
+export async function dateTime(
+  field: IDateTimeField,
   value: string,
   format: string = "YYYY/MM/DD",
-): IOpenTimestamp | null {
+) {
   const res = dayjs(value, format).valueOf()
-  if (checkers.isTimestamp(res)) return res
-  return null
+  return await field.createCell(res)
 }

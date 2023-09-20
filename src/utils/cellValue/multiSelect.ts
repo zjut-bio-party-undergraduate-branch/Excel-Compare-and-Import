@@ -1,36 +1,26 @@
-import {
-  IMultiSelectFieldMeta,
-  IOpenMultiSelect,
-  checkers,
-} from "@lark-base-open/js-sdk"
+import { IMultiSelectField } from "@lark-base-open/js-sdk"
 
 export const defaultSeparator = ","
 
 /**
- * Get multiSelect cell value
- * @param value
+ * Get multiSelect cell
  * @param field
+ * @param value
  * @param separator Default: ","
  * @returns
  */
-export function multiSelect(
+export async function multiSelect(
+  field: IMultiSelectField,
   value: string,
-  field: IMultiSelectFieldMeta,
   separator: string = ",",
-): IOpenMultiSelect {
-  console.log("separator", separator)
-  if (value === "") return []
-  console.log("multiSelect", value)
-  const selection = Array.from(value.split(separator))
-  const res: IOpenMultiSelect = []
-  for (const v of selection) {
-    let id =
-      field.property.options.find((option) => option.name === v)?.id ?? ""
-    res.push({
-      text: v,
-      id,
-    })
+) {
+  const options = await field.getOptions()
+  const values = value.split(separator)
+  for (let i = 0; i < values.length; i++) {
+    const option = options.find((option) => option.name === values[i])
+    if (!option) {
+      await field.addOption(values[i])
+    }
   }
-  if (checkers.isMultiSelect(res)) return res
-  return []
+  return await field.createCell(values)
 }

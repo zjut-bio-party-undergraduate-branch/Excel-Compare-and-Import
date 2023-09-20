@@ -1,17 +1,24 @@
-import { IOpenUser } from "@lark-base-open/js-sdk"
+import { IUserField } from "@lark-base-open/js-sdk"
 
 /**
- * Get user cell value
- * @param open_id
+ * Get user cell
+ * @param field
+ * @param openId
  * @param separator Default: ","
  * @returns
  */
-export function User(open_id: string, separator: string = ","): IOpenUser[] {
-  if (open_id === "") return []
-  const selection = Array.from(open_id.split(separator))
-  return selection.map((v) => {
-    return {
-      id: v.trim(),
-    }
-  })
+export async function User(
+  field: IUserField,
+  openId: string,
+  separator: string = ",",
+) {
+  const multiple = await field.getMultiple()
+  const users = openId.split(separator)
+  return await field.createCell(
+    multiple
+      ? users.map((u) => ({
+          id: u,
+        }))
+      : { id: users[0] },
+  )
 }

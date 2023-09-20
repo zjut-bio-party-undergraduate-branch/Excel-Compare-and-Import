@@ -3,7 +3,11 @@ import settingForm from "@/components/setting-form/index.vue"
 import upload from "@/components/upload/index.vue"
 import Info from "@/components/info/index.vue"
 import { ref, onMounted, watch } from "vue"
-import { bitable, ThemeModeType } from "@lark-base-open/js-sdk"
+import {
+  bitable,
+  ThemeModeType,
+  HostContainerSize,
+} from "@lark-base-open/js-sdk"
 import { isDark } from "@/utils/index"
 import { useI18n } from "vue-i18n"
 import { Link } from "@element-plus/icons-vue"
@@ -69,7 +73,20 @@ onMounted(async () => {
   console.log(window.location)
   const theme = await bitable.bridge.getTheme()
   isDark.value = theme === ThemeModeType.DARK
+  // await bitable.ui.setHostContainerSize(HostContainerSize.Large)
 })
+
+// async function test() {
+//   const table = await bitable.base.getTableById("tblxarg8wkDhmjW1")
+//   await table.addRecord({
+//     fields: {
+//       fldfW6yZsr: {
+//         tableId: "tbl8ZrlK3haHTHeM",
+//         recordIds: ["recqsEpIxU", "recQxzfKuH"],
+//       },
+//     },
+//   })
+// }
 </script>
 
 <template>
@@ -99,4 +116,5 @@ onMounted(async () => {
     ref="settingRef"
     :excelData="data"
   />
+  <!-- <el-button @click="test">test</el-button> -->
 </template>

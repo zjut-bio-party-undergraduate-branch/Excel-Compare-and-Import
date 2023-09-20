@@ -101,3 +101,22 @@ export function useBitableTable(
     fields,
   }
 }
+
+export function useData<T extends Record<string, unknown> | undefined>() {
+  const data = ref<T>()
+  watch(
+    () => toValue(data),
+    (newVal: T | undefined) => {
+      if (newVal) {
+        bitable.bridge.setData(newVal)
+      }
+    },
+    { deep: true },
+  )
+  onMounted(async () => {
+    data.value = (await bitable.bridge.getData()) as T
+  })
+  return {
+    data,
+  }
+}

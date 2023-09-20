@@ -1,12 +1,11 @@
-import { IOpenPhone, checkers } from "@lark-base-open/js-sdk"
+import { IPhoneField } from "@lark-base-open/js-sdk"
 
 /**
- * Get phone cell value
+ * Get phone cell
+ * @param field
  * @param value
  * @returns
  */
-export function phone(value: string): IOpenPhone {
-  const res = String(value)
-  if (checkers.isPhone(res)) return res
-  return ""
+export async function phone(field: IPhoneField, value: string) {
+  return await field.createCell(value)
 }

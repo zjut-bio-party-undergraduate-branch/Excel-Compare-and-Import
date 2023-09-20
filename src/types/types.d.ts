@@ -5,7 +5,9 @@ import {
   ISingleLinkFieldMeta,
   IWidgetTable,
   IWidgetField,
+  IField,
 } from "@lark-base-open/js-sdk"
+import { TaskAction } from "@/utils/import/tasks"
 
 export interface SheetInfo {
   name: string
@@ -62,16 +64,11 @@ export interface BitableTable {
   table: IWidgetTable
   id: IWidgetTable["id"]
   name: IWidgetTable["name"]
-  indexName: string[]
+  indexId: string[]
+  root: boolean
   fields: {
-    [key: string]: IWidgetField
+    [key: string]: IField
   }
-}
-
-export enum TaskAction {
-  Update = "update",
-  Delete = "delete",
-  Add = "add",
 }
 
 export type Task = {

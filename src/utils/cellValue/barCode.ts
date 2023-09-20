@@ -1,13 +1,10 @@
+import { IBarcodeField } from "@lark-base-open/js-sdk"
 /**
- * Get barcode cell value
+ * Get barCode cell
+ * @param field
  * @param value
  * @returns
  */
-export function barCode(value: string) {
-  return [
-    {
-      text: String(value),
-      type: "text",
-    },
-  ]
+export async function barCode(field: IBarcodeField, value: string) {
+  return await field.createCell(value)
 }

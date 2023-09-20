@@ -1,11 +1,8 @@
 import { MaybeRefOrGetter, toValue, ref, watch } from "vue"
-import {
-  IFieldMeta,
-  ISingleLinkFieldProperty,
-} from "@lark-base-open/js-sdk/dist"
+import { IFieldMeta } from "@lark-base-open/js-sdk/dist"
 import { importModes } from "@/utils/import"
 import { ExcelDataInfo, fieldMap, SheetInfo } from "@/types/types"
-import { configField, hasChildrenFieldType, ignoreFieldType } from "../utils"
+import { configField, ignoreFieldType } from "../utils"
 
 export function useSetting(
   tableFields: MaybeRefOrGetter<IFieldMeta[] | undefined>,
@@ -70,13 +67,19 @@ export function useSetting(
               excel_field: undefined,
               config: configField(v.type),
               root: true,
-              hasChildren:
-                hasChildrenFieldType.includes(v.type) &&
-                (v.property as ISingleLinkFieldProperty).tableId !==
-                  toValue(tableId),
+              /**
+               * TODO: 递归创建关联表记录
+               * 受限于时间精力，暂时搁置
+               */
+              // hasChildren:
+              //   hasChildrenFieldType.includes(v.type) &&
+              //   (v.property as ISingleLinkFieldProperty).tableId !==
+              //     toValue(tableId),
+              hasChildren: false,
               children: [],
             }
           }) ?? []
+      console.log(settingColumns.value)
       if (toValue(excelData)) {
         fill()
       }

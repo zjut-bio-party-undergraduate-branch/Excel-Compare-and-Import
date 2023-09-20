@@ -1,21 +1,18 @@
-import { ISingleLinkFieldMeta } from "@lark-base-open/js-sdk"
+import { IOpenLink, ISingleLinkField } from "@lark-base-open/js-sdk"
 
 export const singleLinkSeparator = ","
 
 /**
- * Get singleLink cell value
- * @param value
+ * Get singleLink cell
  * @param field
- * @param separator Default: ","
+ * @param value
  * @returns
  */
-export function singleLink(
-  value: string,
-  field: ISingleLinkFieldMeta,
-  separator: string = singleLinkSeparator,
-) {
-  if (!value) return value
-  const res = value.split(separator)
-  if (res.length === 1) return res[0]
-  return res
+export async function singleLink(field: ISingleLinkField, value: string) {
+  const multiple = await field.getMultiple()
+  const ids = value.split(",")
+  return await field.createCell({
+    recordIds: multiple ? ids : Array(ids[0]),
+    tableId: await field.getTableId(),
+  } as IOpenLink)
 }

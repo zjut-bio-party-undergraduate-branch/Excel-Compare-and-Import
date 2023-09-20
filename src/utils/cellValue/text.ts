@@ -1,16 +1,10 @@
-import { IOpenSegmentType } from "@lark-base-open/js-sdk"
+import { ITextField } from "@lark-base-open/js-sdk"
 
 /**
- * Get text cell value
+ * Get text cell
  * @param value
  * @returns
  */
-export function text(value: string) {
-  const res = [
-    {
-      text: String(value),
-      type: IOpenSegmentType.Text,
-    },
-  ]
-  return res
+export async function text(field: ITextField, value: string) {
+  return await field.createCell(value)
 }

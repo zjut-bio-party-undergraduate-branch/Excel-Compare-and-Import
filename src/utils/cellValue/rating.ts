@@ -1,12 +1,11 @@
-import { checkers } from "@lark-base-open/js-sdk"
+import { IRatingField } from "@lark-base-open/js-sdk"
 
 /**
- * Get rating cell value
+ * Get rating cell
  * @param value
  * @returns
  */
-export function rating(value: string) {
+export async function rating(field: IRatingField, value: string) {
   const res = Number(value.match(/-?\d+\.?\d*/g))
-  if (checkers.isNumber(res)) return res
-  return null
+  return await field.createCell(res)
 }

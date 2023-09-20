@@ -1,10 +1,24 @@
 import {
   IOpenCellValue,
   FieldType,
-  IMultiSelectFieldMeta,
-  ISingleSelectFieldMeta,
   checkers,
   IOpenGroupChat,
+  IField,
+  IUrlField,
+  IDateTimeField,
+  ISingleLinkField,
+  ISingleSelectField,
+  IMultiSelectField,
+  INumberField,
+  ICurrencyField,
+  IProgressField,
+  IRatingField,
+  ICheckBoxField,
+  ITextField,
+  IBarcodeField,
+  IPhoneField,
+  IUserField,
+  IDuplexLinkField,
 } from "@lark-base-open/js-sdk"
 import { fieldMap } from "@/types/types"
 import { dateTime, dateDefaultFormat } from "./date"
@@ -19,48 +33,62 @@ import { progress } from "./progress"
 import { rating } from "./rating"
 import { barCode } from "./barCode"
 import { User } from "./user"
+import { singleLink } from "./singleLink"
+import { duplexLink } from "./duplexLink"
+import { number } from "./number"
 
-export function getCellValue(
+export async function getCell(
+  field: IField,
   fieldMap: fieldMap,
   value: string,
-): IOpenCellValue {
+) {
   const type = fieldMap.field.type
-  const field = fieldMap.field
   const config = fieldMap.config
-  if (!value) return value
   switch (type) {
     case FieldType.Url:
-      return url(value)
+      return url(field as IUrlField, value)
     case FieldType.DateTime:
-      return dateTime(value, config?.format ?? dateDefaultFormat)
+      return dateTime(
+        field as IDateTimeField,
+        value,
+        config?.format ?? dateDefaultFormat,
+      )
     case FieldType.SingleSelect:
-      return singleSelect(value, field as ISingleSelectFieldMeta)
+      return singleSelect(field as ISingleSelectField, value)
     case FieldType.MultiSelect:
       return multiSelect(
+        field as IMultiSelectField,
         value,
-        field as IMultiSelectFieldMeta,
         config?.separator ?? ",",
       )
     case FieldType.Number:
-      return Number(value.match(/-?\d+\.?\d*/g))
+      return number(field as INumberField, value)
     case FieldType.Currency:
-      return currency(value)
+      return currency(field as ICurrencyField, value)
     case FieldType.Progress:
-      return progress(value)
+      return progress(field as IProgressField, value)
     case FieldType.Rating:
-      return rating(value)
+      return rating(field as IRatingField, value)
     case FieldType.Checkbox:
-      return checkBox(value, config?.boolValue ?? defaultBoolValue)
+      return checkBox(
+        field as ICheckBoxField,
+        value,
+        config?.boolValue ?? defaultBoolValue,
+      )
     case FieldType.Text:
-      return text(value) as IOpenCellValue
+      return text(field as ITextField, value)
     case FieldType.Barcode:
-      return barCode(value) as IOpenCellValue
+      return barCode(field as IBarcodeField, value)
     case FieldType.Phone:
-      return phone(value)
+      return phone(field as IPhoneField, value)
     case FieldType.User:
-      return User(value, config.separator)
+      return User(field as IUserField, value, config.separator)
+    case FieldType.SingleLink:
+      return singleLink(field as ISingleLinkField, value)
+    case FieldType.DuplexLink:
+      return duplexLink(field as IDuplexLinkField, value)
     default:
-      return value
+      return null
   }
 }
 
