@@ -19,11 +19,10 @@ export interface stage {
 const stageIndex = {
   checkFieldTypes: 0,
   checkOptions: 1,
-  setOptions: 2,
-  analysisRecords: 3,
-  updateRecords: 4,
-  deleteRecords: 5,
-  addRecords: 6,
+  analysisRecords: 2,
+  updateRecords: 3,
+  deleteRecords: 4,
+  addRecords: 5,
 };
 
 export const currentStage = ref(0);
@@ -288,9 +287,8 @@ export function onUpdateRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["updateRecords"]
   );
   if (res) {
-    stages.value[index].success += 500;
-  } else {
-    stages.value[index].error += 500;
+    stages.value[index].success += res.filter((item) => item).length;
+    stages.value[index].error += res.filter((item) => !item).length;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -324,9 +322,8 @@ export function onDeleteRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["deleteRecords"]
   );
   if (res) {
-    stages.value[index].success += 500;
-  } else {
-    stages.value[index].error += 500;
+    stages.value[index].success += res.filter((item) => item).length;
+    stages.value[index].error += res.filter((item) => !item).length;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -361,9 +358,8 @@ export function onAddRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["addRecords"]
   );
   if (res) {
-    stages.value[index].success += 500;
-  } else {
-    stages.value[index].error += 500;
+    stages.value[index].success += res.filter((item) => item).length;
+    stages.value[index].error += res.filter((item) => !item).length;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
