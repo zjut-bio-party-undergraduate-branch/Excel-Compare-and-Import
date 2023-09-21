@@ -346,9 +346,9 @@ export async function importExcel(
   mode: importModes = importModes.append,
   lifeCircleHook: any = runLifeCircleEvent,
 ) {
-  fieldsMaps = fieldsMaps.filter(
-    (fieldMap) => fieldMap.excel_field,
-  ) as fieldMap[];
+  // fieldsMaps = fieldsMaps.filter(
+  //   (fieldMap) => fieldMap.excel_field,
+  // ) as fieldMap[];
   fieldsMaps = await setOptionsField(
     fieldsMaps,
     excelData,
