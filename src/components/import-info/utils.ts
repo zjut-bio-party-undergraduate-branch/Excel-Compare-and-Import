@@ -54,19 +54,6 @@ export const defaultStages = () => [
     title: "importInfo.checkOptions",
     index: stageIndex["checkOptions"],
   },
-  // {
-  //   state: "waiting",
-  //   disabled: true,
-  //   message: "",
-  //   progress: false,
-  //   stage: "setOptions",
-  //   success: 0,
-  //   error: 0,
-  //   number: 0,
-  //   name: stageIndex["setOptions"],
-  //   title: "importInfo.setOptions",
-  //   index: stageIndex["setOptions"],
-  // },
   {
     state: "waiting",
     disabled: true,
@@ -317,13 +304,14 @@ export function beforeDeleteRecords(e: lifeCircleEventParams) {
 }
 
 export function onDeleteRecords(e: lifeCircleEventParams) {
-  const { res } = e.data;
+  const { res, number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["deleteRecords"]
   );
   if (res) {
-    stages.value[index].success += res.filter((item) => item).length;
-    stages.value[index].error += res.filter((item) => !item).length;
+    stages.value[index].success += number;
+  } else {
+    stages.value[index].error += number;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -358,6 +346,7 @@ export function onAddRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["addRecords"]
   );
   if (res) {
+    console.log("onAddRecords", res);
     stages.value[index].success += res.filter((item) => item).length;
     stages.value[index].error += res.filter((item) => !item).length;
   }
