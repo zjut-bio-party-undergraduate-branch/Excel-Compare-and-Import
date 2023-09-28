@@ -77,6 +77,7 @@ async function setOptionsField(
             .filter((v) => v !== "")
         )
       );
+      // console.log(tableOptions, excelValues)
       if (hasNewElement(tableOptions, excelValues)) {
         const options = Array.from(
           new Set([...tableOptions, ...excelValues])
@@ -124,12 +125,18 @@ async function setOptionsField(
       });
     });
     console.log(selects);
+    await lifeCircleHook(importLifeCircles.beforeSetOptions, {
+      stage: importLifeCircles.beforeSetOptions,
+      data: {
+        number: selects.length,
+      },
+    });
     if (selects.length > 0) {
       await batch<(typeof selects)[number]>(10, 500, selects, async (s) => {
         await Promise.all(
           s.map(async (select) => {
             let field = await table.getFieldById(select.id);
-            await table.setField(select.id, select.config);
+            const res = await table.setField(select.id, select.config);
             field = await table.getFieldById(select.id);
             const newMeta = await table.getFieldMetaById(select.id);
             fieldsMaps[
@@ -137,6 +144,13 @@ async function setOptionsField(
                 (fieldMap) => fieldMap.field.id === select.id
               )
             ].field = newMeta as fieldMap["field"];
+            await lifeCircleHook(importLifeCircles.onSetOptions, {
+              stage: importLifeCircles.onSetOptions,
+              data: {
+                field: newMeta,
+                res,
+              },
+            });
           })
         );
       });
@@ -172,10 +186,11 @@ async function batch<T>(
 function addRecords(table: IWidgetTable, lifeCircleHook: any) {
   return async (records: { [key: string]: IOpenCellValue }[]) => {
     try {
-      console.log("addRecords", records)
+      console.log("addRecords", records);
       const addRes = await table.addRecords(
         records.map((record) => ({ fields: record }))
       );
+      console.log("addRes", addRes);
       await lifeCircleHook(importLifeCircles.onAddRecords, {
         stage: importLifeCircles.onAddRecords,
         data: {
@@ -223,15 +238,16 @@ function updateRecords(table: IWidgetTable, lifeCircleHook: any) {
 function deleteRecords(table: IWidgetTable, lifeCircleHook: any) {
   return async (records: string[]) => {
     try {
-      const addRes = await table.deleteRecords(records);
-      await lifeCircleHook(importLifeCircles.onAddRecords, {
+      console.log("deleteRecords", records);
+      const deleteRes = await table.deleteRecords(records);
+      await lifeCircleHook(importLifeCircles.onDeleteRecords, {
         stage: importLifeCircles.onDeleteRecords,
         data: {
-          res: addRes,
+          res: deleteRes,
           number: records.length,
         },
       });
-      return addRes;
+      return deleteRes;
     } catch (e) {
       console.log(e);
       await lifeCircleHook(importLifeCircles.onDeleteRecords, {

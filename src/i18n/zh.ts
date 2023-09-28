@@ -92,7 +92,7 @@ export const zh = {
     waiting: "{waitingNumber} 等待",
     checkFieldsMessage: "共有 {totalNumber} 个单选/多选字段",
     checkOptionsMessage: "共有 {totalNumber} 个单选/多选字段有新选项",
-    addRecordsMessage: "按照500条/次的速度添加新记录",
+    addRecordsMessage: "按照5000条/次的速度添加新记录",
     analysisRecordsMessage: "{updateNumber}更新，{deleteNumber}删除，{addNumber}添加",
     findSameRecord: "正在检索记录{indexValue}，找到{sameNumber}条相同记录",
     compareRecord: "正在比对记录“{indexValue}”的{fieldName}字段",
