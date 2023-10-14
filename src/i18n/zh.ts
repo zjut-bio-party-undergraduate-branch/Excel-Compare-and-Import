@@ -65,6 +65,7 @@ export const zh = {
     uploadExcelFirst: "请先上传Excel文件",
     importSuccess: "导入成功",
     sheetError: "工作表“{sheetName}”格式错误",
+    noSheet: "没有找到正确的工作表",
   },
   loading: "加载中...",
   fieldType: {

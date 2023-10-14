@@ -65,6 +65,7 @@ export const en = {
     uploadExcelFirst: "Please upload Excel file first",
     importSuccess: "Import success",
     sheetError: 'Sheet "{sheetName}" has wrong format',
+    noSheet: "No correct sheet found",
   },
   loading: "Loading...",
   fieldType: {
