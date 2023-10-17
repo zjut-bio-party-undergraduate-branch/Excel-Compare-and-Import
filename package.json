@@ -1,0 +1,40 @@
+{
+  "name": "Excel Compare and Import",
+  "version": "2.1.0",
+  "type": "module",
+  "description": "Excel Compare and Import",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "github:build": "vite build --base /Excel-Compare-and-Import/",
+    "preview": "vite preview --port 4173",
+    "createData": "npx vite-node ./scripts/createTestData.ts -n"
+  },
+  "keywords": [],
+  "author": "qww<497363953@qq.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import.git"
+  },
+  "dependencies": {
+    "@lark-base-open/js-sdk": "^0.2.0-alpha.0",
+    "@vueuse/core": "^10.3.0",
+    "dayjs": "^1.11.9",
+    "element-plus": "^2.3.6",
+    "vue": "^3.3.4",
+    "vue-i18n": "^9.2.2",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.10",
+    "@vitejs/plugin-vue": "^3.0.1",
+    "commander": "^11.0.0",
+    "mockjs": "^1.1.0",
+    "typescript": "^5.1.6",
+    "unplugin-auto-import": "^0.16.4",
+    "unplugin-vue-components": "^0.25.1",
+    "vite": "^3.0.1",
+    "vue-tsc": "^1.8.8"
+  }
+}

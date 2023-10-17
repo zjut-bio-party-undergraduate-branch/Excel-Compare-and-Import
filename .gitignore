@@ -1,0 +1,25 @@
+node_modules
+dist
+test/data/
+
+# IDEs and editors
+
+*.iml
+*.ipr
+*.iws
+.idea/
+.project
+.classpath
+.settings/
+.vscode/
+*.sublime-workspace
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+.config
+package-lock.json
+
+.config
