@@ -29,3 +29,10 @@ export function makeWorker(fn: Function): Worker {
 export function isArrayStrictEqual(arr1: any[], arr2: any[]) {
   return arr1.length === arr2.length && arr1.every((v, i) => arr2[i] === v)
 }
+
+export function groupBy<T extends Record<string, any>>(
+  arr: Array<T>,
+  key: string,
+) {
+  const res: Record<string, T> = {}
+}

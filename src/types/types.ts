@@ -3,7 +3,7 @@ import {
   IDuplexLinkFieldMeta,
   IFieldMeta,
   ISingleLinkFieldMeta,
-  IWidgetTable,
+  ITable,
   IWidgetField,
   IField,
 } from "@lark-base-open/js-sdk"
@@ -61,9 +61,9 @@ export interface fieldMap {
 }
 
 export interface BitableTable {
-  table: IWidgetTable
-  id: IWidgetTable["id"]
-  name: IWidgetTable["name"]
+  table: ITable
+  id: string
+  name: string
   indexId: string[]
   root: boolean
   fields: {
@@ -71,13 +71,12 @@ export interface BitableTable {
   }
 }
 
-export type Task = {
+export interface Task<T = any> {
   table: {
     name: string
     id: string
   }
   action: TaskAction
-  index: number
-  data: any[]
-  result: any[] | undefined
+  data: T[]
+  result: boolean[] | undefined
 }

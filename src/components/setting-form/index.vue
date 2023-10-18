@@ -22,8 +22,9 @@ import fieldIcon from "@/components/field-icon/index.vue"
 import importInfo from "@/components/import-info/index.vue"
 import { importExcel, importModes } from "@/utils/import"
 import { useSetting } from "./composables"
-import { useBitableSelection, useBitableTable } from "@/utils/useBitable"
+import { useBitableTable } from "@/utils/useBitable"
 import { iconList } from "@/utils/fieldIcons"
+import { useSelection } from "@qww0302/use-bitable"
 const { t } = useI18n()
 const props = defineProps({
   excelData: {
@@ -56,7 +57,7 @@ const refresh = async (table: IWidgetTable | null) => {
   loading.close()
 }
 
-const { tableId, viewId } = useBitableSelection()
+const { tableId, viewId } = useSelection()
 const { fields: tableFields } = useBitableTable(tableId, refresh)
 
 const indexFields = computed(() =>
@@ -264,7 +265,9 @@ defineExpose({
 
 <template>
   <h3>
-    <el-icon><Setting /></el-icon>
+    <el-icon>
+      <Setting />
+    </el-icon>
     {{ t("h.settings") }}
   </h3>
   <el-form
@@ -373,7 +376,9 @@ defineExpose({
           <template #content>
             {{ t("toolTip.indexInfo") }}
           </template>
-          <el-icon><Lock /></el-icon>
+          <el-icon>
+            <Lock />
+          </el-icon>
         </el-tooltip>
       </template>
       <el-select-v2
@@ -422,8 +427,9 @@ defineExpose({
         @click="importInfoRef.toggleVisible"
         style="cursor: pointer"
         class="is-loading"
-        ><Refresh
-      /></el-icon>
+      >
+        <Refresh />
+      </el-icon>
     </el-tooltip>
   </el-space>
 

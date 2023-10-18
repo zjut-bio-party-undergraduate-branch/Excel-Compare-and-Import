@@ -1,3 +1,4 @@
+import { options } from "./../log"
 import {
   IOpenCellValue,
   FieldType,
@@ -6,6 +7,7 @@ import {
   IRecord,
   bitable,
   ICell,
+  ITable,
 } from "@lark-base-open/js-sdk"
 
 import {
@@ -37,17 +39,17 @@ export const linkFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
  * @param action
  * @returns
  */
-async function batch(
+async function batch<T>(
   maxNumber: number = 5000,
   interval: number = 0,
-  records: any[],
-  action: (records: any[]) => Promise<any> | any,
+  records: Array<T>,
+  action: (records: Array<T>) => Promise<any> | any,
 ) {
   if (records.length === 0) return []
   if (records.length <= maxNumber) {
     return await action(records)
   } else {
-    const res: any[] = []
+    const res: T[] = []
     const count = Math.ceil(records.length / maxNumber)
     for (let i = 0; i < count; i++) {
       const currRes = (await action(
@@ -226,19 +228,9 @@ async function compareCellValue(
 ): Promise<string | null> {
   const field = table.fields[fieldId]
   const tableValue = await field.getCellString(recordId)
-  if (excelValue === tableValue) {
-    return null
-  } else {
-    if (mode === importModes.merge_direct) {
-      return excelValue
-    } else {
-      if (!tableValue) {
-        return excelValue
-      } else {
-        return tableValue
-      }
-    }
-  }
+  if (excelValue === tableValue) return null
+  if (mode === importModes.merge_direct || !tableValue) return excelValue
+  return tableValue
 }
 
 async function getBitableTableById(id: string, root: boolean = false) {
@@ -290,9 +282,9 @@ async function collect(fieldMaps: fieldMap[]) {
 }
 
 async function getTableIndex(
-  table: IWidgetTable,
+  table: ITable,
   index: string[],
-  lifeCircleHook: any,
+  lifeCircleHook: Function,
 ) {
   const indexFieldValue = await Promise.all(
     index.map(async (i) => {
@@ -311,7 +303,7 @@ async function getTableIndex(
   )
   const Index: {
     indexValue: string[]
-    table: IWidgetTable["id"]
+    table: string
     recordId: string
   }[] = recordIds.map((recordId) => {
     const indexValue: string[] = []
@@ -320,7 +312,7 @@ async function getTableIndex(
         cellValueToString(
           indexFieldValue[i].find((j) => j.record_id === recordId)?.value ??
             null,
-        ) as string,
+        ) ?? "",
       )
     }
     return {
@@ -332,13 +324,65 @@ async function getTableIndex(
   return Index
 }
 
-export async function getImportTasks(
+export interface ImportOptions {
+  parallel?: {
+    records: number
+    fields: number
+  }
+  interval?: {
+    records: number
+    fields: number
+  }
+}
+
+async function batchAnalyze<T, K>(
+  targets: Array<T>,
+  strategy: (item: T) => Promise<K | Array<K>>,
+  parallel: number = 10000,
+  interval: number = 0,
+) {
+  const res: Array<K> = []
+  await batch(parallel, interval, targets, async (li) => {
+    await Promise.all(
+      li.map(async (target) => {
+        const t = await strategy(target)
+        if (Array.isArray(t)) res.push(...t)
+        else res.push(t)
+      }),
+    )
+  })
+  return res
+}
+
+/**
+ * @description Import excel data into bitable
+ *
+ * @param fieldsMaps
+ * @param excelData
+ * @param sheetIndex
+ * @param index
+ * @param mode
+ * @param lifeCircleHook
+ */
+export async function importExcel(
   fieldsMaps: fieldMap[],
-  sheet: SheetInfo,
+  excelData: ExcelDataInfo,
+  sheetIndex: number,
   index: string[] | null = null,
   mode: importModes = importModes.append,
+  options: ImportOptions = {},
   lifeCircleHook: any = runLifeCircleEvent,
 ) {
+  const {
+    parallel = {
+      records: 10000,
+      fields: 10,
+    },
+    interval = {
+      records: 0,
+      fields: 0,
+    },
+  } = options
   /**
    * Clear the tree structure of fieldsMaps
    */
@@ -347,7 +391,7 @@ export async function getImportTasks(
   /**
    * Collect the tables
    */
-  const tables: Record<IWidgetTable["id"], BitableTable> =
+  const tables: { [key: IWidgetTable["id"]]: BitableTable } =
     await collect(fieldsMaps)
 
   /**
@@ -382,168 +426,6 @@ export async function getImportTasks(
     }),
   )
 
-  const tasks: Array<Task> = []
-  const excelRecords = sheet.tableData.records
-  // async function analysisChildren(
-  //   excelRecord: { [key: string]: string },
-  //   table: IWidgetTable["id"],
-  //   fieldsMaps: fieldMap[],
-  //   fromRecord: {
-  //     fields: IRecordValue["fields"]
-  //     id: string
-  //     table: IWidgetTable["id"]
-  //     action: TaskAction
-  //   },
-  // ) {
-  //   const recordItem: {
-  //     fields: IRecordValue["fields"]
-  //     id: string
-  //     table: IWidgetTable["id"]
-  //     action: TaskAction
-  //   } = {
-  //     fields: {},
-  //     id: "",
-  //     action: TaskAction.Add,
-  //     table,
-  //   }
-  //   await Promise.all(
-  //     fieldsMaps.map(async (fieldMap) => {
-  //       if (fieldMap.excel_field) {
-  //         if (linkFieldType.includes(fieldMap.field.type)) {
-  //           await analysisChildren(excelRecord, recordItem)
-  //         } else {
-  //           const value = excelRecord[fieldMap.excel_field]
-  //           const tempValue = getCell(fieldMap, value)
-  //           if (tempValue) {
-  //             recordItem.fields[fieldMap.field.id] = tempValue
-  //           }
-  //         }
-  //       }
-  //     }),
-  //   )
-  // }
-  function linkTableTask(table: string) {}
-  if (mode === importModes.append || !rootIndex) {
-    await Promise.all(
-      excelRecords.map(async (record) => {
-        const recordItem: {
-          cells: ICell[]
-          id: string
-          table: IWidgetTable["id"]
-          action: TaskAction
-        } = {
-          cells: [],
-          id: "",
-          action: TaskAction.Add,
-          table: record.table,
-        }
-        await Promise.all(
-          fieldsMaps.map(async (fieldMap) => {
-            if (fieldMap.excel_field) {
-              if (linkFieldType.includes(fieldMap.field.type)) {
-                const value = record[fieldMap.excel_field]
-                const values = value.split(fieldMap.config?.separator ?? ",")
-                const linkId = (fieldMap.field as LinkField).property.tableId
-                const targetRecordIds = linkIndexes[linkId]
-                  .filter((v) => values.includes(v.indexValue[0]))
-                  .map((v) => v.recordId)
-
-                const field = tables[linkId].fields[tables[linkId].indexId[0]]
-                if (targetRecordIds?.length) {
-                  const cell = await getCell(
-                    field,
-                    fieldMap,
-                    targetRecordIds.join(","),
-                  )
-                  if (cell) {
-                    recordItem.cells.push(cell)
-                  }
-                } else {
-                }
-              } else {
-                const prop = (fieldMap.field as LinkField).property
-              }
-            }
-          }),
-        )
-        const task = tasks.find(
-          (i) =>
-            i.table.id === recordItem.table && i.action === recordItem.action,
-        )
-        if (task) {
-          task.data.push(recordItem)
-        } else {
-          tasks.push({
-            table: {
-              name: tables[recordItem.table].name,
-              id: recordItem.table,
-            },
-            action: recordItem.action,
-            index: 0,
-            data: [recordItem],
-            result: undefined,
-          })
-        }
-      }),
-    )
-  } else {
-    await Promise.all(
-      excelRecords.map(async (record) => {
-        const recordFields: IRecordValue["fields"] = {}
-        await Promise.all(
-          fieldsMaps.map(async (fieldMap) => {
-            if (fieldMap.excel_field) {
-              const value = record[fieldMap.excel_field]
-              if (value) {
-              }
-            }
-          }),
-        )
-      }),
-    )
-  }
-}
-
-/**
- * @description Import excel data into bitable
- *
- * @param fieldsMaps
- * @param excelData
- * @param sheetIndex
- * @param index
- * @param mode
- * @param lifeCircleHook
- */
-export async function importExcel(
-  fieldsMaps: fieldMap[],
-  excelData: ExcelDataInfo,
-  sheetIndex: number,
-  index: string[] | null = null,
-  mode: importModes = importModes.append,
-  lifeCircleHook: any = runLifeCircleEvent,
-) {
-  /**
-   * Clear the tree structure of fieldsMaps
-   */
-  clearTree(fieldsMaps)
-
-  /**
-   * Collect the tables
-   */
-  const tables: { [key: IWidgetTable["id"]]: BitableTable } =
-    await collect(fieldsMaps)
-
-  /**
-   * Set options
-   */
-  // await setOptionsField(
-  //   fieldsMaps,
-  //   excelData,
-  //   sheetIndex,
-  //   tables,
-  //   lifeCircleHook,
-  // )
-
   const tasks: any[] = []
 
   console.log("fieldMaps", fieldsMaps)
@@ -559,40 +441,90 @@ export async function importExcel(
     },
   })
   if (mode === importModes.append || !index) {
-    await Promise.all(
-      excelRecords.map(async (record) => {
-        const newRecord: IRecordValue["fields"] = {}
-        await Promise.all(
-          fieldsMaps.map(async (fieldMap) => {
-            const value = record[fieldMap.excel_field]
-            if (value) {
-              const tempValue = getCellValue(fieldMap, value)
-              if (tempValue) {
-                newRecord[fieldMap.field.id] = tempValue
+    const t = await batchAnalyze(
+      excelRecords,
+      async (record) => {
+        const t: Task[] = []
+        const cells: Array<ICell> = (
+          await batchAnalyze(
+            fieldsMaps,
+            async (fieldMap) => {
+              if (!fieldMap.excel_field) return
+              const value = record[fieldMap.excel_field] ?? ""
+              if (!value) return
+              const field = tables[fieldMap.table].fields[fieldMap.field.id]
+              const needLink = linkFieldType.includes(fieldMap.field.type)
+              if (
+                needLink &&
+                fieldMap.hasChildren &&
+                fieldMap.children?.length
+              ) {
+                const values = value.split(fieldMap.config.separator ?? ",")
+                const children = fieldMap.children[0]
+                const table =
+                  tables[(fieldMap.field as LinkField).property.tableId]
+                const index = linkIndexes[table.id]
+                const disExistValues: Array<string> = []
+                const existRecord = (
+                  values
+                    .map((i) => {
+                      const r = index.filter((j) => j.indexValue[0] === i)
+                      if (r.length === 0) {
+                        disExistValues.push(i)
+                        return null
+                      }
+                      return r.map((j) => j.recordId)
+                    })
+                    .flat()
+                    .filter((i) => i !== null) as string[]
+                ).join(fieldMap.config.separator ?? ",")
+                if (disExistValues.length) {
+                  const linkField = table.fields[children.field.id]
+                  const cell = await getCell(
+                    linkField,
+                    children,
+                    disExistValues.join(fieldMap.config.separator ?? ","),
+                  )
+                  if (cell) {
+                    t.push({
+                      table: {
+                        name: table.name,
+                        id: table.id,
+                      },
+                      action: TaskAction.Add,
+                      data: [cell],
+                      result: undefined,
+                    })
+                  }
+                }
+                if (existRecord.length) {
+                }
               }
-            }
-          }),
-        )
-        newRecords.push(newRecord)
-        await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-          stage: importLifeCircles.onAnalysisRecords,
-          data: {
-            records: newRecords,
-            number: excelRecords.length,
-            mode,
-            updateNumber: updateList.length,
-            deleteNumber: deleteList.length,
-            addNumber: newRecords.length,
-            message: i18n.global.t("importInfo.analysisRecordsMessage", {
-              updateNumber: updateList.length,
-              deleteNumber: deleteList.length,
-              addNumber: newRecords.length,
-            }),
+
+              if (!needLink) {
+                const cell = await getCell(field, fieldMap, value)
+                if (cell) return cell
+              }
+            },
+            parallel.fields,
+            interval.fields,
+          )
+        ).filter((v) => v) as ICell[]
+        t.push({
+          table: {
+            id: fieldsMaps[0].table,
+            name: tables[fieldsMaps[0].table].name,
           },
+          action: TaskAction.Add,
+          data: cells,
+          result: undefined,
         })
-      }),
+        return t
+      },
+      parallel.records,
+      interval.records,
     )
-    console.log("newRecords", newRecords)
+    tasks.push(...t)
   } else {
     const excelIndexField: fieldMap = fieldsMaps.find(
       (fieldMap) => fieldMap.excel_field === index,

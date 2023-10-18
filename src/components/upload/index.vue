@@ -63,6 +63,10 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
 })
 
 function getFile(file: UploadFile) {
+  if (!/\.xls[x]?$/.test(file.name)) {
+    ElMessage.error(t("message.fileType"))
+    return
+  }
   excelFile.value = file.raw as File
 }
 

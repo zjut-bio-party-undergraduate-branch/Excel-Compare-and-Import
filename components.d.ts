@@ -55,4 +55,7 @@ declare module "vue" {
     UploadIcon: (typeof import("./src/components/icons/upload-icon.vue"))["default"]
     UrlIcon: (typeof import("./src/components/icons/url-icon.vue"))["default"]
   }
+  export interface ComponentCustomProperties {
+    vLoading: (typeof import("element-plus/es"))["ElLoadingDirective"]
+  }
 }

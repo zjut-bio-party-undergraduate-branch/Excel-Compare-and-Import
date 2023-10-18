@@ -66,6 +66,7 @@ export const en = {
     importSuccess: "Import success",
     sheetError: 'Sheet "{sheetName}" has wrong format',
     noSheet: "No correct sheet found",
+    fileType: "File type error",
   },
   loading: "Loading...",
   fieldType: {
