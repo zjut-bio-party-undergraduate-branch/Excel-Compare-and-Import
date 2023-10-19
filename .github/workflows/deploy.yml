@@ -5,15 +5,12 @@ on:
     branches:
       - main
   pull_request:
-    branches: [main]
-
-permissions:
-  contents: write
+    branches: [main, master]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.repository == 'zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import'
+    if: ${{ github.repository_owner == 'zjut-bio-party-undergraduate-branch' }}
     steps:
       - uses: actions/checkout@v3
         with:
