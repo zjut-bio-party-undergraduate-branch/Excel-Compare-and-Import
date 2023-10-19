@@ -1,5 +1,3 @@
-import { fieldMap } from "@/types/types"
-
 export function hasNewElement(target: string[], from: string[]): boolean {
   const res = !from.every((v) => target.includes(v))
   return res
@@ -34,5 +32,13 @@ export function groupBy<T extends Record<string, any>>(
   arr: Array<T>,
   key: string,
 ) {
-  const res: Record<string, T> = {}
+  const res: Record<string, T[]> = {}
+  arr.forEach((v) => {
+    const k = v[key]
+    if (!res[k]) {
+      res[k] = []
+    }
+    res[k].push(v)
+  })
+  return res
 }

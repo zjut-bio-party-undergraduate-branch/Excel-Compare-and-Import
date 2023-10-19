@@ -478,26 +478,27 @@ export async function importExcel(
                     .flat()
                     .filter((i) => i !== null) as string[]
                 ).join(fieldMap.config.separator ?? ",")
-                if (disExistValues.length) {
-                  const linkField = table.fields[children.field.id]
-                  const cell = await getCell(
-                    linkField,
-                    children,
-                    disExistValues.join(fieldMap.config.separator ?? ","),
-                  )
-                  if (cell) {
-                    t.push({
-                      table: {
-                        name: table.name,
-                        id: table.id,
-                      },
-                      action: TaskAction.Add,
-                      data: [cell],
-                      result: undefined,
-                    })
-                  }
+                if (!disExistValues.length) {
+                  const cell = await getCell(field, fieldMap, existRecord)
+                  if (cell) return cell
+                  return
                 }
-                if (existRecord.length) {
+                const linkField = table.fields[children.field.id]
+                const cell = await getCell(
+                  linkField,
+                  children,
+                  disExistValues.join(fieldMap.config.separator ?? ","),
+                )
+                if (cell) {
+                  t.push({
+                    table: {
+                      name: table.name,
+                      id: table.id,
+                    },
+                    action: TaskAction.Add,
+                    data: [cell],
+                    result: undefined,
+                  })
                 }
               }
 

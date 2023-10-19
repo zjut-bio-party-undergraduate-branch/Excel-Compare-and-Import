@@ -1,11 +1,10 @@
 import {
-  FieldType,
   IDuplexLinkFieldMeta,
   IFieldMeta,
   ISingleLinkFieldMeta,
   ITable,
-  IWidgetField,
   IField,
+  IOpenCellValue,
 } from "@lark-base-open/js-sdk"
 import { TaskAction } from "@/utils/import/tasks"
 
