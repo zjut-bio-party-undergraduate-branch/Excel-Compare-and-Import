@@ -445,7 +445,7 @@ export async function importExcel(
       excelRecords,
       async (record) => {
         const t: Task[] = []
-        const cells: Array<ICell> = (
+        const cells = (
           await batchAnalyze(
             fieldsMaps,
             async (fieldMap) => {
@@ -483,22 +483,20 @@ export async function importExcel(
                   if (cell) return cell
                   return
                 }
-                const linkField = table.fields[children.field.id]
-                const cell = await getCell(
-                  linkField,
-                  children,
-                  disExistValues.join(fieldMap.config.separator ?? ","),
-                )
-                if (cell) {
-                  t.push({
-                    table: {
-                      name: table.name,
-                      id: table.id,
-                    },
-                    action: TaskAction.Add,
-                    data: [cell],
-                    result: undefined,
-                  })
+                for (const v of disExistValues) {
+                  const linkField = table.fields[children.field.id]
+                  const cell = await getCell(linkField, children, v)
+                  if (cell) {
+                    t.push({
+                      table: {
+                        name: table.name,
+                        id: table.id,
+                      },
+                      action: TaskAction.Add,
+                      data: [cell],
+                      result: undefined,
+                    })
+                  }
                 }
               }
 
@@ -510,16 +508,18 @@ export async function importExcel(
             parallel.fields,
             interval.fields,
           )
-        ).filter((v) => v) as ICell[]
-        t.push({
-          table: {
-            id: fieldsMaps[0].table,
-            name: tables[fieldsMaps[0].table].name,
-          },
-          action: TaskAction.Add,
-          data: cells,
-          result: undefined,
-        })
+        ).filter((v) => v) as Array<ICell>
+        if (cells.length) {
+          t.push({
+            table: {
+              id: fieldsMaps[0].table,
+              name: tables[fieldsMaps[0].table].name,
+            },
+            action: TaskAction.Add,
+            data: cells,
+            result: undefined,
+          })
+        }
         return t
       },
       parallel.records,
