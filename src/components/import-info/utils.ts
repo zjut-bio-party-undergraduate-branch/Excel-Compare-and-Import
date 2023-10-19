@@ -295,6 +295,7 @@ export function onUpdateRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["updateRecords"]
   );
   if (res) {
+    console.log("onUpdateRecords", res)
     stages.value[index].success += res.filter((item: any) => item).length;
     stages.value[index].error += res.filter((item: any) => !item).length;
   }
