@@ -11,6 +11,8 @@ declare module "vue" {
     CheckBoxIcon: (typeof import("./src/components/icons/checkBox-icon.vue"))["default"]
     CurrencyIcon: (typeof import("./src/components/icons/currency-icon.vue"))["default"]
     DuplexLinkIcon: (typeof import("./src/components/icons/duplexLink-icon.vue"))["default"]
+    ElAvatar: (typeof import("element-plus/es"))["ElAvatar"]
+    ElBadge: (typeof import("element-plus/es"))["ElBadge"]
     ElButton: (typeof import("element-plus/es"))["ElButton"]
     ElCard: (typeof import("element-plus/es"))["ElCard"]
     ElCascader: (typeof import("element-plus/es"))["ElCascader"]
@@ -22,13 +24,13 @@ declare module "vue" {
     ElForm: (typeof import("element-plus/es"))["ElForm"]
     ElFormItem: (typeof import("element-plus/es"))["ElFormItem"]
     ElIcon: (typeof import("element-plus/es"))["ElIcon"]
-    ElInput: (typeof import("element-plus/es"))["ElInput"]
     ElLink: (typeof import("element-plus/es"))["ElLink"]
     ElOption: (typeof import("element-plus/es"))["ElOption"]
     ElProgress: (typeof import("element-plus/es"))["ElProgress"]
     ElRow: (typeof import("element-plus/es"))["ElRow"]
     ElScrollbar: (typeof import("element-plus/es"))["ElScrollbar"]
     ElSelect: (typeof import("element-plus/es"))["ElSelect"]
+    ElSelectV2: (typeof import("element-plus/es"))["ElSelectV2"]
     ElSpace: (typeof import("element-plus/es"))["ElSpace"]
     ElTable: (typeof import("element-plus/es"))["ElTable"]
     ElTableColumn: (typeof import("element-plus/es"))["ElTableColumn"]
@@ -39,6 +41,7 @@ declare module "vue" {
     FieldIcon: (typeof import("./src/components/field-icon/index.vue"))["default"]
     FieldSetting: (typeof import("./src/components/field-setting/index.vue"))["default"]
     ImportInfo: (typeof import("./src/components/import-info/index.vue"))["default"]
+    Info: (typeof import("./src/components/info/index.vue"))["default"]
     ModulesIcon: (typeof import("./src/components/icons/modules-icon.vue"))["default"]
     MultiSelectIcon: (typeof import("./src/components/icons/multiSelect-icon.vue"))["default"]
     NumberIcon: (typeof import("./src/components/icons/number-icon.vue"))["default"]
@@ -51,5 +54,8 @@ declare module "vue" {
     Upload: (typeof import("./src/components/upload/index.vue"))["default"]
     UploadIcon: (typeof import("./src/components/icons/upload-icon.vue"))["default"]
     UrlIcon: (typeof import("./src/components/icons/url-icon.vue"))["default"]
+  }
+  export interface ComponentCustomProperties {
+    vLoading: (typeof import("element-plus/es"))["ElLoadingDirective"]
   }
 }

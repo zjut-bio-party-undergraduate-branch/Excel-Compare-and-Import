@@ -1,7 +1,7 @@
-import { defaultBoolValue } from "./../../../utils/cellValue/checkBox";
-import { fieldMap } from "@/types/types";
-import { MaybeRefOrGetter, toValue, watch, h, VNode, ref } from "vue";
-import { FieldType } from "@lark-base-open/js-sdk";
+import { defaultBoolValue } from "./../../../utils/cellValue/checkBox"
+import { fieldMap } from "@/types/types"
+import { MaybeRefOrGetter, toValue, watch, h, VNode, ref } from "vue"
+import { FieldType } from "@lark-base-open/js-sdk"
 import {
   ElInput,
   ElFormItem,
@@ -11,10 +11,11 @@ import {
   ElIcon,
   ElSelectV2,
   ElForm,
-} from "element-plus";
-import { InfoFilled } from "@element-plus/icons-vue";
-import { i18n } from "@/i18n";
-import dayjs from "dayjs";
+} from "element-plus"
+import { InfoFilled } from "@element-plus/icons-vue"
+import { i18n } from "@/i18n"
+import dayjs from "dayjs"
+import { bitable } from "@lark-base-open/js-sdk"
 
 const dateFormatList = [
   "YYYY/MM/DD",
@@ -30,48 +31,52 @@ const dateFormatList = [
   "MM-DD HH:mm:ss",
   "MM-DD HH:mm",
   "MM-DD HH",
-];
+]
+
+async function loadFields() {
+  const table = await bitable.base.getActiveTable()
+}
 
 export function useFieldConfig(
   config: MaybeRefOrGetter<fieldMap["config"] | undefined>,
-  type: MaybeRefOrGetter<FieldType | undefined>
+  type: MaybeRefOrGetter<FieldType | undefined>,
 ) {
-  const configList = ref<string[]>([]);
-  const configForm = ref<VNode>();
-  const configResult = ref<fieldMap["config"]>({});
-  const formatExample = ref<any>("");
+  const configList = ref<string[]>([])
+  const configForm = ref<VNode>()
+  const configResult = ref<fieldMap["config"]>({})
+  const formatExample = ref<any>("")
   watch(
     () => toValue(config),
     (newVal) => {
-      if (!newVal) return;
-      configList.value = Object.keys(newVal);
-      configResult.value = JSON.parse(JSON.stringify(newVal));
+      if (!newVal) return
+      configList.value = Object.keys(newVal)
+      configResult.value = JSON.parse(JSON.stringify(newVal))
       if (newVal.format) {
-        console.log(newVal.format, toValue(type));
+        console.log(newVal.format, toValue(type))
         formatExample.value = formatExamples[
           toValue(type) as keyof typeof formatExamples
-        ](newVal.format);
+        ](newVal.format)
       }
     },
-    { deep: true }
-  );
+    { deep: true },
+  )
 
   watch(
     () => toValue(type),
     (newVal) => {
-      console.log(newVal);
-      if (!newVal) return;
+      console.log(newVal)
+      if (!newVal) return
       configForm.value = h(
         ElForm,
         {},
         {
           default: () =>
             configList.value.map((v) => configFormItem[v]()).flat(),
-        }
-      );
-      console.log(configForm.value);
-    }
-  );
+        },
+      )
+      console.log(configForm.value)
+    },
+  )
 
   const configFormItem: { [key: string]: any } = {
     format: () => [
@@ -83,20 +88,20 @@ export function useFieldConfig(
             h(ElSelectV2, {
               modelValue: configResult.value.format,
               ["onUpdate:modelValue"]: (v: string) => {
-                configResult.value.format = v;
+                configResult.value.format = v
                 formatExample.value =
                   formatExamples[toValue(type) as keyof typeof formatExamples](
-                    v
-                  );
+                    v,
+                  )
               },
               filterable: true,
               allowCreate: true,
               placeholder: i18n.global.t(
-                "input.placeholder.chooseOrCreateFormat"
+                "input.placeholder.chooseOrCreateFormat",
               ),
               defaultFirstOption: true,
               options: formatList[toValue(type) as keyof typeof formatList].map(
-                (v) => ({ label: v, value: v })
+                (v) => ({ label: v, value: v }),
               ),
             }),
           ],
@@ -123,16 +128,16 @@ export function useFieldConfig(
                             },
                             {
                               default: () => "dayjs",
-                            }
+                            },
                           ),
                         ],
-                      }
+                      },
                     ),
                   default: () => h(ElIcon, {}, () => h(InfoFilled)),
-                }
+                },
               ),
             ]),
-        }
+        },
       ),
       h(
         ElFormItem,
@@ -148,7 +153,7 @@ export function useFieldConfig(
                 // do nothing
               },
             }),
-        }
+        },
       ),
     ],
     separator: () => [
@@ -162,63 +167,106 @@ export function useFieldConfig(
             h(ElInput, {
               modelValue: configResult.value.separator,
               ["onUpdate:modelValue"]: (v: string) => {
-                configResult.value.separator = v;
+                configResult.value.separator = v
               },
             }),
-        }
+        },
       ),
     ],
     boolValue: () => [
-      h(ElFormItem, {
-        label: i18n.global.t('form.label.trueValue'),
-      }, {
-        default: () => h(ElSelectV2, {
-          multiple: true,
-          modelValue: configResult.value.boolValue?.true,
-          ["onUpdate:modelValue"]: (v: string[]) => {
-            //@ts-ignore
-            configResult.value.boolValue.true = v;
-          },
-          filterable: true,
-          allowCreate: true,
-          defaultFirstOption: true,
-          options: defaultBoolValue.true.map((v) => ({ label: v, value: v })),
-          style: "width: 100%",
-        })
-      }),
-      h(ElFormItem, {
-        label: i18n.global.t('form.label.falseValue'),
-      }, {
-        default: () => h(ElSelectV2, {
-          multiple: true,
-          modelValue: configResult.value.boolValue?.false,
-          ["onUpdate:modelValue"]: (v: string[]) => {
-            //@ts-ignore
-            configResult.value.boolValue.false = v;
-          },
-          filterable: true,
-          allowCreate: true,
-          defaultFirstOption: true,
-          options: defaultBoolValue.false.map((v) => ({ label: v, value: v })),
-          style: "width: 100%",
-        })
-      })
-    ]
-  };
+      h(
+        ElFormItem,
+        {
+          label: i18n.global.t("form.label.trueValue"),
+        },
+        {
+          default: () =>
+            h(ElSelectV2, {
+              multiple: true,
+              modelValue: configResult.value.boolValue?.true,
+              ["onUpdate:modelValue"]: (v: string[]) => {
+                //@ts-ignore
+                configResult.value.boolValue.true = v
+              },
+              filterable: true,
+              allowCreate: true,
+              defaultFirstOption: true,
+              options: defaultBoolValue.true.map((v) => ({
+                label: v,
+                value: v,
+              })),
+              style: "width: 100%",
+            }),
+        },
+      ),
+      h(
+        ElFormItem,
+        {
+          label: i18n.global.t("form.label.falseValue"),
+        },
+        {
+          default: () =>
+            h(ElSelectV2, {
+              multiple: true,
+              modelValue: configResult.value.boolValue?.false,
+              ["onUpdate:modelValue"]: (v: string[]) => {
+                //@ts-ignore
+                configResult.value.boolValue.false = v
+              },
+              filterable: true,
+              allowCreate: true,
+              defaultFirstOption: true,
+              options: defaultBoolValue.false.map((v) => ({
+                label: v,
+                value: v,
+              })),
+              style: "width: 100%",
+            }),
+        },
+      ),
+    ],
+    primaryKey: () => [
+      h(
+        ElFormItem,
+        {
+          label: i18n.global.t("form.label.primaryKey"),
+        },
+        {
+          default: () =>
+            h(ElSelectV2, {
+              multiple: true,
+              modelValue: configResult.value.primaryKey,
+              ["onUpdate:modelValue"]: (v: string) => {
+                //@ts-ignore
+                configResult.value.primaryKey = v
+              },
+              filterable: true,
+              allowCreate: true,
+              defaultFirstOption: true,
+              options: defaultBoolValue.true.map((v) => ({
+                label: v,
+                value: v,
+              })),
+              style: "width: 100%",
+            }),
+        },
+      ),
+    ],
+  }
 
   const formatExamples: { [key: number]: (format: string) => string } = {
     [FieldType.DateTime]: (format) => dayjs().format(format),
-  };
+  }
 
   const formatList: { [key: number]: string[] } = {
     [FieldType.DateTime]: dateFormatList,
-  };
-
-  function refresh() {
-    configResult.value = toValue(config) ?? {};
   }
 
-  const allowConfig = ref(Object.keys(configFormItem));
+  function refresh() {
+    configResult.value = toValue(config) ?? {}
+  }
+
+  const allowConfig = ref(Object.keys(configFormItem))
 
   return {
     configList,
@@ -226,5 +274,5 @@ export function useFieldConfig(
     allowConfig,
     refresh,
     configResult,
-  };
+  }
 }

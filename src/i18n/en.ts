@@ -31,6 +31,7 @@ export const en = {
       trueValue: "True Value",
       falseValue: "False Value",
       mode: "mode",
+      primaryKey: "Primary Key",
     },
   },
   table: {

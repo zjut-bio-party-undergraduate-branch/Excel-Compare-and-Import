@@ -31,6 +31,7 @@ export const zh = {
       trueValue: "真值",
       falseValue: "假值",
       mode: "模式",
+      primaryKey: "主键",
     },
   },
   table: {

@@ -54,6 +54,7 @@ export interface fieldMap {
       true: string[]
       false: string[]
     }
+    primaryKey?: string
   }
   hasChildren: boolean
   children?: fieldMap[]
