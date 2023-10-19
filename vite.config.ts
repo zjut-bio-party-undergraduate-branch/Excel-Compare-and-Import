@@ -23,5 +23,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js'
     }
+  },
+  build: {
+    rollupOptions: {
+      external: [
+        '@element-plus/icons-vue',
+      ]
+    }
   }
 })
