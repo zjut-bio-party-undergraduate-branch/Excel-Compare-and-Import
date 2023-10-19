@@ -6,12 +6,11 @@ on:
       - main
   pull_request:
     branches: [main, master]
-  schedule:
-    - cron: 30 17 * * *
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'zjut-bio-party-undergraduate-branch' }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -25,12 +24,6 @@ jobs:
       - name: Build
         run: npm run github:build
 
-      # - name: Deploy
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: docs/.vitepress/dist
-          # cname: example.com # if wanna deploy to custom domain
       - name: Deploy GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
