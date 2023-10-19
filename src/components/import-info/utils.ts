@@ -19,10 +19,11 @@ export interface stage {
 const stageIndex = {
   checkFieldTypes: 0,
   checkOptions: 1,
-  analysisRecords: 2,
-  updateRecords: 3,
-  deleteRecords: 4,
-  addRecords: 5,
+  setOptions: 2,
+  analysisRecords: 3,
+  updateRecords: 4,
+  deleteRecords: 5,
+  addRecords: 6,
 };
 
 export const currentStage = ref(0);
@@ -54,19 +55,19 @@ export const defaultStages = () => [
     title: "importInfo.checkOptions",
     index: stageIndex["checkOptions"],
   },
-  // {
-  //   state: "waiting",
-  //   disabled: true,
-  //   message: "",
-  //   progress: false,
-  //   stage: "setOptions",
-  //   success: 0,
-  //   error: 0,
-  //   number: 0,
-  //   name: stageIndex["setOptions"],
-  //   title: "importInfo.setOptions",
-  //   index: stageIndex["setOptions"],
-  // },
+  {
+    state: "waiting",
+    disabled: true,
+    message: "",
+    progress: false,
+    stage: "setOptions",
+    success: 0,
+    error: 0,
+    number: 0,
+    name: stageIndex["setOptions"],
+    title: "importInfo.setOptions",
+    index: stageIndex["setOptions"],
+  },
   {
     state: "waiting",
     disabled: true,
@@ -206,33 +207,40 @@ export function onCheckOptions(e: lifeCircleEventParams) {
   }
 }
 
-// export function beforeSetOptions(e: lifeCircleEventParams) {
-//   const { number } = e.data;
-//   const index = stages.value.findIndex(
-//     (stage) => stage.index === stageIndex["setOptions"]
-//   );
-//   stages.value[index].number = number;
-//   if (number > 0) {
-//     stages.value[index].state = "loading";
-//     stages.value[index].progress = true;
-//   } else {
-//     stages.value[index].state = "success";
-//   }
-//   stages.value[index].disabled = false;
-//   currentStage.value = stageIndex["setOptions"];
-// }
+export function beforeSetOptions(e: lifeCircleEventParams) {
+  const { number } = e.data;
+  const index = stages.value.findIndex(
+    (stage) => stage.index === stageIndex["setOptions"]
+  );
+  stages.value[index].number = number;
+  if (number > 0) {
+    stages.value[index].state = "loading";
+    stages.value[index].progress = true;
+  } else {
+    stages.value[index].state = "success";
+  }
+  stages.value[index].disabled = false;
+  currentStage.value = stageIndex["setOptions"];
+}
 
-// export function onSetOptions(e: lifeCircleEventParams) {
-//   const { record } = e.data;
-//   const index = stages.value.findIndex(
-//     (stage) => stage.index === stageIndex["setOptions"]
-//   );
-//   if (record) {
-//     stages.value[index].success += 1;
-//   } else {
-//     stages.value[index].error += 1;
-//   }
-// }
+export function onSetOptions(e: lifeCircleEventParams) {
+  const { res } = e.data;
+  const index = stages.value.findIndex(
+    (stage) => stage.index === stageIndex["setOptions"]
+  );
+  if (res) {
+    stages.value[index].success += 1;
+  } else {
+    stages.value[index].error += 1;
+  }
+  if(
+    stages.value[index].success + stages.value[index].error ===
+    stages.value[index].number
+  ) {
+    stages.value[index].progress = false;
+    stages.value[index].state = "success";
+  }
+}
 
 export function beforeAnalysisRecords(e: lifeCircleEventParams) {
   const { number } = e.data;
@@ -287,8 +295,9 @@ export function onUpdateRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["updateRecords"]
   );
   if (res) {
-    stages.value[index].success += res.filter((item) => item).length;
-    stages.value[index].error += res.filter((item) => !item).length;
+    console.log("onUpdateRecords", res)
+    stages.value[index].success += res.filter((item: any) => item).length;
+    stages.value[index].error += res.filter((item: any) => !item).length;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -317,13 +326,14 @@ export function beforeDeleteRecords(e: lifeCircleEventParams) {
 }
 
 export function onDeleteRecords(e: lifeCircleEventParams) {
-  const { res } = e.data;
+  const { res, number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["deleteRecords"]
   );
   if (res) {
-    stages.value[index].success += res.filter((item) => item).length;
-    stages.value[index].error += res.filter((item) => !item).length;
+    stages.value[index].success += number;
+  } else {
+    stages.value[index].error += number;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -358,6 +368,7 @@ export function onAddRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["addRecords"]
   );
   if (res) {
+    console.log("onAddRecords", res);
     stages.value[index].success += res.filter((item) => item).length;
     stages.value[index].error += res.filter((item) => !item).length;
   }

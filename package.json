@@ -1,6 +1,6 @@
 {
   "name": "Excel Compare and Import",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "description": "Excel Compare and Import",
   "scripts": {
@@ -18,7 +18,7 @@
     "url": "git+https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import.git"
   },
   "dependencies": {
-    "@lark-base-open/js-sdk": "^0.2.0-alpha.0",
+    "@lark-base-open/js-sdk": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.2.3-rc.1.tgz",
     "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.6",
