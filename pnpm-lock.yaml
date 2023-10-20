@@ -1,7 +1,8 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@lark-base-open/js-sdk': ^0.2.0-alpha.0
+  '@element-plus/icons-vue': ^2.1.0
+  '@lark-base-open/js-sdk': https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.2.3-rc.1.tgz
   '@types/node': ^20.4.10
   '@vitejs/plugin-vue': ^3.0.1
   '@vueuse/core': ^10.3.0
@@ -19,7 +20,8 @@ specifiers:
   xlsx: https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz
 
 dependencies:
-  '@lark-base-open/js-sdk': 0.2.4
+  '@element-plus/icons-vue': 2.1.0_vue@3.3.4
+  '@lark-base-open/js-sdk': '@lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.2.3-rc.1.tgz'
   '@vueuse/core': 10.5.0_vue@3.3.4
   dayjs: 1.11.10
   element-plus: 2.4.0_vue@3.3.4
@@ -138,10 +140,6 @@ packages:
 
   /@jridgewell/sourcemap-codec/1.4.15:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
-
-  /@lark-base-open/js-sdk/0.2.4:
-    resolution: {integrity: sha512-u+lYFm6ioJ+AkWagsI+Bs0aICSMmsLpc+0QTf551juPO3anPNZz6+Ncx2VZlMyElpEhGctjRSnlB4WPRSJid6Q==}
-    dev: false
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1214,4 +1212,10 @@ packages:
     version: 0.20.0
     engines: {node: '>=0.8'}
     hasBin: true
+    dev: false
+
+  '@lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.2.3-rc.1.tgz':
+    resolution: {tarball: https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.2.3-rc.1.tgz}
+    name: '@lark-base-open/js-sdk'
+    version: 0.2.3-rc.1
     dev: false
