@@ -12,6 +12,7 @@
     "createData": "npx vite-node ./scripts/createTestData.ts -n",
     "prepare": "husky install",
     "style": "npx prettier . --write",
+    "test": "vitest",
     "test:ui": "vitest --ui",
     "test:u": "vitest -u",
     "typecheck": "vitest typecheck"

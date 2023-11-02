@@ -1030,6 +1030,9 @@ export async function importExcel(
     console.log("addEnd", groupedAddTasks, tasks)
   }
 
+  /**
+   * 等待官方找到 bug
+   */
   // const linkTasks = groupedTasks[TaskAction.Link]
   // if (linkTasks && linkTasks && groupedTasks[TaskAction.Link].length) {
   //   const poly = polyLinkTasks(linkTasks)
@@ -1051,28 +1054,28 @@ export async function importExcel(
   }
 }
 
-function polyLinkTasks(tasks: Array<Task>) {
-  const res: Array<Task> = []
-  const groupedTasks = groupBy(tasks, "table.id")
-  for (const i of Object.keys(groupedTasks)) {
-    const groupAction = groupBy(groupedTasks[i], "action")
-    for (const k of Object.values(groupAction)) {
-      const newTask: Task = {
-        table: {
-          id: i,
-          name: k[0].table.name,
-        },
-        action: k[0].action,
-        data: k.map((j) => j.data).flat(),
-        result: undefined,
-        status: TaskStatus.Wait,
-        link: k
-          .map((j) => j.link)
-          .flat()
-          .filter((j) => j !== undefined) as Array<Task>,
-      }
-      res.push(newTask)
-    }
-  }
-  return res
-}
+// function polyLinkTasks(tasks: Array<Task>) {
+//   const res: Array<Task> = []
+//   const groupedTasks = groupBy(tasks, "table.id")
+//   for (const i of Object.keys(groupedTasks)) {
+//     const groupAction = groupBy(groupedTasks[i], "action")
+//     for (const k of Object.values(groupAction)) {
+//       const newTask: Task = {
+//         table: {
+//           id: i,
+//           name: k[0].table.name,
+//         },
+//         action: k[0].action,
+//         data: k.map((j) => j.data).flat(),
+//         result: undefined,
+//         status: TaskStatus.Wait,
+//         link: k
+//           .map((j) => j.link)
+//           .flat()
+//           .filter((j) => j !== undefined) as Array<Task>,
+//       }
+//       res.push(newTask)
+//     }
+//   }
+//   return res
+// }
