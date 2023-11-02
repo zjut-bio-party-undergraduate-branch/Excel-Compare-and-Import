@@ -1,25 +1,40 @@
 import dayjs from "dayjs/esm/index.js"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 import advancedFormat from "dayjs/plugin/advancedFormat"
-import { IDateTimeField } from "@lark-base-open/js-sdk"
+import { IDateTimeField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
+import { fieldMap } from "@/types/types"
 
 dayjs.extend(customParseFormat)
 dayjs.extend(advancedFormat)
 
 export const dateDefaultFormat = "YYYY/MM/DD"
 
+async function normalization(value: string, config?: fieldMap["config"]) {
+  const { format = dateDefaultFormat } = config || {}
+  return dayjs(value, format).valueOf()
+}
+
 /**
  * Get dateTime cell
- * @param field
+ *
  * @param value
- * @param format Default: "YYYY/MM/DD"
+ * @param field
+ * @param config
  * @returns
  */
-export async function dateTime(
-  field: IDateTimeField,
+async function dateTime(
   value: string,
-  format: string = "YYYY/MM/DD",
+  field: IDateTimeField,
+  config?: fieldMap["config"],
 ) {
-  const res = dayjs(value, format).valueOf()
-  return await field.createCell(res)
+  const v = await normalization(value, config)
+  return await field.createCell(v)
 }
+
+export const DateTimeTranslator = defineTranslator({
+  fieldType: FieldType.DateTime,
+  translate: dateTime,
+  normalization,
+  name: "DateTime",
+})

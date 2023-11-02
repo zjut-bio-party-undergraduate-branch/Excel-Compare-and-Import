@@ -1,11 +1,20 @@
-import { IPhoneField } from "@lark-base-open/js-sdk"
+import { IPhoneField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
 
 /**
  * Get phone cell
- * @param field
+ *
  * @param value
+ * @param field
  * @returns
  */
-export async function phone(field: IPhoneField, value: string) {
+async function phone(value: string, field: IPhoneField) {
   return await field.createCell(value)
 }
+
+export const PhoneTranslator = defineTranslator({
+  fieldType: FieldType.Phone,
+  translate: phone,
+  normalization: async (value: string) => value,
+  name: "Phone",
+})

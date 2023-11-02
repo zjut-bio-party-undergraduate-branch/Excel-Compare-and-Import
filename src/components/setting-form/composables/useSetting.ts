@@ -1,8 +1,65 @@
 import { MaybeRefOrGetter, toValue, ref, watch } from "vue"
-import { IFieldMeta } from "@lark-base-open/js-sdk/dist"
-import { importModes } from "@/utils/import"
-import { ExcelDataInfo, fieldMap, SheetInfo } from "@/types/types"
-import { configField, ignoreFieldType } from "../utils"
+import { IFieldMeta, bitable } from "@lark-base-open/js-sdk"
+import {
+  ExcelDataInfo,
+  fieldMap,
+  LinkField,
+  SheetInfo,
+  importModes,
+} from "@/types/types"
+import { configField } from "../utils"
+import {
+  indexFieldType,
+  autoFields,
+  hasChildrenFieldType,
+  notSupportFields,
+} from "@/utils"
+
+async function loadFieldMaps(
+  fields: IFieldMeta[],
+  tableId: string,
+  root = true,
+): Promise<fieldMap[]> {
+  return await Promise.all(
+    fields.map(async (v) => {
+      const hasChildren = hasChildrenFieldType.includes(v.type)
+      let children: Array<fieldMap> = []
+      let linkConfig: fieldMap["linkConfig"] = undefined
+      if (hasChildren && root) {
+        const linkTableId = (v as LinkField).property.tableId
+        const linkTable = await bitable.base.getTable(linkTableId)
+        const linkFields = await linkTable.getFieldMetaList()
+        children = (await loadFieldMaps(linkFields, linkTableId, false)).filter(
+          (i) => indexFieldType.includes(i.field.type),
+        )
+        const defaultPrimaryKey = linkFields.filter((i) => i.isPrimary)[0]
+        linkConfig = {
+          // allowAdd: !(
+          //   autoFields.includes(defaultPrimaryKey.type) ||
+          //   notSupportFields.includes(defaultPrimaryKey.type)
+          // ),
+          /**
+           * 暂时禁止向关联表添加值，待官方找到 bug
+           */
+          allowAdd: false,
+          primaryKey: defaultPrimaryKey.id,
+        }
+      }
+      return {
+        key: v.id,
+        field: v,
+        table: tableId ?? "",
+        excel_field: undefined,
+        config: configField(v.type),
+        root: true,
+        hasChildren,
+        children,
+        writable: !autoFields.includes(v.type),
+        linkConfig,
+      }
+    }),
+  )
+}
 
 export function useSetting(
   tableFields: MaybeRefOrGetter<IFieldMeta[] | undefined>,
@@ -14,6 +71,7 @@ export function useSetting(
   const sheetIndex = ref<number>(0)
   const excelFields = ref<SheetInfo["tableData"]["fields"]>([])
   const Index = ref<string[]>()
+  const pending = ref(false)
   function reset() {
     settingColumns.value = settingColumns.value.map((v) => {
       return {
@@ -56,33 +114,20 @@ export function useSetting(
   watch(
     () => toValue(tableFields),
     (newVal) => {
-      settingColumns.value =
-        newVal
-          ?.filter((i) => !ignoreFieldType.includes(i.type))
-          .map((v) => {
-            return {
-              key: v.id,
-              field: v,
-              table: toValue(tableId) ?? "",
-              excel_field: undefined,
-              config: configField(v.type),
-              root: true,
-              /**
-               * TODO: 递归创建关联表记录
-               * 受限于时间精力，暂时搁置
-               */
-              // hasChildren:
-              //   hasChildrenFieldType.includes(v.type) &&
-              //   (v.property as ISingleLinkFieldProperty).tableId !==
-              //     toValue(tableId),
-              hasChildren: false,
-              children: [],
-            }
-          }) ?? []
-      console.log(settingColumns.value)
-      if (toValue(excelData)) {
-        fill()
+      console.log(newVal)
+      if (!newVal) {
+        settingColumns.value = []
+        return
       }
+      pending.value = true
+      loadFieldMaps(newVal, toValue(tableId) as string).then((res) => {
+        settingColumns.value = res
+        pending.value = false
+        console.log("settingColumns", res)
+        if (toValue(excelData)) {
+          fill()
+        }
+      })
     },
     { deep: true },
   )
@@ -94,5 +139,6 @@ export function useSetting(
     sheetIndex,
     excelFields,
     Index,
+    pending,
   }
 }

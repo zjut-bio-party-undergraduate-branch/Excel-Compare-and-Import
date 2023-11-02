@@ -26,14 +26,11 @@ const stageColor = {
 </script>
 
 <template>
-  <el-button
-    type="text"
-    @click="isShow = true"
-  >
+  <el-link @click="isShow = true">
     <el-icon>
       <InfoFilled />
     </el-icon>
-  </el-button>
+  </el-link>
 
   <el-dialog
     v-model="isShow"

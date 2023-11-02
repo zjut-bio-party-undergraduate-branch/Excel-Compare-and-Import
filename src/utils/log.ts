@@ -8,9 +8,15 @@ export type LogOptions = {
   onLog?: Function
 }
 
+export type Message = {
+  title?: string
+  message: string
+  error?: any
+}
+
 export type LogItem = {
   type: "info" | "warn" | "error" | "log"
-  message: string
+  message: Message
   time: number
   file?: string
   line?: number
@@ -24,7 +30,7 @@ export const options = ref<LogOptions>({
 
 const _console = console
 
-export const useLog = (type: LogItem["type"]) => (msg: string) => {
+export const useLog = (type: LogItem["type"]) => (msg: Message) => {
   const cache = {
     type: type,
     message: msg,
@@ -49,3 +55,8 @@ export const useLog = (type: LogItem["type"]) => (msg: string) => {
     options.value.onLog?.(msg)
   }
 }
+
+export const Log = useLog("log")
+export const Info = useLog("info")
+export const Warn = useLog("warn")
+export const Error = useLog("error")

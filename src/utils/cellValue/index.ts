@@ -1,113 +1,64 @@
 import {
   IOpenCellValue,
-  FieldType,
   checkers,
-  IOpenGroupChat,
-  IField,
-  IUrlField,
-  IDateTimeField,
-  ISingleLinkField,
-  ISingleSelectField,
-  IMultiSelectField,
-  INumberField,
-  ICurrencyField,
-  IProgressField,
-  IRatingField,
-  ICheckBoxField,
-  ITextField,
-  IBarcodeField,
-  IPhoneField,
-  IUserField,
-  IDuplexLinkField,
+  IOpenSingleCellValue,
 } from "@lark-base-open/js-sdk"
-import { fieldMap } from "@/types/types"
-import { dateTime, dateDefaultFormat } from "./date"
-import { multiSelect } from "./multiSelect"
-import { singleSelect } from "./singleSelect"
-import { checkBox, defaultBoolValue } from "./checkBox"
-import { text } from "./text"
-import { url } from "./url"
-import { phone } from "./phone"
-import { currency } from "./currency"
-import { progress } from "./progress"
-import { rating } from "./rating"
-import { barCode } from "./barCode"
-import { User } from "./user"
-import { singleLink } from "./singleLink"
-import { duplexLink } from "./duplexLink"
-import { number } from "./number"
+import { DateTimeTranslator } from "./date"
+import { MultiSelectTranslator } from "./multiSelect"
+import { SingleSelectTranslator } from "./singleSelect"
+import { CheckBoxTranslator } from "./checkBox"
+import { TextTranslator } from "./text"
+import { UrlTranslator } from "./url"
+import { PhoneTranslator } from "./phone"
+import { CurrencyTranslator } from "./currency"
+import { ProgressTranslator } from "./progress"
+import { RatingTranslator } from "./rating"
+import { BarCodeTranslator } from "./barCode"
+import { UserTranslator } from "./user"
+import { SingleLinkTranslator } from "./singleLink"
+import { DuplexTranslator } from "./duplexLink"
+import { NumberTranslator } from "./number"
+import { CellTranslator } from "./cell"
 
-export async function getCell(
-  field: IField,
-  fieldMap: fieldMap,
-  value: string,
-) {
-  const type = fieldMap.field.type
-  const config = fieldMap.config
-  switch (type) {
-    case FieldType.Url:
-      return url(field as IUrlField, value)
-    case FieldType.DateTime:
-      return dateTime(
-        field as IDateTimeField,
-        value,
-        config?.format ?? dateDefaultFormat,
-      )
-    case FieldType.SingleSelect:
-      return singleSelect(field as ISingleSelectField, value)
-    case FieldType.MultiSelect:
-      return multiSelect(
-        field as IMultiSelectField,
-        value,
-        config?.separator ?? ",",
-      )
-    case FieldType.Number:
-      return number(field as INumberField, value)
-    case FieldType.Currency:
-      return currency(field as ICurrencyField, value)
-    case FieldType.Progress:
-      return progress(field as IProgressField, value)
-    case FieldType.Rating:
-      return rating(field as IRatingField, value)
-    case FieldType.Checkbox:
-      return checkBox(
-        field as ICheckBoxField,
-        value,
-        config?.boolValue ?? defaultBoolValue,
-      )
-    case FieldType.Text:
-      return text(field as ITextField, value)
-    case FieldType.Barcode:
-      return barCode(field as IBarcodeField, value)
-    case FieldType.Phone:
-      return phone(field as IPhoneField, value)
-    case FieldType.User:
-      return User(field as IUserField, value, config.separator)
-    case FieldType.SingleLink:
-      return singleLink(field as ISingleLinkField, value)
-    case FieldType.DuplexLink:
-      return duplexLink(field as IDuplexLinkField, value)
-    default:
-      return null
-  }
-}
-
-function isGroupChats(value: IOpenCellValue): value is IOpenGroupChat[] {
-  if (!Array.isArray(value)) return false
-  return value.every((v) => checkers.isGroupChat(v))
-}
+export const cellTranslator = new CellTranslator({
+  translators: [
+    DateTimeTranslator,
+    MultiSelectTranslator,
+    SingleSelectTranslator,
+    CheckBoxTranslator,
+    TextTranslator,
+    UrlTranslator,
+    PhoneTranslator,
+    CurrencyTranslator,
+    ProgressTranslator,
+    RatingTranslator,
+    BarCodeTranslator,
+    UserTranslator,
+    SingleLinkTranslator,
+    DuplexTranslator,
+    NumberTranslator,
+  ],
+})
 
 /**
  * Transform cellValue to string
  * @param value
  * @returns
  */
-export function cellValueToString(value: IOpenCellValue) {
+export function cellValueToString(
+  value: IOpenCellValue | IOpenSingleCellValue,
+): string {
   if (checkers.isSegments(value)) {
     return value.map((v) => v.text).join("")
   }
+  if (checkers.isAutoNumber(value)) {
+    return value.value
+  }
   if (checkers.isTimestamp(value) || checkers.isNumber(value)) {
     return String(value)
+  }
+  if (checkers.isAttachment(value)) {
+    return value.name
   }
   if (checkers.isSingleSelect(value)) {
     return value.text
@@ -119,10 +70,13 @@ export function cellValueToString(value: IOpenCellValue) {
     return value ? "☑️" : ""
   }
   if (checkers.isUsers(value)) {
-    return value.map((v) => v.name).join(",")
+    return value.map((v) => v.id).join(",")
   }
   if (checkers.isEmpty(value)) {
     return ""
+  }
+  if (checkers.isLocation(value)) {
+    return value.fullAddress
   }
   if (checkers.isLocation(value)) {
     return value.fullAddress
@@ -133,10 +87,14 @@ export function cellValueToString(value: IOpenCellValue) {
   if (checkers.isAttachments(value)) {
     return value.map((v) => v.name).join(",")
   }
-  if (checkers.isPhone(value) || checkers.isAutoNumber(value)) {
+  if (checkers.isPhone(value)) {
     return value
   }
-  if (isGroupChats(value)) {
-    return value.map((v) => v.name).join(",")
+  if (checkers.isGroupChat(value)) {
+    return value.name
   }
+  if (Array.isArray(value)) {
+    return value.map((v) => cellValueToString(v)).join(",")
+  }
+  return JSON.stringify(value)
 }

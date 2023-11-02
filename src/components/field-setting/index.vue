@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ref, watch, VNode } from "vue"
+import { ref, watch } from "vue"
 import { FieldType } from "@lark-base-open/js-sdk"
 import { useI18n } from "vue-i18n"
 import { fieldMap } from "@/types/types"
-import { useFieldConfig } from "./composables/useFieldConfig"
+import { useFieldConfig } from "@/composables/useFieldConfig"
 
 const { t } = useI18n()
 const props = defineProps({
@@ -18,7 +18,6 @@ const type = ref<FieldType>()
 watch(
   () => props.field,
   (newVal) => {
-    console.log("config", newVal)
     config.value = newVal?.config
     type.value = newVal?.field.type
   },
@@ -42,7 +41,6 @@ function toggleVisible() {
 }
 
 function confirm() {
-  console.log("confirm", configResult.value)
   emits("confirmFormat", JSON.parse(JSON.stringify(configResult.value)))
   toggleVisible()
 }
@@ -61,7 +59,9 @@ defineExpose({
     width="75%"
     :title="t('h.chooseOrCreateFormat')"
   >
-    <component :is="configForm as VNode" />
+    <el-form>
+      <component :is="configForm" />
+    </el-form>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="isVisible = false">{{
@@ -76,3 +76,4 @@ defineExpose({
     </template>
   </el-dialog>
 </template>
+../../composables/useFieldConfig

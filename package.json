@@ -33,7 +33,7 @@
     "url": "https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import.git"
   },
   "dependencies": {
-    "@lark-base-open/js-sdk": "^0.3.0-alpha",
+    "@lark-base-open/js-sdk": "^0.3.4",
     "@qww0302/use-bitable": "^0.1.2",
     "@unhead/vue": "^1.7.3",
     "@vueuse/core": "^10.3.0",
@@ -41,7 +41,7 @@
     "element-plus": "^2.4.0",
     "mathjs": "^11.11.0",
     "vue": "^3.3.4",
-    "vue-i18n": "^9.5.0",
+    "vue-i18n": "^9.6.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   },
   "devDependencies": {

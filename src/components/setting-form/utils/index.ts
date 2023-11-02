@@ -3,6 +3,7 @@ import { dateDefaultFormat } from "@/utils/cellValue/date"
 import { defaultSeparator as multiSelectSeparator } from "@/utils/cellValue/multiSelect"
 import { defaultBoolValue } from "@/utils/cellValue/checkBox"
 import { singleLinkSeparator } from "@/utils/cellValue/singleLink"
+import { duplexLinkSeparator } from "@/utils/cellValue/duplexLink"
 import { fieldMap } from "@/types/types"
 
 export const ignoreFieldType = [
@@ -22,14 +23,6 @@ export const ignoreFieldType = [
 
 export const hasChildrenFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
 
-export const indexFieldType = [
-  FieldType.Text,
-  FieldType.Number,
-  FieldType.DateTime,
-  FieldType.Barcode,
-  FieldType.Phone,
-]
-
 const fieldsConfig: { [key: number]: fieldMap["config"] } = {
   [FieldType.DateTime]: {
     format: dateDefaultFormat,
@@ -42,6 +35,9 @@ const fieldsConfig: { [key: number]: fieldMap["config"] } = {
   },
   [FieldType.SingleLink]: {
     separator: singleLinkSeparator,
+  },
+  [FieldType.DuplexLink]: {
+    separator: duplexLinkSeparator,
   },
 }
 

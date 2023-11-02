@@ -1,10 +1,20 @@
-import { IBarcodeField } from "@lark-base-open/js-sdk"
+import { IBarcodeField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
+
 /**
  * Get barCode cell
- * @param field
+ *
  * @param value
+ * @param field
  * @returns
  */
-export async function barCode(field: IBarcodeField, value: string) {
+async function barCode(value: string, field: IBarcodeField) {
   return await field.createCell(value)
 }
+
+export const BarCodeTranslator = defineTranslator({
+  fieldType: FieldType.Barcode,
+  translate: barCode,
+  normalization: async (value: string) => value,
+  name: "BarCode",
+})

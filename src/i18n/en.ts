@@ -5,26 +5,30 @@ export const en = {
     close: "Close",
     import: "Import",
     autoFill: "Auto Fill",
+    clear: "Clear",
   },
   guide: "Guide Book",
   h: {
     upload: "Upload",
     settings: "Settings",
     chooseOrCreateFormat: "Choose or Create Input Format",
+    setLink: "Link Settings",
   },
   input: {
     placeholder: {
       chooseField: "Choose Field",
       chooseIndex: "Choose Index",
       chooseSheet: "Choose Sheet",
+      chooseTable: "Choose Table",
       chooseOrCreateFormat: "Choose or Create Input Format",
     },
+    chooseAsPrimaryKey: "Choose as Primary Key",
   },
   form: {
     label: {
       index: "Index",
       fieldsMap: "Fields Map",
-      sheet: "Sheet",
+      sheet: "Excel Sheet",
       inputDateFormat: "Input Date Format",
       example: "Example",
       separator: "Separator",
@@ -32,6 +36,9 @@ export const en = {
       falseValue: "False Value",
       mode: "mode",
       primaryKey: "Primary Key",
+      table: "Base Target Table",
+      allowAdd: "Allow Add New Record to Link Table",
+      linkTable: "Link Table",
     },
   },
   table: {
@@ -60,6 +67,7 @@ export const en = {
     indexInfo:
       "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. In a Base, the index of each record should be unique. Example: ID card number.",
     importInfo: "Click to see the import info",
+    clickToPreview: "Click to preview: {name}",
   },
   message: {
     chooseTableFirst: "Please choose a table first",
@@ -68,6 +76,9 @@ export const en = {
     sheetError: 'Sheet "{sheetName}" has wrong format',
     noSheet: "No correct sheet found",
     fileType: "File type error",
+    getTableListError: "Get table list error",
+    autoFieldNotAllowAdd: "Auto field not allow add new record",
+    notSupportFieldNotAllowAdd: "Not support field not allow add new record",
   },
   loading: "Loading...",
   fieldType: {
@@ -86,6 +97,17 @@ export const en = {
     user: "User",
     singleLink: "SingleLink",
     duplexLink: "DuplexLink",
+    formula: "Formula",
+    createdTime: "CreatedTime",
+    modifiedTime: "ModifiedTime",
+    createdUser: "CreatedUser",
+    modifiedUser: "ModifiedUser",
+    attachment: "Attachment",
+    location: "Location",
+    autoNumber: "AutoNumber",
+    groupChat: "GroupChat",
+    denied: "Denied",
+    notSupport: "NotSupport",
   },
   importInfo: {
     title: "Import Info",

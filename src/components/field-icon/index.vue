@@ -1,38 +1,32 @@
 <script lang="ts" setup>
-import { FieldType } from "@lark-base-open/js-sdk"
 import { iconList } from "@/utils/fieldIcons"
+import { FieldNameList } from "@/utils"
+import { FieldType } from "@lark-base-open/js-sdk"
+import { defineAsyncComponent, computed } from "vue"
 
-defineProps({
+const props = defineProps({
   type: {
-    type: Number,
+    type: Number as () => FieldType,
     required: true,
   },
 })
 
-const nameList: { [key: number]: string } = {
-  [FieldType.DateTime]: "dateTime",
-  [FieldType.Checkbox]: "checkBox",
-  [FieldType.Phone]: "phone",
-  [FieldType.Text]: "text",
-  [FieldType.Barcode]: "barCode",
-  [FieldType.MultiSelect]: "multiSelect",
-  [FieldType.SingleSelect]: "singleSelect",
-  [FieldType.Currency]: "currency",
-  [FieldType.Number]: "number",
-  [FieldType.Progress]: "progress",
-  [FieldType.Rating]: "rating",
-  [FieldType.Url]: "url",
-  [FieldType.User]: "user",
-  [FieldType.SingleLink]: "singleLink",
-  [FieldType.DuplexLink]: "duplexLink",
-}
+const icon = computed(() => {
+  return defineAsyncComponent({
+    loader: iconList[props.type],
+  })
+})
 </script>
 
 <template>
   <el-tooltip>
     <template #content>
-      <span>{{ $t(`fieldType.${nameList[type]}`) }}</span>
+      <span>{{ $t(`fieldType.${FieldNameList[type]}`) }}</span>
     </template>
-    <el-icon><component :is="iconList[type]" /></el-icon>
+    <el-icon>
+      <Suspense>
+        <icon />
+      </Suspense>
+    </el-icon>
   </el-tooltip>
 </template>

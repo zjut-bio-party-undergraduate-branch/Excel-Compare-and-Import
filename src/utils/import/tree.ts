@@ -4,10 +4,17 @@ export function clearTree(tree: fieldMap[]) {
   tree.forEach((v) => {
     if (v.hasChildren && v.children?.length && v.excel_field) {
       v.children = v.children.filter((i) => {
-        if (i.field.isPrimary) {
+        if (
+          (i.config?.primaryKey && i.config?.primaryKey === v.field.id) ||
+          i.field.isPrimary
+        ) {
           i.excel_field = v.excel_field
         }
-        return i.field.isPrimary || i.excel_field
+        return (
+          (i.config?.primaryKey && i.config?.primaryKey === v.field.id) ||
+          i.field.isPrimary ||
+          i.excel_field
+        )
       })
       clearTree(v.children)
     } else {

@@ -47,6 +47,8 @@ export interface fieldMap {
   table: string
   excel_field: string | undefined
   root: boolean
+  parent?: fieldMap
+  writable: boolean
   config: {
     format?: string
     separator?: string
@@ -54,6 +56,9 @@ export interface fieldMap {
       true: string[]
       false: string[]
     }
+  }
+  linkConfig?: {
+    allowAdd?: boolean
     primaryKey?: string
   }
   hasChildren: boolean
@@ -65,10 +70,20 @@ export interface BitableTable {
   id: string
   name: string
   indexId: string[]
+  primaryField: string
   root: boolean
   fields: {
     [key: string]: IField
   }
+  fieldMaps: fieldMap[]
+}
+
+export enum TaskStatus {
+  Wait = "wait",
+  Running = "running",
+  Success = "success",
+  Error = "error",
+  Cancel = "cancel",
 }
 
 export interface Task<T = any> {
@@ -77,6 +92,16 @@ export interface Task<T = any> {
     id: string
   }
   action: TaskAction
-  data: T[]
-  result: boolean[] | undefined
+  status: TaskStatus
+  data: Array<T>
+  result: string | undefined | boolean
+  link?: Array<Task>
+  target?: Task
+  recordId?: string
+}
+
+export enum importModes {
+  append = "append",
+  merge_direct = "merge_direct",
+  compare_merge = "compare_merge",
 }

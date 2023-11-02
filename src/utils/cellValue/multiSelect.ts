@@ -1,26 +1,34 @@
-import { IMultiSelectField } from "@lark-base-open/js-sdk"
+import { IMultiSelectField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
+import { fieldMap } from "@/types/types"
 
 export const defaultSeparator = ","
 
+async function normalization(value: string, config?: fieldMap["config"]) {
+  const { separator = defaultSeparator } = config || {}
+  return value.split(separator)
+}
+
 /**
  * Get multiSelect cell
- * @param field
+ *
  * @param value
- * @param separator Default: ","
+ * @param field
+ * @param config
  * @returns
  */
-export async function multiSelect(
-  field: IMultiSelectField,
+async function multiSelect(
   value: string,
-  separator: string = ",",
+  field: IMultiSelectField,
+  config: fieldMap["config"] = {},
 ) {
-  const options = await field.getOptions()
-  const values = value.split(separator)
-  for (let i = 0; i < values.length; i++) {
-    const option = options.find((option) => option.name === values[i])
-    if (!option) {
-      await field.addOption(values[i])
-    }
-  }
+  const values = await normalization(value, config)
   return await field.createCell(values)
 }
+
+export const MultiSelectTranslator = defineTranslator({
+  fieldType: FieldType.MultiSelect,
+  translate: multiSelect,
+  normalization,
+  name: "MultiSelect",
+})

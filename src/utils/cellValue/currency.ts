@@ -1,12 +1,25 @@
-import { ICurrencyField } from "@lark-base-open/js-sdk"
+import { ICurrencyField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
+
+async function normalization(value: string) {
+  return Number(value.match(/-?\d+\.?\d*/g))
+}
 
 /**
  * Get currency cell
- * @param field
+ *
  * @param value
+ * @param field
  * @returns
  */
-export async function currency(field: ICurrencyField, value: string) {
-  const res = Number(value.match(/-?\d+\.?\d*/g))
-  return await field.createCell(res)
+async function currency(value: string, field: ICurrencyField) {
+  const v = await normalization(value)
+  return await field.createCell(v)
 }
+
+export const CurrencyTranslator = defineTranslator({
+  fieldType: FieldType.Currency,
+  translate: currency,
+  normalization,
+  name: "Currency",
+})

@@ -5,26 +5,30 @@ export const zh = {
     close: "关闭",
     import: "导入",
     autoFill: "自动填充",
+    clear: "清空",
   },
   guide: "使用指南",
   h: {
     upload: "上传",
     settings: "设置",
     chooseOrCreateFormat: "选择或创建输入格式",
+    setLink: "关联设置",
   },
   input: {
     placeholder: {
       chooseField: "选择字段",
       chooseIndex: "选择索引",
       chooseSheet: "选择工作表",
+      chooseTable: "选择表格",
       chooseOrCreateFormat: "选择或创建输入格式",
     },
+    chooseAsPrimaryKey: "选择作为主键",
   },
   form: {
     label: {
       index: "索引",
       fieldsMap: "字段对应关系",
-      sheet: "工作表",
+      sheet: "Excel 工作表",
       inputDateFormat: "输入日期格式",
       example: "例子",
       separator: "分隔符",
@@ -32,6 +36,9 @@ export const zh = {
       falseValue: "假值",
       mode: "模式",
       primaryKey: "主键",
+      table: "多维表格目标表",
+      allowAdd: "允许向关联表中添加新记录",
+      linkTable: "关联表",
     },
   },
   table: {
@@ -60,6 +67,7 @@ export const zh = {
     indexInfo:
       "索引列：用于标识每条记录，合并记录的依据。在一个多维表格中，每条记录的索引都应该是唯一的。例：身份证号。",
     importInfo: "点击查看导入进度",
+    clickToPreview: "点击预览：{name}",
   },
   message: {
     chooseTableFirst: "请先选择一个表格",
@@ -68,6 +76,9 @@ export const zh = {
     sheetError: "工作表“{sheetName}”格式错误",
     noSheet: "没有找到正确的工作表",
     fileType: "文件类型错误",
+    getTableListError: "获取表格列表失败",
+    autoFieldNotAllowAdd: "自动计算的字段类型不允许添加新记录",
+    notSupportFieldNotAllowAdd: "不支持的字段类型不允许添加新记录",
   },
   loading: "加载中...",
   fieldType: {
@@ -86,6 +97,17 @@ export const zh = {
     user: "人员",
     singleLink: "单向关联",
     duplexLink: "双向关联",
+    formula: "公式",
+    createdTime: "创建时间",
+    modifiedTime: "修改时间",
+    createdUser: "创建人",
+    modifiedUser: "修改人",
+    attachment: "附件",
+    location: "地理位置",
+    autoNumber: "自动编号",
+    groupChat: "群组",
+    denied: "拒绝",
+    notSupport: "不支持",
   },
   importInfo: {
     title: "导入进度",

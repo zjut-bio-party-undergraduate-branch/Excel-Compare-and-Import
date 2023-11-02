@@ -1,4 +1,5 @@
-import { ISingleSelectField } from "@lark-base-open/js-sdk"
+import { ISingleSelectField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
 
 /**
  * Get singleSelect cell
@@ -6,11 +7,13 @@ import { ISingleSelectField } from "@lark-base-open/js-sdk"
  * @param value
  * @returns
  */
-export async function singleSelect(field: ISingleSelectField, value: string) {
-  const options = await field.getOptions()
-  const option = options.find((option) => option.id === value)
-  if (!option) {
-    await field.addOption(value)
-  }
+async function singleSelect(value: string, field: ISingleSelectField) {
   return await field.createCell(value)
 }
+
+export const SingleSelectTranslator = defineTranslator({
+  fieldType: FieldType.SingleSelect,
+  translate: singleSelect,
+  normalization: async (value: string) => value,
+  name: "SingleSelect",
+})
