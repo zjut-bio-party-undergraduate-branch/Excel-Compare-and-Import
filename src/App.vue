@@ -2,20 +2,23 @@
 import settingForm from "@/components/setting-form/index.vue"
 import upload from "@/components/upload/index.vue"
 import Info from "@/components/info/index.vue"
+import runningLogger from "@/components/running-logger/index.vue"
+import bugIcon from "@/components/icons/bug-icon.vue"
 import { ref, onMounted, watch } from "vue"
 import { bitable, ThemeModeType } from "@lark-base-open/js-sdk"
 import { useI18n } from "vue-i18n"
-import { Link } from "@element-plus/icons-vue"
-import { ExcelDataInfo } from "./types/types"
+import { ElMessage } from "element-plus"
+import { Link, QuestionFilled } from "@element-plus/icons-vue"
+import type { ExcelDataInfo } from "@/types/types"
 import { useHead } from "@unhead/vue"
 import { useTheme } from "@qww0302/use-bitable"
+import { Info as ConsoleInfo, setLogOptions } from "@/utils"
 //@ts-ignore
 import { default as Meta } from "virtual:meta"
-import { useDark } from "@vueuse/core"
-
+import { useDark, useToggle } from "@vueuse/core"
 const isDark = useDark()
-// const wrapRef = ref()
-// const { toggle, isSupported } = useFullscreen(wrapRef)
+const showLogger = ref(false)
+
 useHead({
   meta: [
     {
@@ -37,9 +40,36 @@ useHead({
   ],
 })
 
+const toggleLogger = useToggle(showLogger)
+
 const settingRef = ref()
 const uploadRef = ref()
 const { t } = useI18n()
+
+setLogOptions({
+  onError: (msg) => {
+    const { notice, noticeParams } = msg
+    if (notice && noticeParams) {
+      ElMessage({
+        message: t(noticeParams.text, noticeParams?.params ?? {}),
+        type: "error",
+        grouping: true,
+        duration: 3000,
+      })
+    }
+  },
+  onWarn: (msg) => {
+    const { notice, noticeParams } = msg
+    if (notice && noticeParams) {
+      ElMessage({
+        message: t(noticeParams.text, noticeParams?.params ?? {}),
+        type: "warning",
+        grouping: true,
+        duration: 3000,
+      })
+    }
+  },
+})
 
 useTheme({
   onChanged: (theme) => {
@@ -67,11 +97,18 @@ watch(
 onMounted(async () => {
   const theme = await bitable.bridge.getTheme()
   isDark.value = theme === ThemeModeType.DARK
+  ConsoleInfo({
+    title: "UserAgent",
+    message: navigator.userAgent,
+  })
 })
 </script>
 
 <template>
-  <el-scrollbar height="100vh">
+  <el-scrollbar
+    id="plugin-wrap"
+    height="100vh"
+  >
     <div
       ref="wrapRef"
       style="padding: 10px"
@@ -94,14 +131,50 @@ onMounted(async () => {
         >
           <el-icon><FullScreen /></el-icon>
         </el-link> -->
-          <Info />
+          <el-tooltip>
+            <template #content>
+              <span>{{ t("toolTip.log") }}</span>
+            </template>
+            <el-link @click="toggleLogger()">
+              <el-icon><bugIcon /></el-icon>
+            </el-link>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
+              <span>{{ t("toolTip.questions") }}</span>
+            </template>
+            <el-link
+              target="_blank"
+              href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc?hideTemplate=true&lang=zh&noNeedJsSDKSession=true&onboarding=0&opendoc=1&opendocHeaderHeight=52&opendocLoading=positive&opendocVersion=0.0.3&shwm=true#FWJjdYZnSoWfH5xCvegchMxRnxh"
+            >
+              <el-icon><QuestionFilled /></el-icon>
+            </el-link>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
+              <span>{{ t("toolTip.about") }}</span>
+            </template>
+            <span>
+              <Info />
+            </span>
+          </el-tooltip>
         </span>
       </el-row>
       <upload ref="uploadRef" />
-      <setting-form
-        ref="settingRef"
-        :excelData="data"
-      />
+      <Suspense>
+        <setting-form
+          ref="settingRef"
+          :excelData="data"
+        />
+      </Suspense>
+      <el-dialog
+        v-model="showLogger"
+        fullscreen
+        lock-scroll
+        :title="t('toolTip.log')"
+      >
+        <running-logger />
+      </el-dialog>
     </div>
   </el-scrollbar>
 </template>

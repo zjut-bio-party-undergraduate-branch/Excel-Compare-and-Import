@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, toRaw, onMounted } from "vue"
-import { bitable, ITableMeta, IFieldMeta } from "@lark-base-open/js-sdk"
-import { ExcelDataInfo, fieldMap, importModes } from "@/types/types"
-import { ElMessage, TableColumnCtx } from "element-plus"
+import { bitable } from "@lark-base-open/js-sdk"
+import type { ITableMeta, IFieldMeta } from "@lark-base-open/js-sdk"
+import { importModes, UpdateMode } from "@/types/types"
+import type { ExcelDataInfo, fieldMap, ImportOptions } from "@/types/types"
+import type { TableColumnCtx } from "element-plus"
 import { Setting, Lock, Refresh, Key } from "@element-plus/icons-vue"
-import { indexFieldType } from "@/utils"
+import { indexFieldType, Log, Error, Warn } from "@/utils"
 import fieldSetting from "@/components/field-setting/index.vue"
 import linkSetting from "@/components/link-setting/index.vue"
 import { useI18n } from "vue-i18n"
@@ -13,6 +15,10 @@ import importInfo from "@/components/import-info/index.vue"
 import { useSetting } from "./composables"
 import { useSelection, useTable } from "@qww0302/use-bitable"
 import { cellTranslator } from "@/utils/cellValue"
+import { useStorage } from "@vueuse/core"
+import defaultOptions from "../../../plugin.config.json"
+import { validateIndex } from "./utils"
+
 const { t } = useI18n()
 const props = defineProps({
   excelData: {
@@ -29,6 +35,117 @@ const linkRef = ref()
 const tableList = ref<ITableMeta[]>([])
 const targetTableId = ref<string>("")
 const tableFields = ref<IFieldMeta[]>()
+const AllowActionValue: Record<string, ImportOptions["allowAction"]> = {
+  updateAndAdd: {
+    add: true,
+    update: true,
+    delete: true,
+  },
+  onlyAdd: {
+    add: true,
+    update: false,
+    delete: false,
+  },
+  onlyUpdate: {
+    add: false,
+    update: true,
+    delete: true,
+  },
+}
+
+enum AllowAction {
+  updateAndAdd = "updateAndAdd",
+  onlyAdd = "onlyAdd",
+  onlyUpdate = "onlyUpdate",
+}
+
+const userId = ref<string>(await bitable.bridge.getUserId())
+const userOptions = useStorage<ImportOptions>(
+  `Excel_Compare_and_import-${userId.value}`,
+  defaultOptions,
+  undefined,
+  {
+    mergeDefaults: true,
+  },
+)
+const getAllowAction = (actions: ImportOptions["allowAction"]) => {
+  if (!actions) return AllowAction.updateAndAdd
+  if (actions.add && actions.update && actions.delete) {
+    return AllowAction.updateAndAdd
+  }
+  if (actions.add && !actions.update && !actions.delete) {
+    return AllowAction.onlyAdd
+  }
+  if (!actions.add && actions.update && actions.delete) {
+    return AllowAction.onlyUpdate
+  }
+  return AllowAction.updateAndAdd
+}
+const allowAction = ref<AllowAction>(
+  getAllowAction(userOptions.value.allowAction),
+)
+const changeAllowAction = (value: any) => {
+  userOptions.value.allowAction = AllowActionValue[value]
+}
+
+const updateOptionSelector = () => [
+  {
+    value: UpdateMode.SAVE_MOST,
+    label: t("updateMode.saveMost"),
+    children: [
+      {
+        value: UpdateMode.SAVE_LATEST,
+        label: t("updateMode.saveLatest"),
+      },
+      {
+        value: UpdateMode.SAVE_OLDEST,
+        label: t("updateMode.saveOldest"),
+      },
+    ],
+  },
+  {
+    value: UpdateMode.SAVE_LEAST,
+    label: t("updateMode.saveLeast"),
+    children: [
+      {
+        value: UpdateMode.SAVE_LATEST,
+        label: t("updateMode.saveLatest"),
+      },
+      {
+        value: UpdateMode.SAVE_OLDEST,
+        label: t("updateMode.saveOldest"),
+      },
+    ],
+  },
+  {
+    value: UpdateMode.SAVE_LATEST,
+    label: t("updateMode.saveLatest"),
+    children: [
+      {
+        value: UpdateMode.SAVE_MOST,
+        label: t("updateMode.saveMost"),
+      },
+      {
+        value: UpdateMode.SAVE_LEAST,
+        label: t("updateMode.saveLeast"),
+      },
+    ],
+  },
+  {
+    value: UpdateMode.SAVE_OLDEST,
+    label: t("updateMode.saveOldest"),
+    children: [
+      {
+        value: UpdateMode.SAVE_MOST,
+        label: t("updateMode.saveMost"),
+      },
+      {
+        value: UpdateMode.SAVE_LEAST,
+        label: t("updateMode.saveLeast"),
+      },
+    ],
+  },
+]
 
 const { tableId: activeTableId } = useSelection()
 const { table: targetTable, pending: tablePending } = useTable(targetTableId)
@@ -109,29 +226,39 @@ function filterHandler(
 
 async function importAction() {
   if (!activeTableId.value) {
-    ElMessage({
+    Warn({
+      title: "chooseTableFirst",
       message: t("message.chooseTableFirst"),
-      grouping: true,
-      type: "warning",
-      duration: 2000,
+      notice: true,
+      noticeParams: {
+        text: "message.chooseTableFirst",
+      },
     })
     return
   }
   if (!props.excelData) {
-    ElMessage({
+    Warn({
+      title: "NoExcelFile",
       message: t("message.uploadExcelFirst"),
-      grouping: true,
-      type: "warning",
-      duration: 2000,
+      notice: true,
+      noticeParams: {
+        text: "message.uploadExcelFirst",
+      },
     })
     return
   }
-
-  console.log("sheetIndex", sheetIndex.value)
-  console.log("table", activeTableId)
-  console.log("start import")
+  if (
+    mode.value !== importModes.append &&
+    !validateIndex(
+      Index.value
+        .map(
+          (i) => settingColumns.value.find((j) => j.field.id === i) as fieldMap,
+        )
+        .filter((i) => i) ?? [],
+    )
+  )
+    return
   const sheet_index = sheetIndex.value
-  // const table = await bitable.base.getTableById(tableId.value);
   const index = Index.value
   importLoading.value = true
   importInfoRef.value.toggleVisible()
@@ -140,46 +267,22 @@ async function importAction() {
     toRaw(settingColumns.value),
     toRaw(props.excelData),
     sheet_index,
-    // table,
     index,
     mode.value,
-    // {
-    //   end: () => {
-    //     ElMessage({
-    //       message: t("message.importSuccess"),
-    //       grouping: true,
-    //       type: "success",
-    //       duration: 2000,
-    //     });
-    //     importLoading.value = false;
-    //     importInfoRef.value.refresh();
-    //   },
-    // }
+    userOptions.value,
   )
-  // const importWorker = (await import("@/utils/import/import.worker.ts?worker"))
-  //   .default
-  // const worker = new importWorker()
-  // worker.postMessage({
-  //   type: "import",
-  //   payload: JSON.parse(
-  //     JSON.stringify({
-  //       fieldsMaps: toRaw(settingColumns.value),
-  //       excelData: toRaw(props.excelData),
-  //       sheetIndex: sheet_index,
-  //       index,
-  //       mode: toRaw(mode.value),
-  //     }),
-  //   ),
-  // })
+  importLoading.value = false
 }
 
 function autoFill() {
   if (!props.excelData) {
-    ElMessage({
+    Warn({
+      title: "NoExcelFile",
       message: t("message.uploadExcelFirst"),
-      grouping: true,
-      type: "warning",
-      duration: 2000,
+      notice: true,
+      noticeParams: {
+        text: "message.uploadExcelFirst",
+      },
     })
     return
   }
@@ -201,7 +304,7 @@ function settingLink(row: fieldMap) {
 }
 
 function getFormat(value: fieldMap["config"]) {
-  console.log("getFormat", value)
+  // console.log("getFormat", value)
   if (currentSetting.value) {
     currentSetting.value.config = value
   }
@@ -211,13 +314,13 @@ function setLinkField(
   linkConfig: fieldMap["linkConfig"],
   config: fieldMap["config"],
 ) {
-  console.log("setLinkField", linkConfig)
+  // console.log("setLinkField", linkConfig)
   if (currentSetting.value) {
     currentSetting.value.linkConfig = linkConfig
     currentSetting.value.children?.forEach((field) => {
       if (linkConfig && field.field.id === linkConfig.primaryKey) {
         field.config = config
-        console.log("setLinkField", settingColumns.value)
+        // console.log("setLinkField", settingColumns.value)
       }
     })
   }
@@ -247,18 +350,24 @@ function getModeList(): any[] {
 }
 
 onMounted(() => {
+  Log({
+    title: "userOptions",
+    message: JSON.stringify(userOptions.value),
+  })
   bitable.base
     .getTableMetaList()
     .then((res) => {
       tableList.value = res
     })
     .catch((err) => {
-      console.log(err)
-      ElMessage({
-        message: t("message.getTableListError"),
-        grouping: true,
-        type: "error",
-        duration: 2000,
+      Error({
+        title: "getTableListError",
+        message: JSON.stringify(err),
+        error: err,
+        notice: true,
+        noticeParams: {
+          text: "message.getTableListError",
+        },
       })
     })
 })
@@ -364,6 +473,7 @@ defineExpose({
         >
           <template #default="{ row }">
             <field-icon :type="row.field.type" />
+
             {{ row.field.name }}
             <el-tooltip
               v-if="row.linkConfig"
@@ -417,7 +527,11 @@ defineExpose({
         :options="getModeList()"
       />
     </el-form-item>
-    <el-form-item :label="t('form.label.index')">
+    <el-form-item
+      v-if="modeSelect[0] !== 'append'"
+      :label="t('form.label.index')"
+      required
+    >
       <template #label="{ label }">
         {{ label }}
         <el-tooltip effect="dark">
@@ -449,6 +563,39 @@ defineExpose({
           </template>
         </el-option>
       </el-select>
+    </el-form-item>
+    <el-form-item
+      :label="t('form.label.allowAction')"
+      v-if="modeSelect[0] !== 'append'"
+      required
+    >
+      <el-radio-group
+        v-model="allowAction"
+        style="display: flex; flex-direction: column; align-items: flex-start"
+        @change="changeAllowAction"
+      >
+        <el-radio :label="AllowAction.updateAndAdd">{{
+          t("allowAction.updateAndAdd")
+        }}</el-radio>
+        <el-radio :label="AllowAction.onlyAdd">{{
+          t("allowAction.onlyAdd")
+        }}</el-radio>
+        <el-radio :label="AllowAction.onlyUpdate">{{
+          t("allowAction.onlyUpdate")
+        }}</el-radio>
+      </el-radio-group>
+    </el-form-item>
+    <el-form-item
+      :label="t('form.label.whenTwoSame')"
+      v-if="modeSelect[0] !== 'append' && userOptions.allowAction?.update"
+      required
+    >
+      <el-cascader
+        :placeholder="t('form.label.saveFirst')"
+        :options="updateOptionSelector()"
+        v-model="userOptions.updateOption!.mode"
+        separator=">"
+      ></el-cascader>
     </el-form-item>
   </el-form>
   <el-space>

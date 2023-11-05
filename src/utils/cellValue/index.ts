@@ -1,7 +1,7 @@
 import {
-  IOpenCellValue,
+  type IOpenCellValue,
   checkers,
-  IOpenSingleCellValue,
+  type IOpenSingleCellValue,
 } from "@lark-base-open/js-sdk"
 import { DateTimeTranslator } from "./date"
 import { MultiSelectTranslator } from "./multiSelect"

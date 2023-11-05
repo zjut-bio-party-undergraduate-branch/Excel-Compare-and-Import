@@ -16,8 +16,8 @@ export const en = {
   },
   input: {
     placeholder: {
-      chooseField: "Choose Field",
-      chooseIndex: "Choose Index",
+      chooseField: "Search and Select Field",
+      chooseIndex: "Search and Select Index",
       chooseSheet: "Choose Sheet",
       chooseTable: "Choose Table",
       chooseOrCreateFormat: "Choose or Create Input Format",
@@ -39,6 +39,9 @@ export const en = {
       table: "Base Target Table",
       allowAdd: "Allow Add New Record to Link Table",
       linkTable: "Link Table",
+      allowAction: "Allow Action",
+      whenTwoSame: "When Two or More Records are the Same",
+      saveFirst: "Save First",
     },
   },
   table: {
@@ -68,6 +71,12 @@ export const en = {
       "Index: the index column of the table, which is used to identify the uniqueness of the record, and the basis for merging records. In a Base, the index of each record should be unique. Example: ID card number.",
     importInfo: "Click to see the import info",
     clickToPreview: "Click to preview: {name}",
+    about: "About",
+    log: "Running Log",
+    questions: "FAQ",
+    autoField: "Auto Field",
+    notSupportField:
+      "Not Support field, only can be used as index, can't write value",
   },
   message: {
     chooseTableFirst: "Please choose a table first",
@@ -79,6 +88,11 @@ export const en = {
     getTableListError: "Get table list error",
     autoFieldNotAllowAdd: "Auto field not allow add new record",
     notSupportFieldNotAllowAdd: "Not support field not allow add new record",
+    noIndex: "Merge mode must set index",
+    indexNoExcelField: "Index field [{fields}] must have excel field",
+    getTableFailure: "Get table [{id}] failed",
+    getTableIndexFailure: "Get index value of [{id}] failed",
+    getModifiedTimeFailure: "Get table [{id}] modified time failed",
   },
   loading: "Loading...",
   fieldType: {
@@ -111,25 +125,48 @@ export const en = {
   },
   importInfo: {
     title: "Import Info",
-    checkOptions: "Check Options of SingleSelect/MultiSelect",
-    checkFieldTypes: "Check Field Types",
-    setOptions: "Set Options of SingleSelect/MultiSelect",
-    analysisRecords: "Analysis Records",
+    readFieldMap: "Analyze Field Map",
+    analyzeRecords: "Analyze Records",
     updateRecords: "Update Records",
-    deleteRecords: "Delete same Records",
-    addRecords: "Add new Records",
-    success: "{successNumber} success",
-    error: "{errorNumber} failed",
-    waiting: "{waitingNumber} waiting",
-    checkFieldsMessage: "Total {totalNumber} SingleSelect/MultiSelect Fields",
-    checkOptionsMessage:
-      "Total {totalNumber} SingleSelect/MultiSelect Fields with new Options",
-    addRecordsMessage: "There will be 4 seconds between each 4000 records.",
+    deleteRecords: "Delete Records",
+    addRecords: "Add Records",
+    updateRecordsMessage: "Update table {table} records at 5000 records/time",
+    deleteRecordsMessage:
+      "Delete table {table} same records at 5000 records/time",
+    addRecordsMessage: "Add table {table} records at 5000 records/time",
+    success: "{successNumber} Success",
+    error: "{errorNumber} Error",
+    waiting: "{waitingNumber} Waiting",
     analysisRecordsMessage:
-      "{updateNumber} Update, {deleteNumber}Delete, {addNumber}Add",
+      "{updateNumber} Update, {deleteNumber} Delete, {addNumber} Add",
     findSameRecord:
-      "Searching for record {indexValue}, finding {sameNumber} same records",
-    compareRecord: 'Comparing record "{indexValue}"\'s {fieldName} field',
-    analysisRecord: 'Analyzing record "{indexValue}"',
+      "Searching for same records of [{indexValue}], found {number} records",
+    getSameRecord:
+      "Getting same records of [{indexValue}], found {number} records",
+    getLinkRecord:
+      "Getting link records of link field {fieldName}[{fieldId}] in {table}",
+    compareRecordField:
+      "Comparing record {record} field {fieldName}[{fieldId}]",
+    compareRecord: "Comparing record [{indexValue}]",
+    analysisRecordField: "Analyzing field {field} of record {record}",
+    getIndexField: "Getting index field {name}[{id}]",
+    getFieldCellString:
+      "Getting cellString of field {field} of record {record}",
+    analyzeIndexFieldValue:
+      "Analyzing index field {fieldName}[{fieldId}]'s value of record [{recordId}]",
+    getTable: "Getting table {name}[{id}]",
+    getRecordsModifiedTime: "Getting table records modified time",
+    importComplete: "Import complete",
+  },
+  allowAction: {
+    updateAndAdd: "Update same records and add new records",
+    update: " Only update same records",
+    add: "Only add new records",
+  },
+  updateMode: {
+    saveMost: "Save the record with the most non-empty fields",
+    saveLeast: "Save the record with the least non-empty fields",
+    saveOldest: "Save the earliest modified record",
+    saveLatest: "Save the latest modified record",
   },
 }

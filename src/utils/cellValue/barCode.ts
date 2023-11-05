@@ -1,4 +1,4 @@
-import { IBarcodeField, FieldType } from "@lark-base-open/js-sdk"
+import { type IBarcodeField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
 
 /**

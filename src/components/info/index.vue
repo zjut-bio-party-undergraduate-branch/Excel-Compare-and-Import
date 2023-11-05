@@ -138,7 +138,9 @@ const stageColor = {
         </el-text>
       </el-row>
       <el-row justify="center">
-        <el-text type="info">Copyright © 2023 {{ Meta.author.name }}</el-text>
+        <el-text type="info"
+          >Copyright © 2023-PRESENT {{ Meta.author.name }}</el-text
+        >
       </el-row>
     </el-scrollbar>
   </el-dialog>

@@ -50,7 +50,7 @@ export interface fieldMap {
   parent?: fieldMap
   writable: boolean
   config: {
-    format?: string
+    format?: string | string[]
     separator?: string
     boolValue?: {
       true: string[]
@@ -104,4 +104,30 @@ export enum importModes {
   append = "append",
   merge_direct = "merge_direct",
   compare_merge = "compare_merge",
+}
+
+export enum UpdateMode {
+  SAVE_MOST = 0,
+  SAVE_LEAST = 1,
+  SAVE_OLDEST = 2,
+  SAVE_LATEST = 3,
+}
+
+export interface ImportOptions {
+  parallel?: {
+    records: number
+    fields: number
+  }
+  interval?: {
+    records: number
+    fields: number
+  }
+  allowAction?: {
+    add: boolean
+    update: boolean
+    delete: boolean
+  }
+  updateOption?: {
+    mode: UpdateMode[]
+  }
 }

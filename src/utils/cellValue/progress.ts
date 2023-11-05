@@ -1,4 +1,4 @@
-import { IProgressField, FieldType } from "@lark-base-open/js-sdk"
+import { type IProgressField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
 
 async function normalization(value: string) {

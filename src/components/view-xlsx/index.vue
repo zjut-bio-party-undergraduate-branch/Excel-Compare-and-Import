@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ExcelDataInfo } from "@/types/types"
+import type { ExcelDataInfo } from "@/types/types"
 import { ref, computed } from "vue"
 import { useI18n } from "vue-i18n"
 import type { RowClassNameGetter } from "element-plus"

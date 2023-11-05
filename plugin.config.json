@@ -1,0 +1,18 @@
+{
+  "parallel": {
+    "records": 10000,
+    "fields": 10
+  },
+  "interval": {
+    "records": 0,
+    "fields": 0
+  },
+  "allowAction": {
+    "add": true,
+    "delete": true,
+    "update": true
+  },
+  "updateOption": {
+    "mode": [0, 3]
+  }
+}

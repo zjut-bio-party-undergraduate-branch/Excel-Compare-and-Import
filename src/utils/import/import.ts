@@ -1,24 +1,22 @@
-import {
-  FieldType,
+import type {
   IWidgetTable,
   IRecord,
-  bitable,
   ICell,
   IField,
   ITable,
   IModifiedTimeField,
   IOpenCellValue,
 } from "@lark-base-open/js-sdk"
-
-import {
+import { FieldType, bitable } from "@lark-base-open/js-sdk"
+import type {
   fieldMap,
   ExcelDataInfo,
   BitableTable,
   LinkField,
   Task,
-  importModes,
-  TaskStatus,
+  ImportOptions,
 } from "@/types/types"
+import { importModes, TaskStatus, UpdateMode } from "@/types/types"
 import { TaskAction } from "@/utils/import/tasks"
 import { cellTranslator } from "../cellValue"
 import {
@@ -29,10 +27,9 @@ import {
   isNotEmpty,
   unique,
 } from "./helper"
+import type { lifeCircleEventParams } from "./lifeCircle"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
-import { i18n } from "@/i18n"
-import { clearTree } from "./tree"
-import { autoFields, Error } from "@/utils"
+import { Error, Log, Info } from "@/utils"
 
 export const optionsFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
@@ -67,25 +64,35 @@ async function batch<T>(
   }
 }
 
-function addRecords(table: ITable, lifeCircleHook: any) {
+async function addRecords(
+  table: ITable,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
+) {
+  const tableName = await table.getName()
   return async (tasks: Task<ICell>[]) => {
     try {
-      console.time("addRecords" + table.id)
-      console.log(
-        table.id,
-        tasks.map((task) => task.data),
-      )
       const addRes = await table.addRecords(tasks.map((task) => task.data))
-      console.log("addRes", addRes)
-      console.timeEnd("addRecords" + table.id)
-      console.time("solveResults")
       tasks.forEach((task, index) => {
         if (addRes[index]) {
           task.result = addRes[index]
           task.status = TaskStatus.Success
         }
       })
-      console.timeEnd("solveResults")
+      await lifeCircleHook(importLifeCircles.onAddRecords, {
+        stage: "addRecords",
+        data: {
+          success: tasks,
+          message: {
+            text: "importInfo.addRecordsMessage",
+            params: {
+              table: tableName,
+            },
+          },
+        },
+      })
     } catch (e) {
       Error({
         title: "addRecordsFailure",
@@ -94,6 +101,12 @@ function addRecords(table: ITable, lifeCircleHook: any) {
       })
       tasks.forEach((task) => {
         task.status = TaskStatus.Error
+      })
+      await lifeCircleHook(importLifeCircles.onAddRecords, {
+        stage: "addRecords",
+        data: {
+          error: tasks,
+        },
       })
     }
   }
@@ -105,19 +118,38 @@ function addRecords(table: ITable, lifeCircleHook: any) {
  * @param lifeCircleHook
  * @returns
  */
-function updateRecords(table: ITable, lifeCircleHook: any) {
+async function updateRecords(
+  table: ITable,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
+) {
+  const tableName = await table.getName()
   return async (tasks: Task<IRecord>[]) => {
     try {
-      console.time("updateRecords" + table.id)
+      // console.time("updateRecords" + table.id)
       const updateRes = await table.setRecords(
         tasks.map((task) => task.data).flat(),
       )
-      console.timeEnd("updateRecords" + table.id)
+      // console.timeEnd("updateRecords" + table.id)
       tasks.forEach((task, index) => {
         if (updateRes[index]) {
           task.result = updateRes[index]
           task.status = TaskStatus.Success
         }
+      })
+      await lifeCircleHook(importLifeCircles.onUpdateRecords, {
+        stage: "updateRecords",
+        data: {
+          success: tasks,
+          message: {
+            text: "importInfo.updateRecordsMessage",
+            params: {
+              table: tableName,
+            },
+          },
+        },
       })
     } catch (e) {
       Error({
@@ -125,12 +157,15 @@ function updateRecords(table: ITable, lifeCircleHook: any) {
         message: String(e),
         error: e,
       })
-      // await lifeCircleHook(importLifeCircles.onUpdateRecords, {
-      //   stage: importLifeCircles.onUpdateRecords,
-      //   data: {
-      //     res: e,
-      //   },
-      // })
+      tasks.forEach((task) => {
+        task.status = TaskStatus.Error
+      })
+      await lifeCircleHook(importLifeCircles.onUpdateRecords, {
+        stage: "updateRecords",
+        data: {
+          error: tasks,
+        },
+      })
     }
   }
 }
@@ -141,33 +176,55 @@ function updateRecords(table: ITable, lifeCircleHook: any) {
  * @param lifeCircleHook
  * @returns
  */
-function deleteRecords(table: ITable, lifeCircleHook: any) {
+async function deleteRecords(
+  table: ITable,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
+) {
+  const tableName = await table.getName()
   return async (tasks: Task<string>[]) => {
     try {
-      console.time("deleteRecords" + table.id)
+      // console.time("deleteRecords" + table.id)
       const deleteRes = await table.deleteRecords(
         tasks.map((task) => task.data).flat(),
       )
-      console.timeEnd("deleteRecords" + table.id)
+      // console.timeEnd("deleteRecords" + table.id)
       if (deleteRes) {
         tasks.forEach((task) => {
           task.result = deleteRes
           task.status = TaskStatus.Success
         })
       }
+      await lifeCircleHook(importLifeCircles.onDeleteRecords, {
+        stage: "deleteRecords",
+        data: {
+          success: tasks,
+          message: {
+            text: "importInfo.deleteRecordsMessage",
+            params: {
+              table: tableName,
+            },
+          },
+        },
+      })
     } catch (e) {
       Error({
         title: "deleteRecordsFailure",
         message: String(e),
         error: e,
       })
+      tasks.forEach((task) => {
+        task.status = TaskStatus.Error
+      })
       // console.log(e)
-      // await lifeCircleHook(importLifeCircles.onDeleteRecords, {
-      //   stage: importLifeCircles.onDeleteRecords,
-      //   data: {
-      //     res: e,
-      //   },
-      // })
+      await lifeCircleHook(importLifeCircles.onDeleteRecords, {
+        stage: "deleteRecords",
+        data: {
+          error: tasks,
+        },
+      })
     }
   }
 }
@@ -186,9 +243,17 @@ async function batchAddRecords(
   table: ITable,
   maxNumber: number = 500,
   interval: number = 500,
-  lifeCircleHook: any,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
 ) {
-  await batch(maxNumber, interval, tasks, addRecords(table, lifeCircleHook))
+  await batch(
+    maxNumber,
+    interval,
+    tasks,
+    await addRecords(table, lifeCircleHook),
+  )
 }
 
 async function batchUpdateRecords(
@@ -196,13 +261,16 @@ async function batchUpdateRecords(
   table: ITable,
   maxNumber: number = 500,
   interval: number = 500,
-  lifeCircleHook: any,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
 ) {
   return await batch(
     maxNumber,
     interval,
     records,
-    updateRecords(table, lifeCircleHook),
+    await updateRecords(table, lifeCircleHook),
   )
 }
 
@@ -211,13 +279,16 @@ async function batchDeleteRecords(
   table: ITable,
   maxNumber: number = 500,
   interval: number = 500,
-  lifeCircleHook: any,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
 ) {
   return await batch(
     maxNumber,
     interval,
     tasks,
-    deleteRecords(table, lifeCircleHook),
+    await deleteRecords(table, lifeCircleHook),
   )
 }
 
@@ -247,58 +318,64 @@ async function getBitableTableById(
   id: string,
   fieldMaps: fieldMap[],
   root: boolean = false,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
   index?: Array<string>,
 ) {
-  const table = await bitable.base.getTable(id)
-  const [name, fields, fieldMetaList] = await Promise.all([
-    table.getName(),
-    table.getFieldList(),
-    table.getFieldMetaList(),
-  ])
-  const primaryField = fieldMetaList.filter((v) => v.isPrimary)[0].id
-  const res = {
-    id,
-    table,
-    name,
-    primaryField,
-    indexId: index ?? [primaryField],
-    root,
-    fields: fields.reduce(
-      (pre, cur) => {
-        pre[cur.id] = cur
-        return pre
+  try {
+    const table = await bitable.base.getTable(id)
+    const [name, fields, fieldMetaList] = await Promise.all([
+      table.getName(),
+      table.getFieldList(),
+      table.getFieldMetaList(),
+    ])
+    await lifeCircleHook(importLifeCircles.onReadFieldMap, {
+      stage: "readFieldMap",
+      data: {
+        message: {
+          text: "importInfo.getTable",
+          params: {
+            name,
+            id,
+          },
+        },
       },
-      {} as Record<string, IField>,
-    ),
-    fieldMaps,
-  } as BitableTable
+    })
+    const primaryField = fieldMetaList.filter((v) => v.isPrimary)[0].id
+    const res = {
+      id,
+      table,
+      name,
+      primaryField,
+      indexId: index?.length ? index : [primaryField],
+      root,
+      fields: fields.reduce(
+        (pre, cur) => {
+          pre[cur.id] = cur
+          return pre
+        },
+        {} as Record<string, IField>,
+      ),
+      fieldMaps,
+    } as BitableTable
 
-  return res
-}
-
-export enum UpdateMode {
-  SAVE_MOST = 0,
-  SAVE_LEAST = 1,
-  SAVE_OLDEST = 2,
-  SAVE_LATEST = 3,
-}
-
-export interface ImportOptions {
-  parallel?: {
-    records: number
-    fields: number
-  }
-  interval?: {
-    records: number
-    fields: number
-  }
-  allowAction?: {
-    add: boolean
-    update: boolean
-    delete: boolean
-  }
-  updateOption?: {
-    mode: UpdateMode[]
+    return res
+  } catch (e) {
+    Error({
+      title: "getTableFailure",
+      message: String(e),
+      error: e,
+      notice: true,
+      noticeParams: {
+        text: "message.getTableFailure",
+        params: {
+          id,
+        },
+      },
+    })
+    throw e
   }
 }
 
@@ -335,6 +412,10 @@ async function linkStrategy(
     }[]
   >,
   tasks: Task[],
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
   linkTarget?: Task,
 ) {
   if (!fieldMap.children?.length) return null
@@ -348,6 +429,20 @@ async function linkStrategy(
   const targetTable = tables[(fieldMap.field as LinkField).property.tableId]
   const index = linkIndexes[targetTable.id]
   const disExistValues: Array<string> = []
+  await lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
+    stage: "analyzeRecords",
+    data: {
+      message: {
+        text: "importInfo.getLinkRecord",
+        params: {
+          indexValue: values.join("|"),
+          fieldName: fieldMap.field.name,
+          fieldId: field.id,
+          table: targetTable.name,
+        },
+      },
+    },
+  })
   const existRecord = values
     .map((i) => {
       const r = index.filter((j) => j.indexValue[0] === i)
@@ -359,7 +454,7 @@ async function linkStrategy(
     })
     .flat()
     .filter((i) => i !== null) as string[]
-  if (!disExistValues.length || !allowAdd) {
+  if ((!disExistValues.length || !allowAdd) && existRecord.length) {
     const cell = await cellTranslator.getCell(
       field,
       fieldMap,
@@ -368,47 +463,47 @@ async function linkStrategy(
     if (cell) return cell
     return null
   }
-  const linkField = targetTable.fields[primaryKey]
-  const linkMap = fieldMap.children.find((i) => {
-    return i.field.id === primaryKey
-  })
-  // console.log("linkMap", linkMap)
-  if (
-    linkMap &&
-    disExistValues.length &&
-    !autoFields.includes(linkMap.field.type) &&
-    allowAdd
-  ) {
-    const link: Array<Task> = []
-    for (const v of disExistValues) {
-      const cell = await cellTranslator.getCell(linkField, linkMap, v)
-      if (cell) {
-        link.push({
-          table: {
-            name: targetTable.name,
-            id: targetTable.id,
-          },
-          action: TaskAction.Add,
-          data: [cell],
-          result: undefined,
-          status: TaskStatus.Wait,
-        })
-      }
-    }
-    tasks.push(...link)
-    tasks.push({
-      table: {
-        name: targetTable.name,
-        id: targetTable.id,
-      },
-      action: TaskAction.Link,
-      data: existRecord,
-      result: undefined,
-      link,
-      status: TaskStatus.Wait,
-      target: linkTarget,
-    })
-  }
+  // const linkField = targetTable.fields[primaryKey]
+  // const linkMap = fieldMap.children.find((i) => {
+  //   return i.field.id === primaryKey
+  // })
+  // // console.log("linkMap", linkMap)
+  // if (
+  //   allowAdd &&
+  //   linkMap &&
+  //   disExistValues.length &&
+  //   !autoFields.includes(linkMap.field.type)
+  // ) {
+  //   const link: Array<Task> = []
+  //   for (const v of disExistValues) {
+  //     const cell = await cellTranslator.getCell(linkField, linkMap, v)
+  //     if (cell) {
+  //       link.push({
+  //         table: {
+  //           name: targetTable.name,
+  //           id: targetTable.id,
+  //         },
+  //         action: TaskAction.Add,
+  //         data: [cell],
+  //         result: undefined,
+  //         status: TaskStatus.Wait,
+  //       })
+  //     }
+  //   }
+  //   tasks.push(...link)
+  //   tasks.push({
+  //     table: {
+  //       name: targetTable.name,
+  //       id: targetTable.id,
+  //     },
+  //     action: TaskAction.Link,
+  //     data: existRecord,
+  //     result: undefined,
+  //     link,
+  //     status: TaskStatus.Wait,
+  //     target: linkTarget,
+  //   })
+  // }
 }
 
 async function addStrategy(
@@ -424,6 +519,10 @@ async function addStrategy(
     }[]
   >,
   tasks: Task[],
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
   linkTarget?: Task,
 ): Promise<ICell | null> {
   if (!fieldMap.excel_field || !fieldMap.writable) return null
@@ -446,6 +545,7 @@ async function addStrategy(
       tables,
       linkIndexes,
       tasks,
+      lifeCircleHook,
       linkTarget,
     )
   }
@@ -469,25 +569,41 @@ async function getModifiedTime(
   table: ITable,
   modifiedTimeField?: IModifiedTimeField,
 ) {
-  let needDelete = false
-  if (!modifiedTimeField) {
-    const modifiedFieldId = await table.addField({
-      type: FieldType.ModifiedTime,
+  try {
+    let needDelete = false
+    if (!modifiedTimeField) {
+      const modifiedFieldId = await table.addField({
+        type: FieldType.ModifiedTime,
+      })
+      modifiedTimeField =
+        await table.getField<IModifiedTimeField>(modifiedFieldId)
+      needDelete = true
+    }
+    const records = await modifiedTimeField.getFieldValueList()
+    if (needDelete) table.deleteField(modifiedTimeField)
+    return records.reduce(
+      (pre, cur) => {
+        if (!cur.record_id) return pre
+        pre[cur.record_id] = cur.value as number
+        return pre
+      },
+      {} as Record<string, number>,
+    )
+  } catch (e) {
+    Error({
+      title: "getModifiedTimeFailure",
+      message: String(e),
+      error: e,
+      notice: true,
+      noticeParams: {
+        text: "message.getModifiedTimeFailure",
+        params: {
+          id: table.id,
+        },
+      },
     })
-    modifiedTimeField =
-      await table.getField<IModifiedTimeField>(modifiedFieldId)
-    needDelete = true
+    throw e
   }
-  const records = await modifiedTimeField.getFieldValueList()
-  if (needDelete) table.deleteField(modifiedTimeField)
-  return records.reduce(
-    (pre, cur) => {
-      if (!cur.record_id) return pre
-      pre[cur.record_id] = cur.value as number
-      return pre
-    },
-    {} as Record<string, number>,
-  )
 }
 
 /**
@@ -497,9 +613,28 @@ async function getModifiedTime(
  * @param recordIds
  * @returns
  */
-async function getFieldStringValue(field: IField, recordIds: string[]) {
+async function getFieldStringValue(
+  field: IField,
+  recordIds: string[],
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
+) {
   const cellStrings = await Promise.all(
     recordIds.map(async (recordId) => {
+      await lifeCircleHook(importLifeCircles.onReadFieldMap, {
+        stage: "readFieldMap",
+        data: {
+          message: {
+            text: "importInfo.getFieldCellString",
+            params: {
+              field: field.id,
+              record: recordId,
+            },
+          },
+        },
+      })
       const value = await field.getCellString(recordId)
       return {
         recordId,
@@ -516,10 +651,23 @@ async function getFieldStringValue(field: IField, recordIds: string[]) {
  * @param fieldMaps
  * @returns
  */
-async function collect(fieldMaps: fieldMap[]) {
-  let tables: { [key: IWidgetTable["id"]]: BitableTable } = {}
+async function collect(
+  fieldMaps: fieldMap[],
+  rootIndex: string[],
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
+) {
+  let tables: Record<string, BitableTable> = {}
   const id = fieldMaps[0].table
-  tables[id] = await getBitableTableById(id, fieldMaps, fieldMaps[0].root)
+  tables[id] = await getBitableTableById(
+    id,
+    fieldMaps,
+    fieldMaps[0].root,
+    lifeCircleHook,
+    rootIndex,
+  )
 
   for (const i of fieldMaps) {
     if (
@@ -533,6 +681,7 @@ async function collect(fieldMaps: fieldMap[]) {
         id,
         i.children ?? [],
         false,
+        lifeCircleHook,
         i.linkConfig.primaryKey ? [i.linkConfig.primaryKey] : undefined,
       )
     }
@@ -554,9 +703,12 @@ async function collect(fieldMaps: fieldMap[]) {
 async function getTableIndex(
   table: ITable,
   index: fieldMap[],
-  lifeCircleHook: Function,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void>,
 ) {
-  console.log("getTableIndex", index)
+  // console.log("index", index)
   const recordIds = await table.getRecordIdList()
   const Index: {
     indexValue: (string | string[])[]
@@ -565,27 +717,63 @@ async function getTableIndex(
     fieldMaps: fieldMap[]
   }[] = await Promise.all(
     index.map(async (i) => {
-      console.log("i", i)
       const field = await table.getField(i.field.id)
-      const values = await getFieldStringValue(field, recordIds)
+      await lifeCircleHook(importLifeCircles.onReadFieldMap, {
+        stage: "readFieldMap",
+        data: {
+          message: {
+            text: "importInfo.getIndexField",
+            params: {
+              name: i.field.name,
+              id: i.field.id,
+            },
+          },
+        },
+      })
+      const values = await getFieldStringValue(field, recordIds, lifeCircleHook)
       return {
         values,
         fieldMap: i,
       }
     }),
-  ).then((res) => {
+  ).then(async (res) => {
+    // console.log("res", res)
     return Promise.all(
       recordIds.map(async (i) => {
         const indexValue: (string | string[])[] = []
         for (const j of res) {
-          const value = j.values.find((v) => v.recordId === i)?.value
-          if (value) {
-            const normalized = (await cellTranslator.normalization(
-              value,
-              j.fieldMap,
-            )) as string | string[]
-            indexValue.push(normalized)
-          }
+          const value = j.values.find((v) => v.recordId === i)?.value ?? ""
+          await lifeCircleHook(importLifeCircles.onReadFieldMap, {
+            stage: "readFieldMap",
+            data: {
+              message: {
+                text: "importInfo.analyzeIndexFieldValue",
+                params: {
+                  fieldName: j.fieldMap.field.name,
+                  fieldId: j.fieldMap.field.id,
+                  recordId: i,
+                },
+              },
+            },
+          })
+          const normalized = (await cellTranslator.normalization(
+            value,
+            j.fieldMap,
+            {
+              separator: ",",
+              format: [
+                "yyyy/MM/dd",
+                "yyyy/MM/dd HH:mm",
+                "yyyy-MM-dd HH:mm",
+                "yyyy-MM-dd",
+                "MM-dd",
+                "MM/dd/yyyy",
+                "dd/MM/yyyy",
+              ],
+            },
+          )) as string | string[]
+          // console.log(value)
+          indexValue.push(normalized)
         }
         return {
           indexValue,
@@ -594,7 +782,21 @@ async function getTableIndex(
           fieldMaps: index,
         }
       }),
-    )
+    ).catch((e) => {
+      Error({
+        title: "getTableIndexFailure",
+        message: String(e),
+        error: e,
+        notice: true,
+        noticeParams: {
+          text: "message.getTableIndexFailure",
+          params: {
+            id: table.id,
+          },
+        },
+      })
+      throw e
+    })
   })
   return Index
 }
@@ -616,10 +818,21 @@ export async function importExcel(
   index: string[] | null = null,
   mode: importModes = importModes.append,
   options: ImportOptions = {},
-  lifeCircleHook: any = runLifeCircleEvent,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => Promise<void> = runLifeCircleEvent,
 ) {
+  await lifeCircleHook(importLifeCircles.onStart, {
+    stage: "start",
+  })
   cellTranslator.refresh()
-
+  await lifeCircleHook(importLifeCircles.beforeReadFieldMap, {
+    stage: "readFieldMap",
+    data: {
+      progress: false,
+    },
+  })
   const {
     parallel = {
       records: 10000,
@@ -638,17 +851,39 @@ export async function importExcel(
       mode: [UpdateMode.SAVE_MOST, UpdateMode.SAVE_LATEST],
     },
   } = options
-  /**
-   * Clear the tree structure of fieldsMaps
-   */
-  // clearTree(fieldsMaps)
+  Info({
+    title: "importInfo.start",
+    message: `
+    Mode: ${mode}
+    SheetIndex: ${sheetIndex}
+    index: ${index}
+    parallel:
+      - fields: ${parallel.fields}
+      - records: ${parallel.records}
+    interval:
+      - fields: ${interval.fields}
+      - records: ${interval.records}
+    allowAction:
+      - add: ${allowAction.add}
+      - update: ${allowAction.update}
+      - delete: ${allowAction.delete}
+    updateOption:
+      - mode: ${updateOption.mode}
+    `,
+  })
 
   /**
    * Collected tables
    */
-  const tables: Record<IWidgetTable["id"], BitableTable> =
-    await collect(fieldsMaps)
-  console.log("tables", tables)
+  const tables: Record<string, BitableTable> = await collect(
+    fieldsMaps,
+    index ?? [],
+    lifeCircleHook,
+  )
+  Log({
+    title: "tables",
+    message: JSON.stringify(tables, null, 2),
+  })
 
   const rootIndex: Array<{
     indexValue: (string | string[])[]
@@ -657,13 +892,24 @@ export async function importExcel(
     modifiedTime: number
   }> = []
   const rootTable = tables[fieldsMaps[0].table].table
-  const rootModifiedTimeFieldId = fieldsMaps.find(
-    (i) => i.field.type === FieldType.ModifiedTime,
-  )?.field.id
-  const rootModifiedTimeField = rootModifiedTimeFieldId
-    ? await rootTable.getField<IModifiedTimeField>(rootModifiedTimeFieldId)
-    : undefined
-  const modifiedTime = await getModifiedTime(rootTable, rootModifiedTimeField)
+  let modifiedTime: Record<string, number> = {}
+  if (mode !== importModes.append) {
+    await lifeCircleHook(importLifeCircles.onReadFieldMap, {
+      stage: "readFieldMap",
+      data: {
+        message: {
+          text: "importInfo.getRecordsModifiedTime",
+        },
+      },
+    })
+    const rootModifiedTimeFieldId = fieldsMaps.find(
+      (i) => i.field.type === FieldType.ModifiedTime,
+    )?.field.id
+    const rootModifiedTimeField = rootModifiedTimeFieldId
+      ? await rootTable.getField<IModifiedTimeField>(rootModifiedTimeFieldId)
+      : undefined
+    modifiedTime = await getModifiedTime(rootTable, rootModifiedTimeField)
+  }
   const indexes: Record<
     string,
     {
@@ -673,6 +919,7 @@ export async function importExcel(
       modifiedTime: number
     }[]
   > = {}
+  // console.log("tables", tables)
   await Promise.all(
     Object.values(tables).map(async (linkTable) => {
       const index = linkTable.indexId
@@ -696,10 +943,21 @@ export async function importExcel(
     rootIndex.push(...indexes[rootTable.id])
   }
 
-  const tasks: Task[] = []
+  await lifeCircleHook(importLifeCircles.onReadFieldMapEnd, {
+    stage: "readFieldMap",
+  })
 
-  console.log("fieldMaps", fieldsMaps)
+  const tasks: Task[] = []
   const excelRecords = excelData.sheets[sheetIndex].tableData.records
+  await lifeCircleHook(importLifeCircles.beforeAnalyzeRecords, {
+    stage: "analyzeRecords",
+    data: {
+      progress: true,
+      number: excelRecords.length,
+      success: 0,
+      error: 0,
+    },
+  })
   if (mode === importModes.append || !index) {
     const t = await batchAnalyze(
       excelRecords,
@@ -719,12 +977,28 @@ export async function importExcel(
           await batchAnalyze(
             fieldsMaps,
             async (fieldMap) => {
-              return await addStrategy(record, fieldMap, tables, indexes, t)
+              return await addStrategy(
+                record,
+                fieldMap,
+                tables,
+                indexes,
+                t,
+                lifeCircleHook,
+                addTask,
+              )
             },
             parallel.fields,
             interval.fields,
           )
         ).filter((v) => v) as Array<ICell>
+        await lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
+          stage: "analyzeRecords",
+          data: {
+            number: excelRecords.length,
+            success: 1,
+            error: 0,
+          },
+        })
         if (cells.length) {
           addTask.data.push(...cells)
           t.push(addTask)
@@ -743,22 +1017,35 @@ export async function importExcel(
       }
       return fieldMap
     })
-    console.log(
-      "excelIndexField",
-      excelIndexField,
-      excelIndexField.every((i) => isNotEmpty(i?.excel_field)),
-    )
     if (!ArrayHasNoEmpty(excelIndexField)) {
       Error({
         title: "indexFieldError",
-        message: i18n.global.t("message.indexFieldError"),
+        message: "noIndex",
+        notice: true,
+        noticeParams: {
+          text: "message.noIndex",
+        },
       })
       return
     }
+    Info({
+      title: "excelIndexField",
+      message: JSON.stringify(excelIndexField, null, 2),
+    })
     if (!excelIndexField.every((i) => isNotEmpty(i.excel_field))) {
       Error({
         title: "indexFieldError",
-        message: i18n.global.t("message.indexFieldError"),
+        message: "indexNoExcelField",
+        notice: true,
+        noticeParams: {
+          text: "message.indexNoExcelField",
+          params: {
+            fields: excelIndexField
+              .filter((i) => !isNotEmpty(i.excel_field))
+              .map((i) => i.field.name)
+              .join(", "),
+          },
+        },
       })
       return
     }
@@ -767,11 +1054,31 @@ export async function importExcel(
       excelRecords,
       async (record) => {
         const t: Task[] = []
-        const excelIndexValue = excelIndexField.map(
-          (i) => record[i.excel_field!],
+        const excelIndexValue = await Promise.all(
+          excelIndexField.map(
+            async (i) =>
+              await cellTranslator.normalization(
+                record[i.excel_field!] ?? "",
+                i,
+              ),
+          ),
         )
         const sameRecords = rootIndex.filter((i) => {
+          // console.log("index", i.indexValue, excelIndexValue, record)
           return isArrayStrictEqual(i.indexValue, excelIndexValue)
+        })
+
+        await lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
+          stage: "analyzeRecords",
+          data: {
+            message: {
+              text: "importInfo.findSameRecord",
+              params: {
+                indexValue: excelIndexValue.join("|"),
+                number: String(sameRecords.length),
+              },
+            },
+          },
         })
         const tableRecords = []
         let updateRecord: {
@@ -783,6 +1090,18 @@ export async function importExcel(
           tableRecords.push(
             ...(await Promise.all(
               sameRecords.map(async (i) => {
+                await lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
+                  stage: "analyzeRecords",
+                  data: {
+                    message: {
+                      text: "importInfo.getSameRecord",
+                      params: {
+                        indexValue: excelIndexValue.join("|"),
+                        recordId: i.recordId,
+                      },
+                    },
+                  },
+                })
                 const table = tables[i.table].table
                 const cellValues = (await table.getRecordById(i.recordId))
                   .fields
@@ -917,7 +1236,19 @@ export async function importExcel(
               const excelValue = record[fieldMap.excel_field] ?? null
               if (!excelValue) return null
               const field = tables[fieldMap.table].fields[fieldMap.field.id]
-              if (!fieldMap.excel_field || !fieldMap.writable) return null
+              await lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
+                stage: "analyzeRecords",
+                data: {
+                  message: {
+                    text: "importInfo.compareRecordField",
+                    params: {
+                      fieldName: fieldMap.field.name,
+                      fieldId: field.id,
+                      indexValue: excelIndexValue.join("|"),
+                    },
+                  },
+                },
+              })
               if (allowAction.add && !tableRecords.length) {
                 return await addStrategy(
                   record,
@@ -925,6 +1256,7 @@ export async function importExcel(
                   tables,
                   indexes,
                   t,
+                  lifeCircleHook,
                   taskItem,
                 )
               }
@@ -948,6 +1280,7 @@ export async function importExcel(
                     tables,
                     indexes,
                     tasks,
+                    lifeCircleHook,
                     taskItem,
                   )
                 }
@@ -971,6 +1304,14 @@ export async function importExcel(
             interval.fields,
           )
         ).filter((v) => v) as Array<ICell>
+        await lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
+          stage: "analyzeRecords",
+          data: {
+            number: excelRecords.length,
+            success: 1,
+            error: 0,
+          },
+        })
         if (!cells.length) return t
         if (tableRecords.length) {
           taskItem.action = TaskAction.Update
@@ -999,35 +1340,57 @@ export async function importExcel(
     )
     tasks.push(...t)
   }
+  await lifeCircleHook(importLifeCircles.onAnalyzeRecordsEnd, {
+    stage: "analyzeRecords",
+  })
 
   const groupedTasks = groupBy(tasks, "action")
-  console.log("groupedTasks", groupedTasks)
-  console.log("allowAction", allowAction.add)
-
   const deleteTasks = groupedTasks[TaskAction.Delete]
-  console.log("deleteTasks", deleteTasks)
   if (deleteTasks && allowAction.delete && deleteTasks.length) {
+    await lifeCircleHook(importLifeCircles.beforeDeleteRecords, {
+      stage: "deleteRecords",
+      data: {
+        progress: true,
+        number: deleteTasks.length,
+        success: [],
+        error: [],
+      },
+    })
     const groupedDeleteTasks = groupBy(deleteTasks, "table.id")
-    console.log("groupedDeleteTasks", groupedDeleteTasks)
     const toDeleteTableIds = Object.keys(groupedDeleteTasks)
     for (const i of toDeleteTableIds) {
       const table = tables[i]
       const tasks = groupedDeleteTasks[i]
       await batchDeleteRecords(tasks, table.table, 5000, 0, lifeCircleHook)
     }
-    console.log("deleteEnd", groupedDeleteTasks, tasks)
+    await lifeCircleHook(importLifeCircles.onDeleteRecordsEnd, {
+      stage: "deleteRecords",
+    })
   }
+
   const addTasks = groupedTasks[TaskAction.Add]
   if (addTasks && allowAction.add && addTasks && addTasks.length) {
+    await lifeCircleHook(importLifeCircles.beforeAddRecords, {
+      stage: "addRecords",
+      data: {
+        progress: true,
+        number: addTasks.length,
+        success: [],
+        error: [],
+      },
+    })
     const groupedAddTasks = groupBy(addTasks, "table.id")
-    console.log("groupedAddTasks", groupedAddTasks)
+    // console.log("groupedAddTasks", groupedAddTasks)
     const toAddTableIds = Object.keys(groupedAddTasks)
     for (const i of toAddTableIds) {
       const table = tables[i]
       const tasks = groupedAddTasks[i]
       await batchAddRecords(tasks, table.table, 5000, 0, lifeCircleHook)
     }
-    console.log("addEnd", groupedAddTasks, tasks)
+    await lifeCircleHook(importLifeCircles.onAddRecordsEnd, {
+      stage: "addRecords",
+    })
+    // console.log("addEnd", groupedAddTasks, tasks)
   }
 
   /**
@@ -1040,18 +1403,34 @@ export async function importExcel(
   // }
 
   const updateTasks = groupedTasks[TaskAction.Update]
-  console.log("updateTasks", updateTasks)
+  // console.log("updateTasks", updateTasks)
   if (updateTasks && allowAction.update && updateTasks.length) {
+    await lifeCircleHook(importLifeCircles.beforeUpdateRecords, {
+      stage: "updateRecords",
+      data: {
+        progress: true,
+        number: updateTasks.length,
+        success: [],
+        error: [],
+      },
+    })
     const groupedUpdateTasks = groupBy(updateTasks, "table.id")
-    console.log("groupedUpdateTasks", groupedUpdateTasks)
+    // console.log("groupedUpdateTasks", groupedUpdateTasks)
     const toUpdateTableIds = Object.keys(groupedUpdateTasks)
     for (const i of toUpdateTableIds) {
       const table = tables[i]
       const tasks = groupedUpdateTasks[i]
       await batchUpdateRecords(tasks, table.table, 5000, 0, lifeCircleHook)
     }
-    console.log("updateEnd", groupedUpdateTasks, tasks)
+    await lifeCircleHook(importLifeCircles.onUpdateRecordsEnd, {
+      stage: "updateRecords",
+    })
+    // console.log("updateEnd", groupedUpdateTasks, tasks)
   }
+
+  await lifeCircleHook(importLifeCircles.onEnd, {
+    stage: "end",
+  })
 }
 
 // function polyLinkTasks(tasks: Array<Task>) {

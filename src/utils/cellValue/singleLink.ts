@@ -1,6 +1,6 @@
-import { ISingleLinkField, FieldType } from "@lark-base-open/js-sdk"
+import { type ISingleLinkField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 
 export const singleLinkSeparator = ","
 

@@ -1,9 +1,9 @@
 import dayjs from "dayjs/esm/index.js"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 import advancedFormat from "dayjs/plugin/advancedFormat"
-import { IDateTimeField, FieldType } from "@lark-base-open/js-sdk"
+import { type IDateTimeField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 
 dayjs.extend(customParseFormat)
 dayjs.extend(advancedFormat)

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch, computed } from "vue"
 import { useI18n } from "vue-i18n"
-import { fieldMap, LinkField } from "@/types/types"
+import type { fieldMap, LinkField } from "@/types/types"
 import { useFieldConfig } from "@/composables/useFieldConfig"
 import { FieldType } from "@lark-base-open/js-sdk"
 import { useTable } from "@qww0302/use-bitable"

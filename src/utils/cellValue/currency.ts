@@ -1,4 +1,4 @@
-import { ICurrencyField, FieldType } from "@lark-base-open/js-sdk"
+import { type ICurrencyField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
 
 async function normalization(value: string) {

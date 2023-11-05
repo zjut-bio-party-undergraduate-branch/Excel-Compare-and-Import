@@ -1,10 +1,10 @@
 import {
   FieldType,
-  IField,
-  ICell,
-  IOpenCellValue,
+  type IField,
+  type ICell,
+  type IOpenCellValue,
 } from "@lark-base-open/js-sdk"
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 import { Error, FieldNameList } from "@/utils"
 
 interface TranslatorOptions<T extends IField = any, K extends ICell = any> {
@@ -78,6 +78,7 @@ export class CellTranslator {
           fieldMap.field.name
         }[FieldType: ${FieldNameList[fieldMap.field.type]}] error`,
         message: String(error),
+        error,
       })
       return null
     }
@@ -88,11 +89,15 @@ export class CellTranslator {
       refresh()
     })
   }
-  public async normalization(value: string, fieldMap: fieldMap) {
+  public async normalization(
+    value: string,
+    fieldMap: fieldMap,
+    config?: fieldMap["config"],
+  ) {
     const normalization = this.normalizations[fieldMap.field.type]
     if (!normalization) {
       return value
     }
-    return normalization(value, fieldMap.config)
+    return normalization(value, config ?? fieldMap.config)
   }
 }

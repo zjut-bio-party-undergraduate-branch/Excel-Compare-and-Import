@@ -2,7 +2,7 @@
 import { ref, watch } from "vue"
 import { FieldType } from "@lark-base-open/js-sdk"
 import { useI18n } from "vue-i18n"
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 import { useFieldConfig } from "@/composables/useFieldConfig"
 
 const { t } = useI18n()

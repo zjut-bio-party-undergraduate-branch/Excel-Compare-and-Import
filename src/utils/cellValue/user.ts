@@ -1,6 +1,6 @@
-import { IUserField, FieldType } from "@lark-base-open/js-sdk"
+import { type IUserField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 
 export const userSeparator = ","
 

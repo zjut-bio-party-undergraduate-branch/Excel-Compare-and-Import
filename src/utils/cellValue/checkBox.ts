@@ -1,6 +1,6 @@
-import { ICheckBoxField, FieldType } from "@lark-base-open/js-sdk"
+import { type ICheckBoxField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 export const defaultBoolValue = {
   true: ["是", "True", "true", "TRUE", "1", "☑️"],
   false: ["否", "False", "false", "FALSE", "0", ""],

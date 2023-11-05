@@ -1,4 +1,4 @@
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 
 export function clearTree(tree: fieldMap[]) {
   tree.forEach((v) => {

@@ -4,22 +4,7 @@ import { defaultSeparator as multiSelectSeparator } from "@/utils/cellValue/mult
 import { defaultBoolValue } from "@/utils/cellValue/checkBox"
 import { singleLinkSeparator } from "@/utils/cellValue/singleLink"
 import { duplexLinkSeparator } from "@/utils/cellValue/duplexLink"
-import { fieldMap } from "@/types/types"
-
-export const ignoreFieldType = [
-  FieldType.Lookup,
-  FieldType.CreatedTime,
-  FieldType.ModifiedTime,
-  FieldType.Formula,
-  FieldType.CreatedUser,
-  FieldType.ModifiedUser,
-  FieldType.NotSupport,
-  FieldType.Location,
-  FieldType.AutoNumber,
-  FieldType.GroupChat,
-  FieldType.Denied,
-  FieldType.Attachment,
-]
+import type { fieldMap } from "@/types/types"
 
 export const hasChildrenFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
 
@@ -44,3 +29,5 @@ const fieldsConfig: { [key: number]: fieldMap["config"] } = {
 export function configField(type: FieldType) {
   return fieldsConfig[type] || {}
 }
+
+export * from "./validate"

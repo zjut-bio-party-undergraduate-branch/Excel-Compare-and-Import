@@ -73,7 +73,6 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
       }
     } else {
       const worker = (await import("./readXLSX.worker.ts?worker")).default
-      console.log(worker)
       const reader = new worker()
       reader.onmessage = (e) => {
         const { data } = e
@@ -89,9 +88,21 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
             ElMessage.error(
               t("message.sheetError", { sheetName: excelFile.value?.name }),
             )
+            Error({
+              title: t("message.sheetError", {
+                sheetName: excelFile.value?.name,
+              }),
+              message: t("message.sheetError", {
+                sheetName: excelFile.value?.name,
+              }),
+            })
           }
           if (payload === "message.noSheet") {
             ElMessage.error(t(payload))
+            Error({
+              title: t(payload),
+              message: t(payload),
+            })
             excelFile.value = null
           }
         }

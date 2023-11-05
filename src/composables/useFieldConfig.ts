@@ -1,11 +1,11 @@
 import { defaultBoolValue } from "@/utils/cellValue/checkBox"
-import { fieldMap } from "@/types/types"
+import type { fieldMap } from "@/types/types"
 import {
-  MaybeRefOrGetter,
+  type MaybeRefOrGetter,
   toValue,
   watch,
   h,
-  VNode,
+  type VNode,
   ref,
   shallowRef,
 } from "vue"
@@ -52,13 +52,10 @@ export function useFieldConfig(
     () => toValue(config),
     (newVal) => {
       if (!newVal) return
-      console.log("config", newVal)
       configList.value = Object.keys(newVal).filter(
         (v) => !toValue(except).includes(v),
       )
-      console.log("configList", configList.value)
       configResult.value = JSON.parse(JSON.stringify(newVal))
-      console.log("configResult", configResult.value)
       if (newVal.format) {
         formatExample.value = formatExamples[
           toValue(type) as keyof typeof formatExamples

@@ -1,4 +1,4 @@
-import { IPhoneField, FieldType } from "@lark-base-open/js-sdk"
+import { type IPhoneField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
 
 /**

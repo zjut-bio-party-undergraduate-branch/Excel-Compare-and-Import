@@ -1,10 +1,10 @@
-import { MaybeRefOrGetter, toValue, ref, watch } from "vue"
-import { IFieldMeta, bitable } from "@lark-base-open/js-sdk"
+import { type MaybeRefOrGetter, toValue, ref, watch } from "vue"
+import { type IFieldMeta, bitable } from "@lark-base-open/js-sdk"
 import {
-  ExcelDataInfo,
-  fieldMap,
-  LinkField,
-  SheetInfo,
+  type ExcelDataInfo,
+  type fieldMap,
+  type LinkField,
+  type SheetInfo,
   importModes,
 } from "@/types/types"
 import { configField } from "../utils"
@@ -12,7 +12,7 @@ import {
   indexFieldType,
   autoFields,
   hasChildrenFieldType,
-  notSupportFields,
+  // notSupportFields,
 } from "@/utils"
 
 async function loadFieldMaps(
@@ -70,7 +70,7 @@ export function useSetting(
   const settingColumns = ref<fieldMap[]>([])
   const sheetIndex = ref<number>(0)
   const excelFields = ref<SheetInfo["tableData"]["fields"]>([])
-  const Index = ref<string[]>()
+  const Index = ref<string[]>([])
   const pending = ref(false)
   function reset() {
     settingColumns.value = settingColumns.value.map((v) => {

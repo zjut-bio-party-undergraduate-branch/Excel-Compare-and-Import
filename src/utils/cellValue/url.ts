@@ -1,4 +1,4 @@
-import { IUrlField, FieldType } from "@lark-base-open/js-sdk"
+import { type IUrlField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
 
 /**
