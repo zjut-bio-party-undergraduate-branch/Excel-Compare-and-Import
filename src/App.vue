@@ -17,6 +17,7 @@ import { Info as ConsoleInfo, setLogOptions } from "@/utils"
 //@ts-ignore
 import { default as Meta } from "virtual:meta"
 import { useDark, useToggle } from "@vueuse/core"
+import GithubIcon from "@/components/icons/github-icon.vue"
 const isDark = useDark()
 const showLogger = ref(false)
 const showAdvancedSetting = ref(false)
@@ -163,6 +164,17 @@ onMounted(async () => {
               href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc?hideTemplate=true&lang=zh&noNeedJsSDKSession=true&onboarding=0&opendoc=1&opendocHeaderHeight=52&opendocLoading=positive&opendocVersion=0.0.3&shwm=true#FWJjdYZnSoWfH5xCvegchMxRnxh"
             >
               <el-icon><QuestionFilled /></el-icon>
+            </el-link>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
+              <span>Github</span>
+            </template>
+            <el-link
+              target="_blank"
+              href="https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import"
+            >
+              <el-icon><GithubIcon /></el-icon>
             </el-link>
           </el-tooltip>
           <el-tooltip>
