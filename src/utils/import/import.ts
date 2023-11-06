@@ -1,11 +1,8 @@
 import {
   IOpenCellValue,
   FieldType,
-  IMultiSelectFieldMeta,
   ISingleSelectFieldMeta,
   IWidgetTable,
-  IOpenSingleSelect,
-  IOpenMultiSelect,
   IFieldConfig,
   IRecordValue,
   IRecord,
@@ -80,6 +77,7 @@ async function setOptionsField(
             .filter((v) => v !== "")
         )
       );
+      // console.log(tableOptions, excelValues)
       if (hasNewElement(tableOptions, excelValues)) {
         const options = Array.from(
           new Set([...tableOptions, ...excelValues])
@@ -90,10 +88,33 @@ async function setOptionsField(
             type: optionsField.field.type,
             name: optionsField.field.name,
             property: {
-              options: options.map((v) => ({ name: v })),
+              options: options.map((v) => {
+                const opt = optionsField.field?.property?.options.find(
+                  (i: ISingleSelectFieldMeta) => i.name === v
+                );
+                console.log(
+                  "v",
+                  v,
+                  optionsField,
+                  opt,
+                  optionsField?.property?.options
+                );
+                if (opt) {
+                  return {
+                    name: v,
+                    id: opt.id,
+                    color: opt.color,
+                  };
+                } else {
+                  return {
+                    name: v,
+                  };
+                }
+              }),
             },
           },
         });
+        console.log("Selects", selects, optionsField);
       }
       lifeCircleHook(importLifeCircles.onCheckOptions, {
         stage: importLifeCircles.onCheckOptions,
@@ -111,93 +132,39 @@ async function setOptionsField(
       },
     });
     if (selects.length > 0) {
-      await Promise.all(
-        selects.map(async (select) => {
-          let field = await table.getFieldById(select.id);
-          const optionsRecords = await field.getFieldValueList();
-          await table.setField(select.id, select.config);
-          field = await table.getFieldById(select.id);
-          const newMeta = await table.getFieldMetaById(select.id);
-          fieldsMaps[
-            fieldsMaps.findIndex((fieldMap) => fieldMap.field.id === select.id)
-          ].field = newMeta as fieldMap["field"];
-          const newOptions = (
-            newMeta as ISingleSelectFieldMeta | IMultiSelectFieldMeta
-          ).property.options;
-          console.log("newOptions", newOptions, optionsRecords);
-          await Promise.all(
-            optionsRecords.map(async (record) => {
-              const id: string = record.record_id as string;
-              if (select.config.type === FieldType.MultiSelect) {
-                const value = (record.value as IOpenMultiSelect).map((v) => {
-                  const option = newOptions.find(
-                    (option) => option.name === v.text
-                  );
-                  if (option) {
-                    return {
-                      text: option.name,
-                      id: option.id,
-                    };
-                  }
-                });
-                const res = await table.setRecord(id, {
-                  // @ts-ignore
-                  fields: {
-                    [select.id]: value,
-                  },
-                });
-                console.log("setMultiSelectRecord", res);
-                lifeCircleHook(importLifeCircles.onSetOptions, {
-                  stage: importLifeCircles.onSetOptions,
-                  data: {
-                    field: select,
-                    record: res,
-                  },
-                });
-              }
-
-              if (select.config.type === FieldType.SingleSelect) {
-                const value = record.value as IOpenSingleSelect;
-                const option = newOptions.find(
-                  (option) => option.name === value.text
-                );
-                if (option) {
-                  const res = await table.setRecord(id, {
-                    fields: {
-                      [select.id]: {
-                        text: option.name,
-                        id: option.id,
-                      },
-                    },
-                  });
-                  console.log("setSingleSelectRecord", res);
-                  await lifeCircleHook(importLifeCircles.onSetOptions, {
-                    stage: importLifeCircles.onSetOptions,
-                    data: {
-                      field: select,
-                      record: res,
-                    },
-                  });
-                }
-              }
-            })
-          );
-        })
-      );
+      await batch<(typeof selects)[number]>(10, 500, selects, async (s) => {
+        await Promise.all(
+          s.map(async (select) => {
+            let field = await table.getFieldById(select.id);
+            const res = await table.setField(select.id, select.config);
+            field = await table.getFieldById(select.id);
+            const newMeta = await table.getFieldMetaById(select.id);
+            fieldsMaps[
+              fieldsMaps.findIndex(
+                (fieldMap) => fieldMap.field.id === select.id
+              )
+            ].field = newMeta as fieldMap["field"];
+            await lifeCircleHook(importLifeCircles.onSetOptions, {
+              stage: importLifeCircles.onSetOptions,
+              data: {
+                field: newMeta,
+                res,
+              },
+            });
+          })
+        );
+      });
     }
   }
-  await lifeCircleHook(importLifeCircles.onSetOptionsFieldEnd, {
-    stage: importLifeCircles.onSetOptionsFieldEnd,
-    data: {},
-  });
+
   return fieldsMaps;
 }
 
-async function batch(
+async function batch<T>(
   maxNumber: number = 500,
   interval: number = 500,
-  records: any[],
-  action: (records: any[]) => Promise<any> | any
+  records: Array<T>,
+  action: (records: Array<T>) => Promise<any> | any
 ) {
   if (records.length === 0) return [];
   if (records.length <= maxNumber) {
@@ -219,9 +186,11 @@ async function batch(
 function addRecords(table: IWidgetTable, lifeCircleHook: any) {
   return async (records: { [key: string]: IOpenCellValue }[]) => {
     try {
+      console.log("addRecords", records);
       const addRes = await table.addRecords(
         records.map((record) => ({ fields: record }))
       );
+      console.log("addRes", addRes);
       await lifeCircleHook(importLifeCircles.onAddRecords, {
         stage: importLifeCircles.onAddRecords,
         data: {
@@ -269,14 +238,16 @@ function updateRecords(table: IWidgetTable, lifeCircleHook: any) {
 function deleteRecords(table: IWidgetTable, lifeCircleHook: any) {
   return async (records: string[]) => {
     try {
-      const addRes = await table.deleteRecords(records);
-      await lifeCircleHook(importLifeCircles.onAddRecords, {
+      console.log("deleteRecords", records);
+      const deleteRes = await table.deleteRecords(records);
+      await lifeCircleHook(importLifeCircles.onDeleteRecords, {
         stage: importLifeCircles.onDeleteRecords,
         data: {
-          res: addRes,
+          res: deleteRes,
+          number: records.length,
         },
       });
-      return addRes;
+      return deleteRes;
     } catch (e) {
       console.log(e);
       await lifeCircleHook(importLifeCircles.onDeleteRecords, {
@@ -352,37 +323,6 @@ function compareCellValue(
   return excelValue;
 }
 
-// async function analysisRecords(
-//   fieldsMaps: fieldMap[],
-//   excelRecords: { [key: string]: string }[],
-//   table: IWidgetTable,
-//   mode: importModes,
-//   index: string,
-//   lifeCircleHook: any
-// ): Promise<{
-//   addList: { [key: string]: IOpenCellValue }[];
-//   deleteList: { [key: string]: IOpenCellValue }[];
-// }> {
-//   const addList: { [key: string]: IOpenCellValue }[] = [];
-//   const deleteList: { [key: string]: IOpenCellValue }[] = [];
-//   await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-//     stage: importLifeCircles.onAnalysisRecords,
-//     data: {
-//       number: excelRecords.length,
-//       mode,
-//     },
-//   });
-//   const excelIndexField: fieldMap | null = index
-//     ? (fieldsMaps.find(
-//         (fieldMap) => fieldMap.excel_field === index
-//       ) as fieldMap)
-//     : null;
-//   const indexField = excelIndexField ? await table.getFieldByName(index) : null;
-//   const tableIndexRecords: (IFieldValue | IUndefinedFieldValue)[] = indexField
-//     ? await indexField.getFieldValueList()
-//     : [];
-// }
-
 export async function importExcel(
   fieldsMaps: fieldMap[],
   excelData: ExcelDataInfo,
@@ -390,11 +330,15 @@ export async function importExcel(
   table: IWidgetTable,
   index: string | null = null,
   mode: importModes = importModes.append,
-  lifeCircleHook: any = runLifeCircleEvent
+  lifeCircleHook: Function = runLifeCircleEvent,
+  options: {
+    maxNumber?: number;
+    interval?: number;
+  } = {
+    maxNumber: 500,
+    interval: 500,
+  }
 ) {
-  fieldsMaps = fieldsMaps.filter(
-    (fieldMap) => fieldMap.excel_field
-  ) as fieldMap[];
   fieldsMaps = await setOptionsField(
     fieldsMaps,
     excelData,
@@ -415,38 +359,52 @@ export async function importExcel(
     },
   });
   if (mode === importModes.append || !index) {
-    await Promise.all(
-      excelRecords.map(async (record) => {
-        const newRecord: IRecordValue["fields"] = {};
+    await batch(
+      10000,
+      500,
+      excelRecords,
+      async (records: typeof excelRecords) => {
         await Promise.all(
-          fieldsMaps.map(async (fieldMap) => {
-            const value = record[fieldMap.excel_field];
-            if (value) {
-              const tempValue = getCellValue(fieldMap, value);
-              if (tempValue) {
-                newRecord[fieldMap.field.id] = tempValue;
+          records.map(async (record) => {
+            const newRecord: IRecordValue["fields"] = {};
+            await batch(
+              10,
+              500,
+              fieldsMaps,
+              async (fieldMaps: typeof fieldsMaps) => {
+                await Promise.all(
+                  fieldMaps.map(async (fieldMap) => {
+                    const value = record[fieldMap.excel_field];
+                    if (value) {
+                      const tempValue = getCellValue(fieldMap, value);
+                      if (tempValue) {
+                        newRecord[fieldMap.field.id] = tempValue;
+                      }
+                    }
+                  })
+                );
               }
-            }
+            );
+            newRecords.push(newRecord);
+            await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
+              stage: importLifeCircles.onAnalysisRecords,
+              data: {
+                records: newRecords,
+                number: excelRecords.length,
+                mode,
+                updateNumber: updateList.length,
+                deleteNumber: deleteList.length,
+                addNumber: newRecords.length,
+                message: i18n.global.t("importInfo.analysisRecordsMessage", {
+                  updateNumber: updateList.length,
+                  deleteNumber: deleteList.length,
+                  addNumber: newRecords.length,
+                }),
+              },
+            });
           })
         );
-        newRecords.push(newRecord);
-        await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-          stage: importLifeCircles.onAnalysisRecords,
-          data: {
-            records: newRecords,
-            number: excelRecords.length,
-            mode,
-            updateNumber: updateList.length,
-            deleteNumber: deleteList.length,
-            addNumber: newRecords.length,
-            message: i18n.global.t("importInfo.analysisRecordsMessage", {
-              updateNumber: updateList.length,
-              deleteNumber: deleteList.length,
-              addNumber: newRecords.length,
-            }),
-          },
-        });
-      })
+      }
     );
     console.log("newRecords", newRecords);
   } else {
@@ -457,185 +415,238 @@ export async function importExcel(
     const tableIndexRecords: (IFieldValue | IUndefinedFieldValue)[] =
       await indexField.getFieldValueList();
     console.log("excelIndexField", excelIndexField, tableIndexRecords);
-    await Promise.all(
-      excelRecords.map(async (record) => {
-        console.log("record", record, excelIndexField);
-        const indexValue = record[excelIndexField.excel_field];
-        const deleteIndex: number[] = [];
-        const sameRecords = tableIndexRecords.filter(
-          (tableIndexRecord, index) => {
-            if (tableIndexRecord.value[0].text === indexValue) {
-              deleteIndex.push(index);
-              return true;
+    await batch<(typeof excelRecords)[number]>(
+      10000,
+      500,
+      excelRecords,
+      async (records) => {
+        await Promise.all(
+          records.map(async (record) => {
+            console.log("record", record, excelIndexField);
+            const indexValue = record[excelIndexField.excel_field];
+            const deleteIndex: number[] = [];
+            const sameRecords = tableIndexRecords.filter(
+              (tableIndexRecord, index) => {
+                if (tableIndexRecord.value[0].text === indexValue) {
+                  deleteIndex.push(index);
+                  return true;
+                }
+                return false;
+              }
+            );
+            for (let i = deleteIndex.length - 1; i >= 0; i--) {
+              tableIndexRecords.splice(deleteIndex[i], 1);
             }
-            return false;
-          }
-        );
-        await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-          stage: importLifeCircles.onAnalysisRecords,
-          data: {
-            addNumber: newRecords.length,
-            updateNumber: updateList.length,
-            deleteNumber: deleteList.length,
-            message: i18n.global.t("importInfo.findSameRecord", {
-              indexValue,
-              sameNumber: sameRecords.length,
-            }),
-          },
-        });
-        for (let i = deleteIndex.length - 1; i >= 0; i--) {
-          tableIndexRecords.splice(deleteIndex[i], 1);
-        }
-        console.log("sameRecords", sameRecords, indexValue, tableIndexRecords);
-        if (sameRecords.length === 0) {
-          const newRecord: IRecordValue["fields"] = {};
-          await Promise.all(
-            fieldsMaps.map(async (fieldMap) => {
-              await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-                stage: importLifeCircles.onAnalysisRecords,
-                data: {
-                  updateNumber: updateList.length,
-                  deleteNumber: deleteList.length,
-                  addNumber: newRecords.length,
-                  message: i18n.global.t("importInfo.compareRecord", {
-                    indexValue,
-                    fieldName: fieldMap.field.name,
-                  }),
-                },
-              });
-              const value = record[fieldMap.excel_field];
-              const tempValue = getCellValue(fieldMap, value);
-              if (tempValue) {
-                newRecord[fieldMap.field.id] = tempValue;
-              }
-            })
-          );
-          newRecords.push(newRecord);
-          console.log("newRecord", newRecord);
-          await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-            stage: importLifeCircles.onAnalysisRecords,
-            data: {
-              records: newRecords,
-              number: excelRecords.length,
-              mode,
-              updateNumber: updateList.length,
-              deleteNumber: deleteList.length,
-              addNumber: newRecords.length,
-              message: i18n.global.t("importInfo.analysisRecordsMessage", {
-                updateNumber: updateList.length,
-                deleteNumber: deleteList.length,
-                addNumber: newRecords.length,
-              }),
-            },
-          });
-        } else if (sameRecords.length === 1) {
-          const newRecord: IRecord["fields"] = {};
-          await Promise.all(
-            fieldsMaps.map(async (fieldMap) => {
-              const field = await table.getFieldById(fieldMap.field.id);
-              await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-                stage: importLifeCircles.onAnalysisRecords,
-                data: {
-                  updateNumber: updateList.length,
-                  deleteNumber: deleteList.length,
-                  addNumber: newRecords.length,
-                  curRecord: indexValue,
-                  curField: fieldMap.field.name,
-                  message: i18n.global.t("importInfo.compareRecord", {
-                    indexValue,
-                    fieldName: fieldMap.field.name,
-                  }),
-                },
-              });
-              const tableValue = await field.getCellString(
-                sameRecords[0].record_id as string
-              );
-              const excelValue = record[fieldMap.excel_field];
-              const value = compareCellValue(excelValue, tableValue, mode);
-              const tempValue = getCellValue(fieldMap, value);
-              if (tempValue) {
-                newRecord[fieldMap.field.id] = tempValue;
-              }
-            })
-          );
-          updateList.push({
-            recordId: sameRecords[0].record_id as string,
-            fields: newRecord,
-          });
-          await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-            stage: importLifeCircles.onAnalysisRecords,
-            data: {
-              records: newRecords,
-              number: excelRecords.length,
-              mode,
-              updateNumber: updateList.length,
-              deleteNumber: deleteList.length,
-              addNumber: newRecords.length,
-              message: i18n.global.t("importInfo.analysisRecordsMessage", {
-                updateNumber: updateList.length,
-                deleteNumber: deleteList.length,
-                addNumber: newRecords.length,
-              }),
-            },
-          });
-        } else {
-          deleteList.push(
-            ...sameRecords.map((sameRecord) => sameRecord.record_id as string)
-          );
-          const newRecord: { [key: string]: IOpenCellValue } = {};
-          await Promise.all(
-            fieldsMaps.map(async (fieldMap) => {
-              await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-                stage: importLifeCircles.onAnalysisRecords,
-                data: {
-                  updateNumber: updateList.length,
-                  deleteNumber: deleteList.length,
-                  addNumber: newRecords.length,
-                  curRecord: indexValue,
-                  curField: fieldMap.field.name,
-                  message: i18n.global.t("importInfo.compareRecord", {
-                    indexValue,
-                    fieldName: fieldMap.field.name,
-                  }),
-                },
-              });
-              const field = await table.getFieldById(fieldMap.field.id);
-              await Promise.all(
-                sameRecords.map(async (sameRecord) => {
-                  const tableValue = await field.getCellString(
-                    sameRecord.record_id as string
+            if (sameRecords.length === 0) {
+              const newRecord: IRecordValue["fields"] = {};
+              await batch(
+                5,
+                500,
+                fieldsMaps,
+                async (fieldMaps: typeof fieldsMaps) => {
+                  await Promise.all(
+                    fieldMaps.map(async (fieldMap) => {
+                      await lifeCircleHook(
+                        importLifeCircles.onAnalysisRecords,
+                        {
+                          stage: importLifeCircles.onAnalysisRecords,
+                          data: {
+                            updateNumber: updateList.length,
+                            deleteNumber: deleteList.length,
+                            addNumber: newRecords.length,
+                            message: i18n.global.t("importInfo.compareRecord", {
+                              indexValue,
+                              fieldName: fieldMap.field.name,
+                            }),
+                          },
+                        }
+                      );
+                      const value = record[fieldMap.excel_field];
+                      const tempValue = getCellValue(fieldMap, value);
+                      if (tempValue) {
+                        newRecord[fieldMap.field.id] = tempValue;
+                      }
+                    })
                   );
-                  console.log("table string value", tableValue);
-                  const excelValue = record[fieldMap.excel_field];
-                  const value = compareCellValue(excelValue, tableValue, mode);
-                  const tempValue = getCellValue(fieldMap, value);
-                  if (tempValue) {
-                    newRecord[fieldMap.field.id] = tempValue;
-                  }
-                })
+                }
               );
-            })
-          );
-          newRecords.push(newRecord);
-          await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
-            stage: importLifeCircles.onAnalysisRecords,
-            data: {
-              records: newRecords,
-              number: excelRecords.length,
-              mode,
-              updateNumber: updateList.length,
-              deleteNumber: deleteList.length,
-              addNumber: newRecords.length,
-              message: i18n.global.t("importInfo.analysisRecordsMessage", {
-                updateNumber: updateList.length,
-                deleteNumber: deleteList.length,
-                addNumber: newRecords.length,
-              }),
-            },
-          });
-        }
-      })
+              newRecords.push(newRecord);
+              console.log("newRecord", newRecord);
+              await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
+                stage: importLifeCircles.onAnalysisRecords,
+                data: {
+                  records: newRecords,
+                  number: excelRecords.length,
+                  mode,
+                  updateNumber: updateList.length,
+                  deleteNumber: deleteList.length,
+                  addNumber: newRecords.length,
+                  message: i18n.global.t("importInfo.analysisRecordsMessage", {
+                    updateNumber: updateList.length,
+                    deleteNumber: deleteList.length,
+                    addNumber: newRecords.length,
+                  }),
+                },
+              });
+            } else if (sameRecords.length === 1) {
+              const newRecord: IRecord["fields"] = {};
+              await batch(
+                5,
+                500,
+                fieldsMaps,
+                async (fieldMaps: typeof fieldsMaps) => {
+                  await Promise.all(
+                    fieldMaps.map(async (fieldMap) => {
+                      const field = await table.getFieldById(fieldMap.field.id);
+                      await lifeCircleHook(
+                        importLifeCircles.onAnalysisRecords,
+                        {
+                          stage: importLifeCircles.onAnalysisRecords,
+                          data: {
+                            updateNumber: updateList.length,
+                            deleteNumber: deleteList.length,
+                            addNumber: newRecords.length,
+                            curRecord: indexValue,
+                            curField: fieldMap.field.name,
+                            message: i18n.global.t("importInfo.compareRecord", {
+                              indexValue,
+                              fieldName: fieldMap.field.name,
+                            }),
+                          },
+                        }
+                      );
+                      const tableValue = await field.getCellString(
+                        sameRecords[0].record_id as string
+                      );
+                      const excelValue = record[fieldMap.excel_field];
+                      const value = compareCellValue(
+                        excelValue,
+                        tableValue,
+                        mode
+                      );
+                      const tempValue = getCellValue(fieldMap, value);
+                      if (tempValue) {
+                        newRecord[fieldMap.field.id] = tempValue;
+                      }
+                    })
+                  );
+                }
+              );
+              updateList.push({
+                recordId: sameRecords[0].record_id as string,
+                fields: newRecord,
+              });
+              await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
+                stage: importLifeCircles.onAnalysisRecords,
+                data: {
+                  records: newRecords,
+                  number: excelRecords.length,
+                  mode,
+                  updateNumber: updateList.length,
+                  deleteNumber: deleteList.length,
+                  addNumber: newRecords.length,
+                  message: i18n.global.t("importInfo.analysisRecordsMessage", {
+                    updateNumber: updateList.length,
+                    deleteNumber: deleteList.length,
+                    addNumber: newRecords.length,
+                  }),
+                },
+              });
+            } else {
+              deleteList.push(
+                ...sameRecords.map(
+                  (sameRecord) => sameRecord.record_id as string
+                )
+              );
+              const newRecord: { [key: string]: IOpenCellValue } = {};
+              await batch<(typeof fieldsMaps)[number]>(
+                10,
+                500,
+                fieldsMaps,
+                async (fieldMaps) => {
+                  await Promise.all(
+                    fieldMaps.map(async (fieldMap) => {
+                      await lifeCircleHook(
+                        importLifeCircles.onAnalysisRecords,
+                        {
+                          stage: importLifeCircles.onAnalysisRecords,
+                          data: {
+                            updateNumber: updateList.length,
+                            deleteNumber: deleteList.length,
+                            addNumber: newRecords.length,
+                            curRecord: indexValue,
+                            curField: fieldMap.field.name,
+                            message: i18n.global.t("importInfo.compareRecord", {
+                              indexValue,
+                              fieldName: fieldMap.field.name,
+                            }),
+                          },
+                        }
+                      );
+                      const field = await table.getFieldById(fieldMap.field.id);
+                      await batch<(typeof sameRecords)[number]>(
+                        100,
+                        500,
+                        sameRecords,
+                        async (s) => {
+                          await Promise.all(
+                            s.map(async (sameRecord) => {
+                              const tableValue = await field.getCellString(
+                                sameRecord.record_id as string
+                              );
+                              console.log("table string value", tableValue);
+                              const excelValue = record[fieldMap.excel_field];
+                              const value = compareCellValue(
+                                excelValue,
+                                tableValue,
+                                mode
+                              );
+                              const tempValue = getCellValue(fieldMap, value);
+                              if (tempValue) {
+                                newRecord[fieldMap.field.id] = tempValue;
+                              }
+                            })
+                          );
+                        }
+                      );
+                    })
+                  );
+                }
+              );
+              newRecords.push(newRecord);
+              await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
+                stage: importLifeCircles.onAnalysisRecords,
+                data: {
+                  records: newRecords,
+                  number: excelRecords.length,
+                  mode,
+                  updateNumber: updateList.length,
+                  deleteNumber: deleteList.length,
+                  addNumber: newRecords.length,
+                  message: i18n.global.t("importInfo.analysisRecordsMessage", {
+                    updateNumber: updateList.length,
+                    deleteNumber: deleteList.length,
+                    addNumber: newRecords.length,
+                  }),
+                },
+              });
+            }
+          })
+        );
+      }
     );
+    // await lifeCircleHook(importLifeCircles.onAnalysisRecords, {
+    //   stage: importLifeCircles.onAnalysisRecords,
+    //   data: {
+    //     addNumber: newRecords.length,
+    //     updateNumber: updateList.length,
+    //     deleteNumber: deleteList.length,
+    //     message: i18n.global.t("importInfo.findSameRecord", {
+    //       indexValue,
+    //       sameNumber: sameRecords.length,
+    //     }),
+    //   },
+    // });
     console.log(newRecords, deleteList);
   }
   await lifeCircleHook(importLifeCircles.beforeUpdateRecords, {
@@ -648,7 +659,7 @@ export async function importExcel(
     const updateRes = await batchUpdateRecords(
       updateList,
       table,
-      500,
+      5000,
       500,
       lifeCircleHook
     );
@@ -666,7 +677,7 @@ export async function importExcel(
     const deleteRes = await batchDeleteRecords(
       deleteList,
       table,
-      500,
+      5000,
       500,
       lifeCircleHook
     );
@@ -684,7 +695,7 @@ export async function importExcel(
     const addRes = await batchRecords(
       newRecords,
       table,
-      500,
+      5000,
       500,
       lifeCircleHook
     );

@@ -24,14 +24,14 @@ watch(
   (newVal) => {
     data.value = newVal;
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(
   () => settingRef.value?.isActive,
   (newVal) => {
     isActive.value = newVal;
-  }
+  },
 );
 
 onMounted(async () => {
@@ -47,7 +47,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-link href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc"><el-icon><Link/></el-icon>使用指南</el-link>
+  <el-link
+    target="_blank"
+    href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc"
+  >
+    <el-icon>
+      <Link />
+    </el-icon>
+    使用指南
+  </el-link>
   <div v-if="isActive">
     <upload ref="uploadRef" />
   </div>

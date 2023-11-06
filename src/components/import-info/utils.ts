@@ -224,14 +224,21 @@ export function beforeSetOptions(e: lifeCircleEventParams) {
 }
 
 export function onSetOptions(e: lifeCircleEventParams) {
-  const { record } = e.data;
+  const { res } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["setOptions"]
   );
-  if (record) {
+  if (res) {
     stages.value[index].success += 1;
   } else {
     stages.value[index].error += 1;
+  }
+  if(
+    stages.value[index].success + stages.value[index].error ===
+    stages.value[index].number
+  ) {
+    stages.value[index].progress = false;
+    stages.value[index].state = "success";
   }
 }
 
@@ -288,9 +295,9 @@ export function onUpdateRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["updateRecords"]
   );
   if (res) {
-    stages.value[index].success += 500;
-  } else {
-    stages.value[index].error += 500;
+    console.log("onUpdateRecords", res)
+    stages.value[index].success += res.filter((item: any) => item).length;
+    stages.value[index].error += res.filter((item: any) => !item).length;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -319,14 +326,14 @@ export function beforeDeleteRecords(e: lifeCircleEventParams) {
 }
 
 export function onDeleteRecords(e: lifeCircleEventParams) {
-  const { res } = e.data;
+  const { res, number } = e.data;
   const index = stages.value.findIndex(
     (stage) => stage.index === stageIndex["deleteRecords"]
   );
   if (res) {
-    stages.value[index].success += 500;
+    stages.value[index].success += number;
   } else {
-    stages.value[index].error += 500;
+    stages.value[index].error += number;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
@@ -361,9 +368,9 @@ export function onAddRecords(e: lifeCircleEventParams) {
     (stage) => stage.index === stageIndex["addRecords"]
   );
   if (res) {
-    stages.value[index].success += 500;
-  } else {
-    stages.value[index].error += 500;
+    console.log("onAddRecords", res);
+    stages.value[index].success += res.filter((item) => item).length;
+    stages.value[index].error += res.filter((item) => !item).length;
   }
   if (
     stages.value[index].success + stages.value[index].error ===
