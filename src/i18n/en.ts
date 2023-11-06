@@ -181,5 +181,6 @@ export const en = {
     records: "Records",
     parallelTip: "Parallel is the number of records/fields processed at a time",
     intervalTip: "Interval is the time interval for each processing",
+    advancedSetting: "Advanced Setting",
   },
 }
