@@ -92,6 +92,8 @@ export const zh = {
     getTableFailure: "获取表格 [{id}] 失败",
     getTableIndexFailure: "获取表格 [{id}] 索引值失败",
     getModifiedTimeFailure: "获取表格 [{id}] 记录修改时间失败",
+    autoFieldInIndex:
+      "索引包含自动计算字段 [{fields}]，插件将不会向表中添加新记录",
   },
   loading: "加载中...",
   fieldType: {
@@ -152,6 +154,7 @@ export const zh = {
     getTable: "正在获取表格 {name}[{id}]",
     getRecordsModifiedTime: "正在获取表格记录修改时间",
     importComplete: "导入完成",
+    getTableRecords: "正在获取表格 [{table}] 记录",
   },
   allowAction: {
     updateAndAdd: "更新已有记录并添加新记录",
@@ -163,5 +166,16 @@ export const zh = {
     saveLeast: "保留非空字段最少记录",
     saveOldest: "保留最早修改记录",
     saveLatest: "保留最近修改记录",
+    whenLastSame: "当前者相同时",
+  },
+  advancedSetting: {
+    advancedSetting: "高级设置",
+    parallel: "并行量",
+    interval: "间隔时间",
+    intervalUnit: "毫秒",
+    fields: "字段",
+    records: "记录",
+    parallelTip: "并行量是同时处理的记录/字段数",
+    intervalTip: "间隔时间是每次处理的时间间隔",
   },
 }

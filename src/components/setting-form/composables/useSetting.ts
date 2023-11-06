@@ -100,7 +100,6 @@ export function useSetting(
   watch(
     () => toValue(excelData),
     (newVal) => {
-      console.log(newVal)
       if (!newVal) {
         excelFields.value = []
         reset()
@@ -114,7 +113,6 @@ export function useSetting(
   watch(
     () => toValue(tableFields),
     (newVal) => {
-      console.log(newVal)
       if (!newVal) {
         settingColumns.value = []
         return
@@ -123,7 +121,6 @@ export function useSetting(
       loadFieldMaps(newVal, toValue(tableId) as string).then((res) => {
         settingColumns.value = res
         pending.value = false
-        console.log("settingColumns", res)
         if (toValue(excelData)) {
           fill()
         }

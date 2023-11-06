@@ -17,7 +17,7 @@ import { useSelection, useTable } from "@qww0302/use-bitable"
 import { cellTranslator } from "@/utils/cellValue"
 import { useStorage } from "@vueuse/core"
 import defaultOptions from "../../../plugin.config.json"
-import { validateIndex } from "./utils"
+import { validateIndex, validateIndexAuto } from "./utils"
 
 const { t } = useI18n()
 const props = defineProps({
@@ -35,6 +35,7 @@ const linkRef = ref()
 const tableList = ref<ITableMeta[]>([])
 const targetTableId = ref<string>("")
 const tableFields = ref<IFieldMeta[]>()
+const allowAdd = ref(true)
 const AllowActionValue: Record<string, ImportOptions["allowAction"]> = {
   updateAndAdd: {
     add: true,
@@ -95,11 +96,11 @@ const updateOptionSelector = () => [
     children: [
       {
         value: UpdateMode.SAVE_LATEST,
-        label: t("updateMode.saveLatest"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveLatest"),
       },
       {
         value: UpdateMode.SAVE_OLDEST,
-        label: t("updateMode.saveOldest"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveOldest"),
       },
     ],
   },
@@ -109,11 +110,11 @@ const updateOptionSelector = () => [
     children: [
       {
         value: UpdateMode.SAVE_LATEST,
-        label: t("updateMode.saveLatest"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveLatest"),
       },
       {
         value: UpdateMode.SAVE_OLDEST,
-        label: t("updateMode.saveOldest"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveOldest"),
       },
     ],
   },
@@ -123,11 +124,11 @@ const updateOptionSelector = () => [
     children: [
       {
         value: UpdateMode.SAVE_MOST,
-        label: t("updateMode.saveMost"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveMost"),
       },
       {
         value: UpdateMode.SAVE_LEAST,
-        label: t("updateMode.saveLeast"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveLeast"),
       },
     ],
   },
@@ -137,11 +138,11 @@ const updateOptionSelector = () => [
     children: [
       {
         value: UpdateMode.SAVE_MOST,
-        label: t("updateMode.saveMost"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveMost"),
       },
       {
         value: UpdateMode.SAVE_LEAST,
-        label: t("updateMode.saveLeast"),
+        label: t("updateMode.whenLastSame") + t("updateMode.saveLeast"),
       },
     ],
   },
@@ -224,6 +225,22 @@ function filterHandler(
   return row.field.name === value
 }
 
+const validate = () => {
+  const indexes = Index.value.map(
+    (i) => settingColumns.value.find((j) => j.field.id === i) as fieldMap,
+  )
+  const hasAuto = validateIndexAuto(indexes)
+  const noEmpty = validateIndex(indexes)
+  if (hasAuto) {
+    changeAllowAction(AllowAction.onlyUpdate)
+    allowAction.value = AllowAction.onlyUpdate
+    allowAdd.value = false
+  } else {
+    allowAdd.value = true
+  }
+  return noEmpty && !hasAuto
+}
+
 async function importAction() {
   if (!activeTableId.value) {
     Warn({
@@ -247,17 +264,7 @@ async function importAction() {
     })
     return
   }
-  if (
-    mode.value !== importModes.append &&
-    !validateIndex(
-      Index.value
-        .map(
-          (i) => settingColumns.value.find((j) => j.field.id === i) as fieldMap,
-        )
-        .filter((i) => i) ?? [],
-    )
-  )
-    return
+  if (mode.value !== importModes.append && !validate()) return
   const sheet_index = sheetIndex.value
   const index = Index.value
   importLoading.value = true
@@ -546,6 +553,7 @@ defineExpose({
       <el-select
         v-model="Index"
         :placeholder="t('input.placeholder.chooseIndex')"
+        @change="validate"
         filterable
         clearable
         multiple
@@ -574,12 +582,16 @@ defineExpose({
         style="display: flex; flex-direction: column; align-items: flex-start"
         @change="changeAllowAction"
       >
-        <el-radio :label="AllowAction.updateAndAdd">{{
-          t("allowAction.updateAndAdd")
-        }}</el-radio>
-        <el-radio :label="AllowAction.onlyAdd">{{
-          t("allowAction.onlyAdd")
-        }}</el-radio>
+        <el-radio
+          :label="AllowAction.updateAndAdd"
+          :disabled="!allowAdd"
+          >{{ t("allowAction.updateAndAdd") }}</el-radio
+        >
+        <el-radio
+          :label="AllowAction.onlyAdd"
+          :disabled="!allowAdd"
+          >{{ t("allowAction.onlyAdd") }}</el-radio
+        >
         <el-radio :label="AllowAction.onlyUpdate">{{
           t("allowAction.onlyUpdate")
         }}</el-radio>

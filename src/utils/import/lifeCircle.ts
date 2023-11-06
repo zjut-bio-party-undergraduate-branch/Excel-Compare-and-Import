@@ -69,10 +69,13 @@ export function clearLifeCircleEvent(lifeCircle: importLifeCircles) {
   lifeCircleEvents[lifeCircle] = []
 }
 
-export async function runLifeCircleEvent(
+export function runLifeCircleEvent(
   lifeCircle: importLifeCircles,
   e: lifeCircleEventParams,
-): Promise<void> {
+): void {
   if (lifeCircleEvents[lifeCircle].length === 0) return
-  Promise.all(lifeCircleEvents[lifeCircle].map((callback) => callback(e)))
+  // Promise.all(lifeCircleEvents[lifeCircle].map((callback) => callback(e)))
+  for (const callback of lifeCircleEvents[lifeCircle]) {
+    callback(e)
+  }
 }

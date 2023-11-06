@@ -93,6 +93,8 @@ export const en = {
     getTableFailure: "Get table [{id}] failed",
     getTableIndexFailure: "Get index value of [{id}] failed",
     getModifiedTimeFailure: "Get table [{id}] modified time failed",
+    autoFieldInIndex:
+      "Index contains auto field [{fields}], the plugin will not add new records to the table",
   },
   loading: "Loading...",
   fieldType: {
@@ -157,6 +159,7 @@ export const en = {
     getTable: "Getting table {name}[{id}]",
     getRecordsModifiedTime: "Getting table records modified time",
     importComplete: "Import complete",
+    getTableRecords: "Getting table [{table}] records",
   },
   allowAction: {
     updateAndAdd: "Update same records and add new records",
@@ -168,5 +171,15 @@ export const en = {
     saveLeast: "Save the record with the least non-empty fields",
     saveOldest: "Save the earliest modified record",
     saveLatest: "Save the latest modified record",
+    whenLastSame: "When the last one is the same",
+  },
+  advancedSetting: {
+    parallel: "Parallel",
+    interval: "Interval",
+    intervalUnit: "ms",
+    fields: "Fields",
+    records: "Records",
+    parallelTip: "Parallel is the number of records/fields processed at a time",
+    intervalTip: "Interval is the time interval for each processing",
   },
 }

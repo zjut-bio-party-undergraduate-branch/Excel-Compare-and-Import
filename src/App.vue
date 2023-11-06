@@ -4,11 +4,12 @@ import upload from "@/components/upload/index.vue"
 import Info from "@/components/info/index.vue"
 import runningLogger from "@/components/running-logger/index.vue"
 import bugIcon from "@/components/icons/bug-icon.vue"
+import advancedSetting from "@/components/advanced-setting/index.vue"
 import { ref, onMounted, watch } from "vue"
 import { bitable, ThemeModeType } from "@lark-base-open/js-sdk"
 import { useI18n } from "vue-i18n"
 import { ElMessage } from "element-plus"
-import { Link, QuestionFilled } from "@element-plus/icons-vue"
+import { Link, QuestionFilled, Setting } from "@element-plus/icons-vue"
 import type { ExcelDataInfo } from "@/types/types"
 import { useHead } from "@unhead/vue"
 import { useTheme } from "@qww0302/use-bitable"
@@ -18,6 +19,7 @@ import { default as Meta } from "virtual:meta"
 import { useDark, useToggle } from "@vueuse/core"
 const isDark = useDark()
 const showLogger = ref(false)
+const showAdvancedSetting = ref(false)
 
 useHead({
   meta: [
@@ -41,6 +43,7 @@ useHead({
 })
 
 const toggleLogger = useToggle(showLogger)
+const toggleAdvancedSetting = useToggle(showAdvancedSetting)
 
 const settingRef = ref()
 const uploadRef = ref()
@@ -133,6 +136,18 @@ onMounted(async () => {
         </el-link> -->
           <el-tooltip>
             <template #content>
+              <span>{{ t("advancedSetting.advancedSetting") }}</span>
+            </template>
+            <el-link
+              v-if="!isActive"
+              type="primary"
+              @click="toggleAdvancedSetting()"
+            >
+              <el-icon><Setting /></el-icon>
+            </el-link>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
               <span>{{ t("toolTip.log") }}</span>
             </template>
             <el-link @click="toggleLogger()">
@@ -167,16 +182,28 @@ onMounted(async () => {
           :excelData="data"
         />
       </Suspense>
-      <el-dialog
-        v-model="showLogger"
-        fullscreen
-        lock-scroll
-        :title="t('toolTip.log')"
-      >
-        <running-logger />
-      </el-dialog>
     </div>
   </el-scrollbar>
+  <el-dialog
+    v-model="showLogger"
+    fullscreen
+    lock-scroll
+    :title="t('toolTip.log')"
+  >
+    <running-logger />
+  </el-dialog>
+  <el-dialog
+    v-model="showAdvancedSetting"
+    fullscreen
+    lock-scroll
+    :title="t('advancedSetting.advancedSetting')"
+  >
+    <el-scrollbar max-height="70vh">
+      <Suspense>
+        <advancedSetting />
+      </Suspense>
+    </el-scrollbar>
+  </el-dialog>
 </template>
 
 <style>

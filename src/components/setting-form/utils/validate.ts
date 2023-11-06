@@ -1,6 +1,12 @@
 import type { fieldMap } from "@/types/types"
-import { Warn } from "@/utils"
+import { Warn, autoFields } from "@/utils"
 
+/**
+ * Validate if index is empty or has no excel_field, if yes, return false, else return true
+ *
+ * @param index
+ * @returns
+ */
 export function validateIndex(index: fieldMap[]) {
   if (index.length === 0) {
     Warn({
@@ -30,4 +36,30 @@ export function validateIndex(index: fieldMap[]) {
     return false
   }
   return true
+}
+
+/**
+ * Validate if index contains auto field, if yes, return true, else return false
+ *
+ * @param index
+ * @returns
+ */
+export function validateIndexAuto(index: fieldMap[]) {
+  const auto = index.filter((i) => autoFields.includes(i.field.type))
+  if (auto.length) {
+    const names = auto.map((i) => i.field.name).join(", ")
+    Warn({
+      title: "autoFieldInIndex",
+      message: "autoFieldInIndex: " + names,
+      notice: true,
+      noticeParams: {
+        text: "message.autoFieldInIndex",
+        params: {
+          fields: names,
+        },
+      },
+    })
+    return true
+  }
+  return false
 }

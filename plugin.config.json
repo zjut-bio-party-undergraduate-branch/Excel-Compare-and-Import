@@ -1,6 +1,6 @@
 {
   "parallel": {
-    "records": 10000,
+    "records": 5000,
     "fields": 10
   },
   "interval": {
