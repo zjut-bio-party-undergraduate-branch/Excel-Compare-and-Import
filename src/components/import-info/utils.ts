@@ -56,3 +56,12 @@ export function onStage(params: lifeCircleEventParams<Task>) {
     stageItem.message = i18n.global.t(message.text, message.params ?? {})
   }
 }
+
+export function onStageEnd(params: lifeCircleEventParams<Task>) {
+  const { stage } = params
+  const stageItem = stages.value[currentStage.value]
+  if (stage !== stageItem.stage) return
+  stageItem.progress = false
+  stageItem.disabled = true
+  stageItem.state = "success"
+}
