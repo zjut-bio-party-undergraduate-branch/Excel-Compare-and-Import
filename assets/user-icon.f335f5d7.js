@@ -1,0 +1,1 @@
+import{d as e,o,c as r,u as n,g as s,_ as c}from"./index.1ff08fe7.js";const a=e({__name:"user-icon",setup(t){return(_,p)=>(o(),r(n(s)))}}),m=c(a,[["__file","/home/runner/work/Excel-Compare-and-Import/Excel-Compare-and-Import/src/components/icons/user-icon.vue"]]);export{m as default};
