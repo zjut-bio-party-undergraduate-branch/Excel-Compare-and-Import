@@ -22,3 +22,8 @@ auto-imports.d.ts
 
 .DS_Store
 Thumbs.db
+
+.config
+package-lock.json
+
+.config
