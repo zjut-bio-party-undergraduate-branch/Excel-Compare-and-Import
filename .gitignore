@@ -3,7 +3,7 @@ dist
 test/data/
 .config
 coverage
-public/test
+public/test/
 components.d.ts
 auto-imports.d.ts
 # IDEs and editors
