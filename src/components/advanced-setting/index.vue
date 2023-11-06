@@ -21,26 +21,31 @@ const { t } = useI18n()
 <template>
   <el-form>
     <h2>{{ t("advancedSetting.parallel") }}</h2>
-    <el-form-item :label="t('advancedSetting.fields')">
+    <!-- <el-form-item :label="t('advancedSetting.fields')">
       <el-input-number
         v-model="userOptions!.parallel!.fields"
       ></el-input-number>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item :label="t('advancedSetting.records')">
       <el-input-number
+        size="small"
+        controls-position="right"
         v-model="userOptions!.parallel!.records"
       ></el-input-number>
     </el-form-item>
     <h2>{{ t("advancedSetting.interval") }}</h2>
-    <el-form-item :label="t('advancedSetting.fields')">
+    <!-- <el-form-item :label="t('advancedSetting.fields')">
       <el-input-number
         v-model="userOptions!.interval!.fields"
       ></el-input-number>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item :label="t('advancedSetting.records')">
       <el-input-number
+        size="small"
+        controls-position="right"
         v-model="userOptions!.interval!.records"
       ></el-input-number>
+      ms
     </el-form-item>
   </el-form>
 </template>
