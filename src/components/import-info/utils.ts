@@ -55,6 +55,13 @@ export function onStage(params: lifeCircleEventParams<Task>) {
   if (message) {
     stageItem.message = i18n.global.t(message.text, message.params ?? {})
   }
+  if(
+    stages.value[index].success + stages.value[index].error ===
+    stages.value[index].number
+  ) {
+    stages.value[index].progress = false;
+    stages.value[index].state = "success";
+  }
 }
 
 export function onStageEnd(params: lifeCircleEventParams<Task>) {

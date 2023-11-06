@@ -2,7 +2,7 @@ import { type IMultiSelectField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
 import type { fieldMap } from "@/types/types"
 
-export const defaultSeparator = ","
+export const defaultSeparator = ",";
 
 async function normalization(value: string, config?: fieldMap["config"]) {
   const { separator = defaultSeparator } = config || {}
