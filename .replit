@@ -1,4 +1,4 @@
-run = "npm run dev"
+run = "npm run dev:Beta"
 hidden = [".config", "package-lock.json", "tsconfig.json"]
 
 [packager]

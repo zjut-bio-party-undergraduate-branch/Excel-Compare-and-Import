@@ -1,20 +1,20 @@
-import { IOpenSegmentType, IOpenUrlSegment, checkers } from '@lark-base-open/js-sdk';
+import { type IUrlField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
 
-
-export function url(value: string): IOpenUrlSegment[] {
-  const res = [
-    {
-      text: value,
-      type: IOpenSegmentType.Url,
-      link: value,
-    },
-  ] as IOpenUrlSegment[];
-  if (checkers.isSegments(res)) return res;
-  return [
-    {
-      text: "",
-      type: IOpenSegmentType.Url,
-      link: "",
-    },
-  ];
+/**
+ * Get url cell
+ *
+ * @param value
+ * @param field
+ * @returns
+ */
+async function url(value: string, field: IUrlField) {
+  return await field.createCell(value)
 }
+
+export const UrlTranslator = defineTranslator({
+  fieldType: FieldType.Url,
+  translate: url,
+  normalization: async (value: string) => value,
+  name: "Url",
+})

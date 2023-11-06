@@ -1,16 +1,40 @@
-import dayjs from "dayjs/esm/index.js";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import advancedFormat from 'dayjs/plugin/advancedFormat';
-import { IOpenTimestamp, checkers } from "@lark-base-open/js-sdk";
+import dayjs from "dayjs/esm/index.js"
+import customParseFormat from "dayjs/plugin/customParseFormat"
+import advancedFormat from "dayjs/plugin/advancedFormat"
+import { type IDateTimeField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
+import type { fieldMap } from "@/types/types"
 
-dayjs.extend(customParseFormat);
-dayjs.extend(advancedFormat);
+dayjs.extend(customParseFormat)
+dayjs.extend(advancedFormat)
 
+export const dateDefaultFormat = "YYYY/MM/DD"
 
-export const dateDefaultFormat = "YYYY/MM/DD";
+async function normalization(value: string, config?: fieldMap["config"]) {
+  const { format = dateDefaultFormat } = config || {}
+  return dayjs(value, format).valueOf()
+}
 
-export function dateTime(value: string, format: string = "YYYY/MM/DD"): IOpenTimestamp | null {
-  const res = dayjs(value, format).valueOf();
-  if (checkers.isTimestamp(res)) return res;
-  return null;
-};
+/**
+ * Get dateTime cell
+ *
+ * @param value
+ * @param field
+ * @param config
+ * @returns
+ */
+async function dateTime(
+  value: string,
+  field: IDateTimeField,
+  config?: fieldMap["config"],
+) {
+  const v = await normalization(value, config)
+  return await field.createCell(v)
+}
+
+export const DateTimeTranslator = defineTranslator({
+  fieldType: FieldType.DateTime,
+  translate: dateTime,
+  normalization,
+  name: "DateTime",
+})
