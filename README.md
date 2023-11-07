@@ -1,5 +1,7 @@
 # Excel Compare and Import
 
+[![Deploy](https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import/actions/workflows/deploy.yml/badge.svg)](https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import/actions/workflows/deploy.yml) [![CI](https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import/actions/workflows/ci.yml/badge.svg)](https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import/actions/workflows/ci.yml)
+
 ## Abstract
 
 This is a Base extension for Feishu that compares local Excel files with base and imports the differences into the current Base.
