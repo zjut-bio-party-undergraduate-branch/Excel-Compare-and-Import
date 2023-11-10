@@ -49,6 +49,7 @@ const pkg = fs.readJSONSync(path.resolve("./package.json"))
 export default ({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   return defineConfig({
+    base: './',
     server: {
       host: true,
     },
