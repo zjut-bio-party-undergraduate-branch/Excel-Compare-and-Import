@@ -1,0 +1,10 @@
+.cache
+dist
+.git
+node_modules
+.replit
+replit.nix
+.husky
+.gitignore
+.config
+.commitlintrc

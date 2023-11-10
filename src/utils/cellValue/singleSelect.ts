@@ -1,29 +1,19 @@
-import {
-  ISingleSelectFieldMeta,
-  IOpenSingleSelect,
-  checkers,
-} from "@lark-base-open/js-sdk";
+import { type ISingleSelectField, FieldType } from "@lark-base-open/js-sdk"
+import { defineTranslator } from "./cell"
 
-export function singleSelect(
-  value: string,
-  field: ISingleSelectFieldMeta
-  // table: IWidgetTable
-): IOpenSingleSelect {
-  if (value === "") {
-    return {
-      text: "",
-      id: "",
-    };
-  }
-  let id =
-    field.property.options.find((option) => option.name === value)?.id ?? "";
-  const res = {
-    text: value,
-    id,
-  };
-  if (checkers.isSingleSelect(res)) return res;
-  return {
-    text: "",
-    id: "",
-  };
+/**
+ * Get singleSelect cell
+ * @param field
+ * @param value
+ * @returns
+ */
+async function singleSelect(value: string, field: ISingleSelectField) {
+  return await field.createCell(value)
 }
+
+export const SingleSelectTranslator = defineTranslator({
+  fieldType: FieldType.SingleSelect,
+  translate: singleSelect,
+  normalization: async (value: string) => value,
+  name: "SingleSelect",
+})

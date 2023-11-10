@@ -1,63 +1,100 @@
 import {
-  IOpenCellValue,
-  FieldType,
-  IMultiSelectFieldMeta,
-  ISingleSelectFieldMeta,
-} from "@lark-base-open/js-sdk";
-import { fieldMap } from "@/types/types";
-import { dateTime, dateDefaultFormat } from "./date";
-import { multiSelect } from "./multiSelect";
-import { singleSelect } from "./singleSelect";
-import { checkBox, defaultBoolValue } from "./checkBox";
-import { text } from "./text";
-import { url } from "./url";
-import { phone } from "./phone";
-import { currency } from "./currency";
-import { progress } from "./progress";
-import { rating } from "./rating";
-import { barCode } from "./barCode";
-import {User} from "./user";
+  type IOpenCellValue,
+  checkers,
+  type IOpenSingleCellValue,
+} from "@lark-base-open/js-sdk"
+import { DateTimeTranslator } from "./date"
+import { MultiSelectTranslator } from "./multiSelect"
+import { SingleSelectTranslator } from "./singleSelect"
+import { CheckBoxTranslator } from "./checkBox"
+import { TextTranslator } from "./text"
+import { UrlTranslator } from "./url"
+import { PhoneTranslator } from "./phone"
+import { CurrencyTranslator } from "./currency"
+import { ProgressTranslator } from "./progress"
+import { RatingTranslator } from "./rating"
+import { BarCodeTranslator } from "./barCode"
+import { UserTranslator } from "./user"
+import { SingleLinkTranslator } from "./singleLink"
+import { DuplexTranslator } from "./duplexLink"
+import { NumberTranslator } from "./number"
+import { CellTranslator } from "./cell"
 
-export function getCellValue(
-  fieldMap: fieldMap,
-  value: string,
-): IOpenCellValue {
-  const type = fieldMap.field.type;
-  const field = fieldMap.field;
-  const config = fieldMap.config;
-  if (!value) return value;
-  switch (type) {
-    case FieldType.Url:
-      return url(value);
-    case FieldType.DateTime:
-      return dateTime(value, config?.format ?? dateDefaultFormat);
-    case FieldType.SingleSelect:
-      return singleSelect(value, field as ISingleSelectFieldMeta);
-    case FieldType.MultiSelect:
-      return multiSelect(
-        value,
-        field as IMultiSelectFieldMeta,
-        config?.separator ?? ","
-      );
-    case FieldType.Number:
-      return Number(value.match(/-?\d+\.?\d*/g));
-    case FieldType.Currency:
-      return currency(value);
-    case FieldType.Progress:
-      return progress(value);
-    case FieldType.Rating:
-      return rating(value);
-    case FieldType.Checkbox:
-      return checkBox(value, config?.boolValue ?? defaultBoolValue);
-    case FieldType.Text:
-      return text(value) as IOpenCellValue;
-    case FieldType.Barcode:
-      return barCode(value) as IOpenCellValue;
-    case FieldType.Phone:
-      return phone(value);
-    case FieldType.User:
-      return User(value);
-    default:
-      return value;
+export const cellTranslator = new CellTranslator({
+  translators: [
+    DateTimeTranslator,
+    MultiSelectTranslator,
+    SingleSelectTranslator,
+    CheckBoxTranslator,
+    TextTranslator,
+    UrlTranslator,
+    PhoneTranslator,
+    CurrencyTranslator,
+    ProgressTranslator,
+    RatingTranslator,
+    BarCodeTranslator,
+    UserTranslator,
+    SingleLinkTranslator,
+    DuplexTranslator,
+    NumberTranslator,
+  ],
+})
+
+/**
+ * Transform cellValue to string
+ * @param value
+ * @returns
+ */
+export function cellValueToString(
+  value: IOpenCellValue | IOpenSingleCellValue,
+): string {
+  if (checkers.isSegments(value)) {
+    return value.map((v) => v.text).join("")
   }
+  if (checkers.isAutoNumber(value)) {
+    return value.value
+  }
+  if (checkers.isTimestamp(value) || checkers.isNumber(value)) {
+    return String(value)
+  }
+  if (checkers.isAttachment(value)) {
+    return value.name
+  }
+  if (checkers.isSingleSelect(value)) {
+    return value.text
+  }
+  if (checkers.isMultiSelect(value)) {
+    return value.map((v) => v.text).join(",")
+  }
+  if (checkers.isCheckbox(value)) {
+    return value ? "☑️" : ""
+  }
+  if (checkers.isUsers(value)) {
+    return value.map((v) => v.id).join(",")
+  }
+  if (checkers.isEmpty(value)) {
+    return ""
+  }
+  if (checkers.isLocation(value)) {
+    return value.fullAddress
+  }
+  if (checkers.isLocation(value)) {
+    return value.fullAddress
+  }
+  if (checkers.isLink(value)) {
+    return value.text
+  }
+  if (checkers.isAttachments(value)) {
+    return value.map((v) => v.name).join(",")
+  }
+  if (checkers.isPhone(value)) {
+    return value
+  }
+  if (checkers.isGroupChat(value)) {
+    return value.name
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) => cellValueToString(v)).join(",")
+  }
+  return JSON.stringify(value)
 }
