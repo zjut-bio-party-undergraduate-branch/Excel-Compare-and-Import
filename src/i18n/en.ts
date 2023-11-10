@@ -160,6 +160,10 @@ export const en = {
     getRecordsModifiedTime: "Getting table records modified time",
     importComplete: "Import complete",
     getTableRecords: "Getting table [{table}] records",
+    checkSelectFieldOptions:
+      "Checking field {fieldName}[FieldId: {fieldId}] options",
+    setSelectFieldOptions:
+      "Field {fieldName}[FieldId: {fieldId}] has {newOptionsNum} new options, start setting",
   },
   allowAction: {
     updateAndAdd: "Update same records and add new records",
