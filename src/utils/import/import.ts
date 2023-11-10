@@ -31,11 +31,8 @@ import {
 import type { lifeCircleEventParams } from "./lifeCircle"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
 import { Error, Log, Info, selectFieldType } from "@/utils"
-import { stage } from "@/components/import-info/utils"
 
-export const optionsFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
-
-export const linkFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
+const optionsFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
 /**
  * Batch processing
