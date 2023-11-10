@@ -31,32 +31,16 @@ function readXLSX(data: string, name: string) {
         if (records.length) return { name, tableData: { fields, records } }
         return null
       } catch (e) {
-        // Error({
-        //   title: "message.sheetError",
-        //   message: String(e),
-        //   error: e,
-        // })
-        // ElMessage.error(t("message.sheetError", { sheetName: name }))
         postMessage({ type: "error", payload: "message.sheetError" })
         return null
       }
     }).filter((sheet) => sheet !== null) as SheetInfo[]
     if (sheets.length === 0) {
-      // ElMessage.error(t("message.noSheet"))
-      // Error({
-      //   title: "message.noSheet",
-      //   message: "message.noSheet",
-      // })
       postMessage({ type: "error", payload: "message.noSheet" })
       return null
     }
     return { sheets, name: name }
   } catch (e) {
-    // Error({
-    //   title: "message.fileError",
-    //   message: String(e),
-    //   error: e,
-    // })
     postMessage({ type: "error", payload: "message.fileError" })
     return null
   }

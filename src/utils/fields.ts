@@ -22,6 +22,7 @@ export const indexFieldType = [
 ]
 
 export const notSupportFields = [FieldType.Location, FieldType.Attachment]
+export const SelectFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
 export const autoFields = [
   FieldType.CreatedTime,

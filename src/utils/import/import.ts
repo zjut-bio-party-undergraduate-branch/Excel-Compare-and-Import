@@ -23,7 +23,6 @@ import {
   delay,
   isArrayStrictEqual,
   groupBy,
-  ArrayHasNoEmpty,
   isNotEmpty,
   unique,
 } from "./helper"
@@ -40,23 +39,23 @@ export const linkFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
  *
  * @param maxNumber
  * @param interval
- * @param records
+ * @param list
  * @param action
  * @returns
  */
 async function batch<T>(
   maxNumber: number = 5000,
   interval: number = 0,
-  records: Array<T>,
-  action: (records: Array<T>) => Promise<void>,
+  list: Array<T>,
+  action: (list: Array<T>) => Promise<void>,
 ) {
-  if (records.length === 0) return
-  if (records.length <= maxNumber) {
-    await action(records)
+  if (list.length === 0) return
+  if (list.length <= maxNumber) {
+    await action(list)
   } else {
-    const count = Math.ceil(records.length / maxNumber)
+    const count = Math.ceil(list.length / maxNumber)
     for (let i = 0; i < count; i++) {
-      await action(records.slice(i * maxNumber, (i + 1) * maxNumber))
+      await action(list.slice(i * maxNumber, (i + 1) * maxNumber))
       if (interval > 0) {
         await delay(interval)
       }
@@ -293,13 +292,14 @@ async function batchDeleteRecords(
 }
 
 /**
- * Get the value to be updated
+ * Get the value that need to be added
+ *
  * @param excelValue
- * @param table
- * @param fieldId
- * @param recordId
- * @param mode "append" | "merge_direct" | "compare_merge"
- * @returns null: no need to update, string: update value
+ * @param tableValue
+ * @param mode
+ * @param field
+ * @param fieldMap
+ * @returns
  */
 async function compareCellValue(
   excelValue: string,
@@ -602,7 +602,7 @@ async function getModifiedTime(
         },
       },
     })
-    throw e
+    return {}
   }
 }
 
@@ -823,13 +823,14 @@ async function getTableRecords(table: ITable) {
 }
 
 /**
- * Import excel data into bitable
+ * Import excel
  *
  * @param fieldsMaps
  * @param excelData
  * @param sheetIndex
  * @param index
  * @param mode
+ * @param options
  * @param lifeCircleHook
  */
 export async function importExcel(
@@ -1093,36 +1094,6 @@ export async function importExcel(
         const r = Math.random()
         console.time("getSameRecord " + excelIndexValue.join("|") + r)
         if (sameRecords.length >= 1) {
-          // tableRecords.push(
-          //   ...(await Promise.all(
-          //     sameRecords.map(async (i) => {
-          //       lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
-          //         stage: "analyzeRecords",
-          //         data: {
-          //           message: {
-          //             text: "importInfo.getSameRecord",
-          //             params: {
-          //               indexValue: excelIndexValue.join("|"),
-          //               recordId: i.recordId,
-          //             },
-          //           },
-          //         },
-          //       })
-          //       const cellValues = rootTableRecords[i.recordId]
-          //       const res = {
-          //         ...i,
-          //         tableValues: Object.keys(cellValues).reduce(
-          //           (pre, cur) => {
-          //             if (cellValues[cur] !== null) pre[cur] = cellValues[cur]
-          //             return pre
-          //           },
-          //           {} as Record<string, IOpenCellValue>,
-          //         ),
-          //       }
-          //       return res
-          //     }),
-          //   )),
-          // )
           for (const i of sameRecords) {
             lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
               stage: "analyzeRecords",
@@ -1259,82 +1230,6 @@ export async function importExcel(
           result: undefined,
           status: TaskStatus.Wait,
         }
-        // const cells = (
-        //   await batchAnalyze(
-        //     fieldsMaps,
-        //     async (fieldMap) => {
-        //       if (!fieldMap.excel_field || !fieldMap.writable) return null
-        //       const excelValue = record[fieldMap.excel_field] ?? null
-        //       if (!excelValue) return null
-        //       const field = tables[fieldMap.table].fields[fieldMap.field.id]
-        //       lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
-        //         stage: "analyzeRecords",
-        //         data: {
-        //           message: {
-        //             text: "importInfo.compareRecordField",
-        //             params: {
-        //               fieldName: fieldMap.field.name,
-        //               fieldId: field.id,
-        //               indexValue: excelIndexValue.join("|"),
-        //             },
-        //           },
-        //         },
-        //       })
-        //       if (allowAction.add && !sameRecords.length) {
-        //         return await addStrategy(
-        //           record,
-        //           fieldMap,
-        //           tables,
-        //           indexes,
-        //           t,
-        //           lifeCircleHook,
-        //           taskItem,
-        //         )
-        //       }
-        //       if (!allowAction.update || !updateRecord) return null
-        //       const needLink = linkFieldType.includes(fieldMap.field.type)
-        //       const { linkConfig } = fieldMap
-        //       const { primaryKey } = linkConfig ?? {}
-        //       const tableValue =
-        //         updateRecord.tableValues[fieldMap.field.id] ?? null
-        //       if (
-        //         needLink &&
-        //         fieldMap.hasChildren &&
-        //         fieldMap.children?.length &&
-        //         primaryKey
-        //       ) {
-        //         if (mode === importModes.merge_direct || tableValue === null) {
-        //           return await linkStrategy(
-        //             excelValue,
-        //             fieldMap,
-        //             field,
-        //             tables,
-        //             indexes,
-        //             tasks,
-        //             lifeCircleHook,
-        //             taskItem,
-        //           )
-        //         }
-        //         if (mode === importModes.compare_merge && tableValue !== null) {
-        //           return null
-        //         }
-        //       }
-        //       if (!needLink) {
-        //         const cell = await compareCellValue(
-        //           excelValue,
-        //           tableValue,
-        //           mode,
-        //           field,
-        //           fieldMap,
-        //         )
-        //         if (cell) return cell
-        //       }
-        //       return null
-        //     },
-        //     parallel.fields,
-        //     interval.fields,
-        //   )
-        // ).filter((v) => v) as Array<ICell>
         const cells: Array<ICell | null> = []
         for (const fieldMap of fieldsMaps) {
           if (!fieldMap.excel_field || !fieldMap.writable) continue

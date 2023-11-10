@@ -7,6 +7,7 @@ import Components from "unplugin-vue-components/vite"
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers"
 import { Meta } from "./plugins/meta"
 import fs from "fs-extra"
+import { visualizer } from "rollup-plugin-visualizer"
 
 type Author = {
   name: string
@@ -87,7 +88,17 @@ export default ({ mode }) => {
         license: pkg.license,
         keywords: pkg.keywords,
       }),
+      visualizer({
+        gzipSize: true,
+        brotliSize: true,
+        emitFile: false,
+        open: false,
+      }),
     ],
+    define: {
+      __VUE_OPTIONS_API__: "false",
+      __VUE_PROD_DEVTOOLS__: "false",
+    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),

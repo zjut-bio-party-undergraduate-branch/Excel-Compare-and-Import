@@ -7,16 +7,21 @@ import {
 import type { fieldMap } from "@/types/types"
 import { Error, FieldNameList } from "@/utils"
 
-interface TranslatorOptions<T extends IField = any, K extends ICell = any> {
+interface TranslatorOptions<
+  T extends IField = any,
+  K extends ICell = any,
+  N = any,
+> {
   fieldType: FieldType
   translate: (
     value: string,
     field: T,
     config?: fieldMap["config"],
   ) => Promise<K>
-  refresh?: (type: fieldMap) => void
-  normalization?: (value: string, config?: fieldMap["config"]) => Promise<any>
+  refresh?: () => void
+  normalization?: (value: string, config?: fieldMap["config"]) => Promise<N>
   name: string
+  cache?: Record<string, any> | Array<any>
 }
 
 interface Translator extends TranslatorOptions {
@@ -39,6 +44,7 @@ export class CellTranslator {
   private refreshList: Function[] = []
   private normalizations: Record<number, Translator["normalization"]> = {}
   public supportTypes: FieldType[] = []
+  public caches: Record<string, any> = {}
 
   constructor(options: CellTranslatorOptions) {
     const { translators } = options
@@ -48,12 +54,15 @@ export class CellTranslator {
   }
 
   private registryTranslator(translator: TranslatorOptions) {
-    const { refresh, translate, normalization } = translator
+    const { refresh, translate, normalization, cache } = translator
     if (refresh) {
       this.refreshList.push(refresh)
     }
     if (normalization) {
       this.normalizations[translator.fieldType] = normalization
+    }
+    if (cache) {
+      this.caches[translator.fieldType] = cache
     }
     this.supportTypes.push(translator.fieldType)
     this.translators[translator.fieldType] = translate

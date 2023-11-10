@@ -66,4 +66,5 @@ export const DuplexTranslator = defineTranslator({
   name: "DuplexLink",
   normalization,
   refresh: refreshCache,
+  cache,
 })
