@@ -23,6 +23,8 @@ export const indexFieldType = [
 
 export const notSupportFields = [FieldType.Location, FieldType.Attachment]
 
+export const selectFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
+
 export const autoFields = [
   FieldType.CreatedTime,
   FieldType.ModifiedTime,

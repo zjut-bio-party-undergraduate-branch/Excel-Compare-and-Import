@@ -155,6 +155,10 @@ export const zh = {
     getRecordsModifiedTime: "正在获取表格记录修改时间",
     importComplete: "导入完成",
     getTableRecords: "正在获取表格 [{table}] 记录",
+    checkSelectFieldOptions:
+      "正在检查字段 {fieldName}[FieldId: {fieldId}] 的选项",
+    setSelectFieldOptions:
+      "字段 {fieldName}[FieldId: {fieldId}] 共有 {newOptionsNum} 个新选项，开始设置",
   },
   allowAction: {
     updateAndAdd: "更新已有记录并添加新记录",

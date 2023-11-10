@@ -220,8 +220,10 @@ export function useFieldConfig(
     ],
   }
 
-  const formatExamples: { [key: number]: (format: string) => string } = {
-    [FieldType.DateTime]: (format) => dayjs().format(format),
+  const formatExamples: {
+    [key: number]: (format: string | string[]) => string
+  } = {
+    [FieldType.DateTime]: (format) => dayjs().format(format as string),
   }
 
   const formatList: { [key: number]: string[] } = {

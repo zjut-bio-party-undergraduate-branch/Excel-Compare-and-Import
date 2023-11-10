@@ -6,6 +6,8 @@ import type {
   ITable,
   IModifiedTimeField,
   IOpenCellValue,
+  ISingleSelectField,
+  IMultiSelectField,
 } from "@lark-base-open/js-sdk"
 import { FieldType, bitable } from "@lark-base-open/js-sdk"
 import type {
@@ -29,7 +31,8 @@ import {
 } from "./helper"
 import type { lifeCircleEventParams } from "./lifeCircle"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
-import { Error, Log, Info } from "@/utils"
+import { Error, Log, Info, selectFieldType } from "@/utils"
+import { stage } from "@/components/import-info/utils"
 
 export const optionsFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
@@ -822,6 +825,69 @@ async function getTableRecords(table: ITable) {
   )
 }
 
+async function setOptions(
+  fieldMaps: fieldMap[],
+  fields: Record<string, IField>,
+  excelRecords: Array<Record<string, string>>,
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => void,
+) {
+  for (const i of fieldMaps) {
+    if (!selectFieldType.includes(i.field.type)) continue
+    const excelField = i.excel_field
+    if (!excelField) continue
+    lifeCircleHook(importLifeCircles.onReadFieldMap, {
+      stage: "readFieldMap",
+      data: {
+        message: {
+          text: "importInfo.checkSelectFieldOptions",
+          params: {
+            fieldName: i.field.name,
+            fieldId: i.field.id,
+          },
+        },
+      },
+    })
+    const values = excelRecords.map((v) => v[excelField]).filter(isNotEmpty)
+    const field = fields[i.field.id] as ISingleSelectField | IMultiSelectField
+    const tableOptions = (await field.getOptions()).map((v) => v.name)
+    const options = unique(
+      (
+        await Promise.all(
+          values.map(async (option) => {
+            return await cellTranslator.normalization(option, i)
+          }),
+        )
+      )
+        .filter(isNotEmpty)
+        .flat(),
+    )
+    const newOptions = options.filter((v) => !tableOptions.includes(v))
+    if (newOptions.length) {
+      lifeCircleHook(importLifeCircles.onReadFieldMap, {
+        stage: "readFieldMap",
+        data: {
+          message: {
+            text: "importInfo.setSelectFieldOptions",
+            params: {
+              fieldName: i.field.name,
+              fieldId: i.field.id,
+              newOptionsNum: String(newOptions.length),
+            },
+          },
+        },
+      })
+      await field.addOptions(
+        newOptions.map((v) => ({
+          name: v,
+        })),
+      )
+    }
+  }
+}
+
 /**
  * Import excel data into bitable
  *
@@ -893,6 +959,8 @@ export async function importExcel(
     `,
   })
 
+  const excelRecords = excelData.sheets[sheetIndex].tableData.records
+
   /**
    * Collected tables
    */
@@ -931,6 +999,12 @@ export async function importExcel(
       : undefined
     modifiedTime = await getModifiedTime(rootTable, rootModifiedTimeField)
   }
+  await setOptions(
+    fieldsMaps,
+    tables[fieldsMaps[0].table].fields,
+    excelRecords,
+    lifeCircleHook,
+  )
   const indexes: Record<
     string,
     {
@@ -969,7 +1043,7 @@ export async function importExcel(
   })
 
   const tasks: Task[] = []
-  const excelRecords = excelData.sheets[sheetIndex].tableData.records
+
   lifeCircleHook(importLifeCircles.beforeAnalyzeRecords, {
     stage: "analyzeRecords",
     data: {
