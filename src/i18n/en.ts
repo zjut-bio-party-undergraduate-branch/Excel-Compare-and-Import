@@ -167,8 +167,8 @@ export const en = {
   },
   allowAction: {
     updateAndAdd: "Update same records and add new records",
-    update: " Only update same records",
-    add: "Only add new records",
+    onlyUpdate: " Only update same records",
+    onlyAdd: "Only add new records",
   },
   updateMode: {
     saveMost: "Save the record with the most non-empty fields",

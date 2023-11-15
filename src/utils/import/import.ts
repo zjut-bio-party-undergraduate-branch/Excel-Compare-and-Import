@@ -30,9 +30,7 @@ import {
 } from "./helper"
 import type { lifeCircleEventParams } from "./lifeCircle"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
-import { Error, Log, Info, selectFieldType } from "@/utils"
-
-const optionsFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
+import { Error, Log, Info, SelectFieldType, linkFieldType } from "@/utils"
 
 /**
  * Batch processing
@@ -217,7 +215,6 @@ async function deleteRecords(
       tasks.forEach((task) => {
         task.status = TaskStatus.Error
       })
-      // console.log(e)
       lifeCircleHook(importLifeCircles.onDeleteRecords, {
         stage: "deleteRecords",
         data: {
@@ -832,7 +829,7 @@ async function setOptions(
   ) => void,
 ) {
   for (const i of fieldMaps) {
-    if (!selectFieldType.includes(i.field.type)) continue
+    if (!SelectFieldType.includes(i.field.type)) continue
     const excelField = i.excel_field
     if (!excelField) continue
     lifeCircleHook(importLifeCircles.onReadFieldMap, {
