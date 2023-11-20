@@ -264,10 +264,20 @@ interface DownLoadFileOptions {
  * @returns
  */
 export async function downLoadFile(url: string, options?: DownLoadFileOptions) {
-  const res = await fetch(url)
+  const { fetchOptions } = options ?? {}
+  const { method } = fetchOptions ?? {}
+  if (!validateUrl(url)) {
+    throw new Error("Invalid url")
+  }
+  if (method === "GET") {
+    delete fetchOptions?.body
+  }
+  const res = await fetch(url, fetchOptions)
+  console.log(res)
   if (!res.ok) {
     return null
   }
+  console.log(res)
   const reader = res.body?.getReader()
   if (!reader) return null
   const total = Number(res.headers.get("Content-Length"))

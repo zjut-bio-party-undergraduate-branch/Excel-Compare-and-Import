@@ -107,6 +107,8 @@ export interface Task<T = any> {
   target?: Task
   recordId?: string
   asyncField?: fieldMap
+  value?: string
+  field?: IField
 }
 
 export enum importModes {

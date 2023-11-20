@@ -90,10 +90,18 @@ const Row = ({ cells, rowData }) => {
         style: "padding: 1.5rem;",
       },
       [
-        h("pre", null, rowData.detail),
         h(
           "pre",
-          null,
+          {
+            style: "text-wrap: wrap;",
+          },
+          rowData.detail,
+        ),
+        h(
+          "pre",
+          {
+            style: "text-wrap: wrap;",
+          },
           rowData.error
             ? JSON.stringify(
                 rowData.error,
@@ -111,14 +119,14 @@ Row.inheritAttrs = false
 </script>
 
 <template>
-  <el-scrollbar max-height="260px">
+  <el-scrollbar max-height="90vh">
     <el-checkbox-group v-model="showType">
       <el-checkbox label="log" />
       <el-checkbox label="info" />
       <el-checkbox label="warn" />
       <el-checkbox label="error" />
     </el-checkbox-group>
-    <el-auto-resizer style="height: 260px">
+    <el-auto-resizer style="height: 70vh">
       <template #default="{ width, height }">
         <el-table-v2
           :columns="columns"

@@ -161,7 +161,7 @@ onMounted(async () => {
             </template>
             <el-link
               target="_blank"
-              href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc?hideTemplate=true&lang=zh&noNeedJsSDKSession=true&onboarding=0&opendoc=1&opendocHeaderHeight=52&opendocLoading=positive&opendocVersion=0.0.3&shwm=true#FWJjdYZnSoWfH5xCvegchMxRnxh"
+              href="https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc#GOqRdJLfmoZsnWxuUvscair3nRe"
             >
               <el-icon><QuestionFilled /></el-icon>
             </el-link>

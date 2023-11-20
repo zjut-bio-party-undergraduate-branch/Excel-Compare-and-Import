@@ -40,7 +40,7 @@ interface TranslatorOptions<
   refresh?: () => void
   normalization: (value: string, config?: fieldMap["config"]) => Promise<N>
   name: string
-  cache?: Record<string, any> | Array<any>
+  // cache?: Record<string, any> | Array<any>
   roles?: Array<FieldRole>
   asyncMethod?: (
     options: AsyncParams,
@@ -92,13 +92,9 @@ export class CellTranslator {
   }
 
   private registryTranslator(translator: TranslatorOptions) {
-    const { refresh, translate, normalization, cache, asyncMethod, roles } =
-      translator
+    const { refresh, translate, normalization, asyncMethod, roles } = translator
     if (refresh && typeof refresh === "function") {
       this.refreshList.push(refresh)
-    }
-    if (cache) {
-      this.caches[translator.fieldType] = cache
     }
     if (asyncMethod && typeof asyncMethod === "function") {
       this.asyncMethods[translator.fieldType] = asyncMethod
@@ -166,6 +162,7 @@ export class CellTranslator {
     if (!asyncMethod) {
       return
     }
-    return asyncMethod(options, config ?? fieldMap.config)
+    console.log("asyncMethod", asyncMethod)
+    return await asyncMethod(options, config ?? fieldMap.config)
   }
 }

@@ -429,6 +429,8 @@ async function asyncStrategy(
     status: TaskStatus.Wait,
     target: linkTarget,
     asyncField: fieldMap,
+    value,
+    field,
   } as Task
   tasks.push(task)
 }
@@ -564,18 +566,6 @@ async function addStrategy(
   const value = record[fieldMap.excel_field] ?? null
   if (!value) return null
   const field = tables[fieldMap.table].fields[fieldMap.field.id]
-  if (cellTranslator.asyncTypes.includes(fieldMap.field.type)) {
-    await asyncStrategy(
-      value,
-      fieldMap,
-      field,
-      tables,
-      linkIndexes,
-      tasks,
-      lifeCircleHook,
-      linkTarget,
-    )
-  }
   const needLink = linkFieldType.includes(fieldMap.field.type)
   const { linkConfig } = fieldMap
   const { primaryKey } = linkConfig ?? {}
@@ -596,10 +586,23 @@ async function addStrategy(
       linkTarget,
     )
   }
+  if (cellTranslator.asyncTypes.includes(fieldMap.field.type)) {
+    await asyncStrategy(
+      value,
+      fieldMap,
+      field,
+      tables,
+      linkIndexes,
+      tasks,
+      lifeCircleHook,
+      linkTarget,
+    )
+  }
   if (!needLink) {
     const cell = await cellTranslator.getCell(field, fieldMap, value)
     if (cell) return cell
   }
+
   return null
 }
 
@@ -1205,8 +1208,8 @@ export async function importExcel(
           id: string
           tableValues: Record<string, IOpenCellValue>
         } | null = null
-        const r = Math.random()
-        console.time("getSameRecord " + excelIndexValue.join("|") + r)
+        // const r = Math.random()
+        // console.time("getSameRecord " + excelIndexValue.join("|") + r)
         if (sameRecords.length >= 1) {
           for (const i of sameRecords) {
             lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
@@ -1333,7 +1336,7 @@ export async function importExcel(
             }
           }
         }
-        console.timeEnd("getSameRecord " + excelIndexValue.join("|") + r)
+        // console.timeEnd("getSameRecord " + excelIndexValue.join("|") + r)
         const taskItem: Task = {
           table: {
             id: rootTable.id,
@@ -1402,6 +1405,18 @@ export async function importExcel(
               cells.push(cell)
             }
           }
+          if (cellTranslator.asyncTypes.includes(fieldMap.field.type)) {
+            await asyncStrategy(
+              excelValue,
+              fieldMap,
+              field,
+              tables,
+              indexes,
+              tasks,
+              lifeCircleHook,
+              taskItem,
+            )
+          }
           if (!needLink) {
             const cell = await compareCellValue(
               excelValue,
@@ -1421,7 +1436,7 @@ export async function importExcel(
             error: 0,
           },
         })
-        if (!cells.length) return t
+        // if (!cells.length) return t
         if (tableRecords.length) {
           taskItem.action = TaskAction.Update
           const fields: IRecord["fields"] = {}
@@ -1454,7 +1469,7 @@ export async function importExcel(
   })
 
   const groupedTasks = groupBy(tasks, "action")
-  console.log("groupedTasks", groupedTasks)
+
   const asyncTasks = groupedTasks[TaskAction.Async]
   if (asyncTasks && asyncTasks.length) {
     const groupedAsyncTasks = groupBy(asyncTasks, "asyncField.field.type")
@@ -1471,7 +1486,7 @@ export async function importExcel(
       stage: "asyncData",
       data: {
         progress: true,
-        number: sum(Object.values(data).map((i) => i.length)),
+        number: asyncTasks.length,
         success: [],
         error: [],
       },
@@ -1480,18 +1495,14 @@ export async function importExcel(
       const tasks = groupedAsyncTasks[i]
       await cellTranslator.asyncMethod(
         {
-          data: tasks.map((k) => k.data).flat(),
+          data: data[i],
           onProgress: (progress) => {
-            const { loaded, total, message = "" } = progress
+            const { message = "", loaded, total } = progress
             lifeCircleHook(importLifeCircles.onAsyncData, {
               stage: "asyncData",
               data: {
-                progress: true,
-                number: total,
-                success: loaded,
-                error: [],
                 message: {
-                  text: message,
+                  text: message + `\n${loaded}/${total}`,
                 },
               },
             })
@@ -1500,6 +1511,26 @@ export async function importExcel(
         tasks[0].asyncField as fieldMap,
       )
     }
+    const tableGroupedTasks = groupBy(asyncTasks, "table.id")
+    for (const i of Object.keys(tableGroupedTasks)) {
+      const table = tables[i]
+      const taskList = tableGroupedTasks[i]
+      const fieldGrouped = groupBy(taskList, "asyncField.field.id")
+      for (const k of Object.keys(fieldGrouped)) {
+        const field = table.fields[k]
+        for (const t of fieldGrouped[k]) {
+          const cell = await cellTranslator.getCell(
+            field,
+            t.asyncField as fieldMap,
+            t.value as string,
+          )
+          if (cell) t.target?.data.push(cell)
+        }
+      }
+    }
+    lifeCircleHook(importLifeCircles.onAsyncDataEnd, {
+      stage: "asyncData",
+    })
   }
   const deleteTasks = groupedTasks[TaskAction.Delete]
   if (deleteTasks && allowAction.delete && deleteTasks.length) {

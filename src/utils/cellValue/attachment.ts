@@ -1,4 +1,10 @@
-import { type IAttachmentField, FieldType } from "@lark-base-open/js-sdk"
+import {
+  type IAttachmentField,
+  FieldType,
+  bitable,
+  UploadFileTaskStatus,
+  IOpenAttachment,
+} from "@lark-base-open/js-sdk"
 import { defineTranslator, type AsyncParams, FieldRole } from "./cell"
 import { downLoadFile, unique, validateUrl } from "@/utils"
 import type { fieldMap } from "@/types/types"
@@ -17,6 +23,8 @@ interface FileCacheItem {
   total: number
   loaded: number
   status: DownloadStatus
+  token: string
+  timeStamp: number
 }
 
 let cache: Record<string, FileCacheItem> = {}
@@ -59,6 +67,7 @@ function processDownloadFiles(
           total: 0,
           loaded: 0,
           status: DownloadStatus.Waiting,
+          token: "",
         } as FileCacheItem)
       return item
     })
@@ -84,11 +93,12 @@ function processDownloadFiles(
       pendingItems.push(item)
       downLoadFile(item.url, {
         onProgress: (p) => {
+          console.log("processDownloadFiles", p)
           item.loaded = p.loaded
           item.total = p.total
           onProgress?.({
             total,
-            loaded: ++loaded,
+            loaded,
             message: pendingItems
               .map(
                 (i) =>
@@ -105,19 +115,25 @@ function processDownloadFiles(
           item.file = file
           item.name = file?.name ?? ""
           item.status = DownloadStatus.Downloaded
+          console.log("res", item, file)
         })
         .catch((e) => {
           item.status = DownloadStatus.Error
           onError?.(e)
+          console.error(e)
         })
         .finally(() => {
           runningNum--
+          loaded++
+          console.log("cache", cache)
           pendingItems.splice(pendingItems.indexOf(item), 1)
+          console.log("cache", cache)
           _run()
         })
     }
   }
   return new Promise((resolve) => {
+    console.log("processDownloadFiles", cacheItems)
     _run()
     const timer = setInterval(() => {
       if (!cacheItems.length) {
@@ -140,9 +156,15 @@ async function attachment(value: string, field: IAttachmentField) {
     .map((url) => {
       const item = cache[url]
       if (!item) return null
-      return item.file
+      return {
+        name: item.name,
+        token: item.token,
+        size: item.total,
+        type: item.file?.type ?? "",
+        timeStamp: new Date().getTime(),
+      }
     })
-    .filter((item) => item) as File[]
+    .filter((item) => item) as IOpenAttachment[]
   if (!files) return null
   return await field.createCell(files)
 }
@@ -160,9 +182,38 @@ export const AttachmentTranslator = defineTranslator({
     const { requestConfig } = config || {}
     if (!urls.length) return
     await processDownloadFiles(urls, { onProgress, onError, requestConfig })
+    const hasFileItems = Object.values(cache).filter((item) => item.file)
+    const files = hasFileItems.map((item) => item.file) as File[]
+    const off = bitable.base.onUploadStatusChange(({ data }) => {
+      const { tasks } = data
+      const { list } = tasks
+      onProgress?.({
+        loaded: list.filter((t) => t.status === UploadFileTaskStatus.Success)
+          .length,
+        total: list.length,
+        message: list
+          .filter((t) => t.status === UploadFileTaskStatus.Pending)
+          .map(
+            (t) =>
+              `Uploading ${t.name} ${((t.uploadedSize / t.size) * 100).toFixed(
+                2,
+              )}`,
+          )
+          .join("\n"),
+      })
+    })
+    const tokens = await bitable.base.batchUploadFile(files)
+    let index = 0
+    const items = Object.values(hasFileItems)
+    for (const t in items) {
+      const item = items[t]
+      if (!item.file) continue
+      item.token = tokens[index]
+      index += 1
+    }
+    off()
   },
   roles: [FieldRole.ASYNC],
-  cache,
   refresh: () => {
     cache = {}
   },
