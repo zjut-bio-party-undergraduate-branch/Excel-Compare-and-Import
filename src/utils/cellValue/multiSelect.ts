@@ -1,5 +1,5 @@
 import { type IMultiSelectField, FieldType } from "@lark-base-open/js-sdk"
-import { defineTranslator } from "./cell"
+import { defineTranslator, FieldRole } from "./cell"
 import type { fieldMap } from "@/types/types"
 
 export const defaultSeparator = ","
@@ -31,4 +31,5 @@ export const MultiSelectTranslator = defineTranslator({
   translate: multiSelect,
   normalization,
   name: "MultiSelect",
+  roles: [FieldRole.HAS_OPTIONS],
 })

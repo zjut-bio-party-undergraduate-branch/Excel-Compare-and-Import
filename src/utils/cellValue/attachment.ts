@@ -1,6 +1,7 @@
 import { type IAttachmentField, FieldType } from "@lark-base-open/js-sdk"
-import { defineTranslator, type AsyncParams } from "./cell"
+import { defineTranslator, type AsyncParams, FieldRole } from "./cell"
 import { downLoadFile, unique, validateUrl } from "@/utils"
+import type { fieldMap } from "@/types/types"
 
 enum DownloadStatus {
   Waiting = -1,
@@ -30,12 +31,20 @@ const setCache = (item: FileCacheItem | Array<FileCacheItem>) => {
   cache[item.url] = item
 }
 
+/**
+ * Download files
+ *
+ * @param urls
+ * @param options
+ * @returns
+ */
 function processDownloadFiles(
   urls: Array<string>,
   options?: {
-    onProgress?: AsyncParams<string, FileCacheItem>["onProgress"]
-    onError?: AsyncParams<string, FileCacheItem>["onError"]
+    onProgress?: AsyncParams<string>["onProgress"]
+    onError?: AsyncParams<string>["onError"]
     parallel?: number
+    requestConfig?: fieldMap["config"]["requestConfig"]
   },
 ) {
   const cacheItems = unique(urls)
@@ -80,9 +89,17 @@ function processDownloadFiles(
           onProgress?.({
             total,
             loaded: ++loaded,
-            pending: pendingItems,
+            message: pendingItems
+              .map(
+                (i) =>
+                  `Downloading ${i.url} ${((i.loaded / i.total) * 100).toFixed(
+                    2,
+                  )}%`,
+              )
+              .join("\n"),
           })
         },
+        fetchOptions: options?.requestConfig,
       })
         .then((file) => {
           item.file = file
@@ -111,15 +128,23 @@ function processDownloadFiles(
   })
 }
 
-async function normalization(value: string) {
-  const file = cache[value].file
-  return file
+async function normalization(value: string, config?: fieldMap["config"]) {
+  const { separator = "," } = config || {}
+  const urls = value.split(separator)
+  return urls
 }
 
 async function attachment(value: string, field: IAttachmentField) {
-  const file = await normalization(value)
-  if (!file) return null
-  return await field.createCell(file)
+  const urls = await normalization(value)
+  const files = urls
+    .map((url) => {
+      const item = cache[url]
+      if (!item) return null
+      return item.file
+    })
+    .filter((item) => item) as File[]
+  if (!files) return null
+  return await field.createCell(files)
 }
 
 export const AttachmentTranslator = defineTranslator({
@@ -127,11 +152,16 @@ export const AttachmentTranslator = defineTranslator({
   translate: attachment,
   normalization: async (value: string) => value,
   name: "Attachment",
-  asyncMethod: async (options: AsyncParams<string, FileCacheItem>) => {
+  asyncMethod: async (
+    options: AsyncParams<string>,
+    config?: fieldMap["config"],
+  ) => {
     const { data: urls, onProgress, onError } = options
+    const { requestConfig } = config || {}
     if (!urls.length) return
-    await processDownloadFiles(unique(urls), { onProgress, onError })
+    await processDownloadFiles(urls, { onProgress, onError, requestConfig })
   },
+  roles: [FieldRole.ASYNC],
   cache,
   refresh: () => {
     cache = {}

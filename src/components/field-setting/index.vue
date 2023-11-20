@@ -56,12 +56,17 @@ defineExpose({
   <el-dialog
     v-model="isVisible"
     lock-scroll
-    width="75%"
+    fullscreen
     :title="t('h.chooseOrCreateFormat')"
   >
-    <el-form>
-      <component :is="configForm" />
-    </el-form>
+    <el-scrollbar max-height="60vh">
+      <div style="padding: 10px">
+        <el-form>
+          <component :is="configForm" />
+        </el-form>
+      </div>
+    </el-scrollbar>
+
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="isVisible = false">{{

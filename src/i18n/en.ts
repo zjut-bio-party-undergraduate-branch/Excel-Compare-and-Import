@@ -42,6 +42,9 @@ export const en = {
       allowAction: "Allow Action",
       whenTwoSame: "When Two or More Records are the Same",
       saveFirst: "Save First",
+      requestConfig: "Request Config",
+      requestMethod: "Method",
+      requestHeaders: "Headers",
     },
   },
   table: {

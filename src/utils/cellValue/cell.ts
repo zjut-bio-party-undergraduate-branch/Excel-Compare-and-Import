@@ -7,19 +7,23 @@ import {
 import type { fieldMap } from "@/types/types"
 import { Error, FieldNameList } from "@/utils"
 
-interface Progress<C extends Record<string, any> = Record<string, any>> {
+interface Progress {
   total: number
   loaded: number
-  pending?: Array<Progress & C>
+  message?: string
 }
 
-export interface AsyncParams<
-  T extends any = any,
-  C extends Record<string, any> = Record<string, any>,
-> {
+export interface AsyncParams<T extends any = any> {
   data: Array<T>
-  onProgress?: (progress: Progress<C>) => void
+  onProgress?: (progress: Progress) => void
   onError?: (error: any) => void
+}
+
+export enum FieldRole {
+  AUTO = "auto",
+  HAS_OPTIONS = "hasOptions",
+  ASYNC = "async",
+  NORMAL = "normal",
 }
 
 interface TranslatorOptions<
@@ -28,16 +32,16 @@ interface TranslatorOptions<
   N = any,
 > {
   fieldType: FieldType
-  translate: (
+  translate?: (
     value: string,
     field: T,
     config?: fieldMap["config"],
   ) => Promise<K | null>
   refresh?: () => void
-  normalization?: (value: string, config?: fieldMap["config"]) => Promise<N>
+  normalization: (value: string, config?: fieldMap["config"]) => Promise<N>
   name: string
   cache?: Record<string, any> | Array<any>
-  async?: boolean
+  roles?: Array<FieldRole>
   asyncMethod?: (
     options: AsyncParams,
     config?: fieldMap["config"],
@@ -52,7 +56,11 @@ interface Translator extends TranslatorOptions {
 export function defineTranslator<T extends IField, K extends ICell>(
   option: TranslatorOptions<T, K>,
 ) {
-  return option as Translator
+  const { roles } = option
+  option.roles = [...(roles ?? []), FieldRole.NORMAL]
+  return {
+    ...option,
+  }
 }
 
 interface CellTranslatorOptions {
@@ -67,6 +75,14 @@ export class CellTranslator {
   public supportTypes: Array<FieldType> = []
   public caches: Record<string, any> = {}
   public asyncTypes: Array<FieldType> = []
+  public autoTypes: Array<FieldType> = []
+  public hasOptionsTypes: Array<FieldType> = []
+  private roleMap: Record<FieldRole, Array<FieldType>> = {
+    [FieldRole.AUTO]: this.autoTypes,
+    [FieldRole.HAS_OPTIONS]: this.hasOptionsTypes,
+    [FieldRole.ASYNC]: this.asyncTypes,
+    [FieldRole.NORMAL]: this.supportTypes,
+  }
 
   constructor(options: CellTranslatorOptions) {
     const { translators } = options
@@ -76,30 +92,26 @@ export class CellTranslator {
   }
 
   private registryTranslator(translator: TranslatorOptions) {
-    const {
-      refresh,
-      translate,
-      normalization,
-      cache,
-      async = false,
-      asyncMethod,
-    } = translator
+    const { refresh, translate, normalization, cache, asyncMethod, roles } =
+      translator
     if (refresh && typeof refresh === "function") {
       this.refreshList.push(refresh)
-    }
-    if (normalization && typeof normalization === "function") {
-      this.normalizations[translator.fieldType] = normalization
     }
     if (cache) {
       this.caches[translator.fieldType] = cache
     }
-    if (async) {
-      this.asyncTypes.push(translator.fieldType)
-      if (asyncMethod && typeof asyncMethod === "function")
-        this.asyncMethods[translator.fieldType] = asyncMethod
+    if (asyncMethod && typeof asyncMethod === "function") {
+      this.asyncMethods[translator.fieldType] = asyncMethod
     }
-    this.supportTypes.push(translator.fieldType)
-    this.translators[translator.fieldType] = translate
+    if (roles) {
+      roles.forEach((role) => {
+        this.roleMap[role].push(translator.fieldType)
+      })
+    }
+    if (translate && typeof translate === "function") {
+      this.translators[translator.fieldType] = translate
+    }
+    this.normalizations[translator.fieldType] = normalization
   }
 
   public async getCell(
@@ -132,6 +144,7 @@ export class CellTranslator {
       refresh()
     })
   }
+
   public async normalization(
     value: string,
     fieldMap: fieldMap,
@@ -153,6 +166,6 @@ export class CellTranslator {
     if (!asyncMethod) {
       return
     }
-    return asyncMethod(options)
+    return asyncMethod(options, config ?? fieldMap.config)
   }
 }

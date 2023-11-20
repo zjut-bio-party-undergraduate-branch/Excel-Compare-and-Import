@@ -24,6 +24,14 @@ const fieldsConfig: { [key: number]: fieldMap["config"] } = {
   [FieldType.DuplexLink]: {
     separator: duplexLinkSeparator,
   },
+  [FieldType.Attachment]: {
+    separator: ",",
+    requestConfig: {
+      method: "GET",
+      headers: [],
+      body: "",
+    },
+  },
 }
 
 export function configField(type: FieldType) {

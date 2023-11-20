@@ -42,6 +42,9 @@ export const zh = {
       allowAction: "允许操作",
       whenTwoSame: "当两条以上记录相同时",
       saveFirst: "优先保留",
+      requestConfig: "请求配置",
+      requestMethod: "请求方法",
+      requestHeaders: "请求头",
     },
   },
   table: {

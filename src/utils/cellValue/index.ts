@@ -18,6 +18,7 @@ import { UserTranslator } from "./user"
 import { SingleLinkTranslator } from "./singleLink"
 import { DuplexTranslator } from "./duplexLink"
 import { NumberTranslator } from "./number"
+import { AttachmentTranslator } from "./attachment"
 import { CellTranslator } from "./cell"
 
 export const cellTranslator = new CellTranslator({
@@ -37,6 +38,7 @@ export const cellTranslator = new CellTranslator({
     SingleLinkTranslator,
     DuplexTranslator,
     NumberTranslator,
+    AttachmentTranslator,
   ],
 })
 

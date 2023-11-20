@@ -31,6 +31,7 @@ import {
 import type { lifeCircleEventParams } from "./lifeCircle"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
 import { Error, Log, Info, SelectFieldType, linkFieldType } from "@/utils"
+import { sum } from "mathjs"
 
 /**
  * Batch processing
@@ -395,6 +396,43 @@ async function batchAnalyze<T, K>(
   return res
 }
 
+async function asyncStrategy(
+  value: string,
+  fieldMap: fieldMap,
+  field: IField,
+  tables: Record<IWidgetTable["id"], BitableTable>,
+  linkIndexes: Record<
+    string,
+    {
+      indexValue: (string | string[])[]
+      table: string
+      recordId: string
+    }[]
+  >,
+  tasks: Task[],
+  lifeCircleHook: (
+    stage: importLifeCircles,
+    params: lifeCircleEventParams,
+  ) => void,
+  linkTarget?: Task,
+) {
+  if (!cellTranslator.asyncTypes.includes(fieldMap.field.type)) return null
+  const data = [await cellTranslator.normalization(value, fieldMap)]
+  const task = {
+    table: {
+      name: tables[fieldMap.table].name,
+      id: fieldMap.table,
+    },
+    action: TaskAction.Async,
+    data,
+    result: undefined,
+    status: TaskStatus.Wait,
+    target: linkTarget,
+    asyncField: fieldMap,
+  } as Task
+  tasks.push(task)
+}
+
 async function linkStrategy(
   value: string,
   fieldMap: fieldMap,
@@ -526,6 +564,18 @@ async function addStrategy(
   const value = record[fieldMap.excel_field] ?? null
   if (!value) return null
   const field = tables[fieldMap.table].fields[fieldMap.field.id]
+  if (cellTranslator.asyncTypes.includes(fieldMap.field.type)) {
+    await asyncStrategy(
+      value,
+      fieldMap,
+      field,
+      tables,
+      linkIndexes,
+      tasks,
+      lifeCircleHook,
+      linkTarget,
+    )
+  }
   const needLink = linkFieldType.includes(fieldMap.field.type)
   const { linkConfig } = fieldMap
   const { primaryKey } = linkConfig ?? {}
@@ -905,6 +955,7 @@ export async function importExcel(
     params: lifeCircleEventParams,
   ) => void = runLifeCircleEvent,
 ) {
+  console.log(cellTranslator)
   lifeCircleHook(importLifeCircles.onStart, {
     stage: "start",
   })
@@ -1063,24 +1114,19 @@ export async function importExcel(
           result: undefined,
           status: TaskStatus.Wait,
         }
-        const cells = (
-          await batchAnalyze(
-            fieldsMaps,
-            async (fieldMap) => {
-              return await addStrategy(
-                record,
-                fieldMap,
-                tables,
-                indexes,
-                t,
-                lifeCircleHook,
-                addTask,
-              )
-            },
-            parallel.fields,
-            interval.fields,
+        const cells: Array<ICell> = []
+        for (const fieldMap of fieldsMaps) {
+          const cell = await addStrategy(
+            record,
+            fieldMap,
+            tables,
+            indexes,
+            t,
+            lifeCircleHook,
+            addTask,
           )
-        ).filter((v) => v) as Array<ICell>
+          if (cell) cells.push(cell)
+        }
         lifeCircleHook(importLifeCircles.onAnalyzeRecords, {
           stage: "analyzeRecords",
           data: {
@@ -1317,8 +1363,8 @@ export async function importExcel(
             },
           })
           if (allowAction.add && !sameRecords.length) {
-            const r = Math.random()
-            console.time("addStrategy " + r)
+            // const r = Math.random()
+            // console.time("addStrategy " + r)
             const cell = await addStrategy(
               record,
               fieldMap,
@@ -1328,7 +1374,7 @@ export async function importExcel(
               lifeCircleHook,
               taskItem,
             )
-            console.timeEnd("addStrategy " + r)
+            // console.timeEnd("addStrategy " + r)
             cells.push(cell)
           }
           if (!allowAction.update || !updateRecord) continue
@@ -1408,6 +1454,53 @@ export async function importExcel(
   })
 
   const groupedTasks = groupBy(tasks, "action")
+  console.log("groupedTasks", groupedTasks)
+  const asyncTasks = groupedTasks[TaskAction.Async]
+  if (asyncTasks && asyncTasks.length) {
+    const groupedAsyncTasks = groupBy(asyncTasks, "asyncField.field.type")
+    console.log("groupedAsyncTasks", groupedAsyncTasks)
+    const toAsyncTypes = Object.keys(groupedAsyncTasks)
+    const data = toAsyncTypes.reduce(
+      (pre, cur) => {
+        pre[cur] = groupedAsyncTasks[cur].map((i) => i.data).flat()
+        return pre
+      },
+      {} as Record<string, any[]>,
+    )
+    lifeCircleHook(importLifeCircles.beforeAsyncData, {
+      stage: "asyncData",
+      data: {
+        progress: true,
+        number: sum(Object.values(data).map((i) => i.length)),
+        success: [],
+        error: [],
+      },
+    })
+    for (const i of toAsyncTypes) {
+      const tasks = groupedAsyncTasks[i]
+      await cellTranslator.asyncMethod(
+        {
+          data: tasks.map((k) => k.data).flat(),
+          onProgress: (progress) => {
+            const { loaded, total, message = "" } = progress
+            lifeCircleHook(importLifeCircles.onAsyncData, {
+              stage: "asyncData",
+              data: {
+                progress: true,
+                number: total,
+                success: loaded,
+                error: [],
+                message: {
+                  text: message,
+                },
+              },
+            })
+          },
+        },
+        tasks[0].asyncField as fieldMap,
+      )
+    }
+  }
   const deleteTasks = groupedTasks[TaskAction.Delete]
   if (deleteTasks && allowAction.delete && deleteTasks.length) {
     lifeCircleHook(importLifeCircles.beforeDeleteRecords, {
@@ -1432,7 +1525,12 @@ export async function importExcel(
   }
 
   const addTasks = groupedTasks[TaskAction.Add]
-  if (addTasks && allowAction.add && addTasks && addTasks.length) {
+  if (
+    addTasks &&
+    (mode === importModes.append || allowAction.add) &&
+    addTasks &&
+    addTasks.length
+  ) {
     lifeCircleHook(importLifeCircles.beforeAddRecords, {
       stage: "addRecords",
       data: {
