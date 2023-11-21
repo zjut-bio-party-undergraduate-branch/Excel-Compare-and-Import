@@ -55,8 +55,8 @@ export const en = {
     tip: {
       common: "Drag and drop file here or click to upload",
       em: "click to upload",
-      fileLimit: "xlsx/xls file",
-      fileSupport: "xlsx/xls file support",
+      fileLimit: "xlsx/xls/csv file",
+      fileSupport: "xlsx/xls/csv file support",
     },
   },
   mode: {

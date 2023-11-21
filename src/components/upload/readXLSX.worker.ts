@@ -1,9 +1,16 @@
 import * as XLSX from "xlsx"
+import * as cptable from "xlsx/dist/cpexcel.full.mjs"
 import type { SheetInfo } from "@/types/types"
+
+XLSX.set_cptable(cptable)
 
 function readXLSX(data: string, name: string) {
   try {
-    const workbook = XLSX.read(data, { type: "binary" })
+    const workbook = XLSX.read(data, {
+      type: "binary",
+      raw: true,
+      codepage: 65001,
+    })
     const sheets = workbook.SheetNames.map((name) => {
       const sheet = workbook.Sheets[name]
       const tableData = XLSX.utils.sheet_to_json(sheet, {
