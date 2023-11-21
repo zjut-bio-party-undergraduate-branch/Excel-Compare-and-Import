@@ -3,7 +3,7 @@ import {
   FieldType,
   bitable,
   UploadFileTaskStatus,
-  IOpenAttachment,
+  type IOpenAttachment,
 } from "@lark-base-open/js-sdk"
 import { defineTranslator, type AsyncParams, FieldRole } from "./cell"
 import { downLoadFile, unique, validateUrl } from "@/utils"
@@ -28,6 +28,13 @@ interface FileCacheItem {
 }
 
 let cache: Record<string, FileCacheItem> = {}
+let mobileCache: Record<
+  string,
+  {
+    isOnlyMobile: boolean
+    field: IAttachmentField
+  }
+> = {}
 
 const setCache = (item: FileCacheItem | Array<FileCacheItem>) => {
   if (Array.isArray(item)) {
@@ -57,7 +64,7 @@ function processDownloadFiles(
 ) {
   const cacheItems = unique(urls)
     .map((url) => {
-      if (!validateUrl(url)) return
+      if (!url || !validateUrl(url)) return
       const item =
         cache[url] ||
         ({
@@ -78,6 +85,7 @@ function processDownloadFiles(
       )
     }) as Array<FileCacheItem>
   if (!cacheItems.length) return
+  console.log("processDownloadFiles", cacheItems)
   setCache(cacheItems)
   const { onProgress, parallel = 4, onError } = options ?? {}
   const total = cacheItems.length
@@ -145,6 +153,7 @@ function processDownloadFiles(
 }
 
 async function normalization(value: string, config?: fieldMap["config"]) {
+  if (!value) return null
   const { separator = "," } = config || {}
   const urls = value.split(separator)
   return urls
@@ -152,10 +161,23 @@ async function normalization(value: string, config?: fieldMap["config"]) {
 
 async function attachment(value: string, field: IAttachmentField) {
   const urls = await normalization(value)
+  const mobileCacheItem = mobileCache[field.id]
+  console.log("isMobile", mobileCacheItem)
+  if (mobileCacheItem === undefined) {
+    const cur = await field.getOnlyMobile()
+    mobileCache[field.id] = {
+      isOnlyMobile: cur,
+      field,
+    }
+    if (cur) {
+      await field.setOnlyMobile(false)
+    }
+  }
+  if (!urls || !urls.length) return await field.createCell([])
   const files = urls
     .map((url) => {
       const item = cache[url]
-      if (!item) return null
+      if (!item || !item.token) return null
       return {
         name: item.name,
         token: item.token,
@@ -165,7 +187,6 @@ async function attachment(value: string, field: IAttachmentField) {
       }
     })
     .filter((item) => item) as IOpenAttachment[]
-  if (!files) return null
   return await field.createCell(files)
 }
 
@@ -216,5 +237,13 @@ export const AttachmentTranslator = defineTranslator({
   roles: [FieldRole.ASYNC],
   refresh: () => {
     cache = {}
+    mobileCache = {}
+  },
+  reset: () => {
+    const items = Object.values(mobileCache)
+    for (const t in items) {
+      const item = items[t]
+      item.field.setOnlyMobile(item.isOnlyMobile)
+    }
   },
 })

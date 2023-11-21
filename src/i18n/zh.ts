@@ -162,6 +162,8 @@ export const zh = {
       "正在检查字段 {fieldName}[FieldId: {fieldId}] 的选项",
     setSelectFieldOptions:
       "字段 {fieldName}[FieldId: {fieldId}] 共有 {newOptionsNum} 个新选项，开始设置",
+    asyncData: "获取远程数据",
+    createCell: "创建表格 [{tableId}] 字段 [{fieldId}] 单元格",
   },
   allowAction: {
     updateAndAdd: "更新已有记录并添加新记录",

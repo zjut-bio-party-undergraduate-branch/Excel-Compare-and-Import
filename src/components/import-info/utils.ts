@@ -53,7 +53,6 @@ export function onStage(params: lifeCircleEventParams<Task>) {
     stageItem.error += typeof error === "number" ? error : error.length
   }
   if (message) {
-    console.log(message)
     stageItem.message = i18n.global.t(message.text, message.params ?? {})
   }
 }

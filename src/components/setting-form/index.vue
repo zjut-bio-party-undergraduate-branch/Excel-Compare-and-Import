@@ -5,7 +5,14 @@ import type { ITableMeta, IFieldMeta } from "@lark-base-open/js-sdk"
 import { importModes, UpdateMode } from "@/types/types"
 import type { ExcelDataInfo, fieldMap, ImportOptions } from "@/types/types"
 import type { TableColumnCtx } from "element-plus"
-import { Setting, Lock, Refresh, Key } from "@element-plus/icons-vue"
+import {
+  Setting,
+  Lock,
+  Refresh,
+  Key,
+  EditPen,
+  DeleteFilled,
+} from "@element-plus/icons-vue"
 import { indexFieldType, Log, Error, Warn } from "@/utils"
 import fieldSetting from "@/components/field-setting/index.vue"
 import linkSetting from "@/components/link-setting/index.vue"
@@ -441,20 +448,30 @@ defineExpose({
           style="display: inline; margin-left: 20px"
           class="el-form-item__content"
         >
-          <el-button
-            type="primary"
-            size="default"
-            @click="autoFill"
-          >
-            {{ t("button.autoFill") }}
-          </el-button>
-          <el-button
-            type="danger"
-            size="default"
-            @click="reset"
-          >
-            {{ t("button.clear") }}
-          </el-button>
+          <el-tooltip>
+            <template #content>
+              {{ t("button.autoFill") }}
+            </template>
+            <el-button
+              type="primary"
+              size="default"
+              @click="autoFill"
+            >
+              <el-icon><EditPen /></el-icon>
+            </el-button>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
+              {{ t("button.clear") }}
+            </template>
+            <el-button
+              type="danger"
+              size="default"
+              @click="reset"
+            >
+              <el-icon><DeleteFilled /></el-icon>
+            </el-button>
+          </el-tooltip>
         </div>
       </template>
       <el-table

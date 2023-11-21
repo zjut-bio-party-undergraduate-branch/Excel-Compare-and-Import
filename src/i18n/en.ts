@@ -167,6 +167,8 @@ export const en = {
       "Checking field {fieldName}[FieldId: {fieldId}] options",
     setSelectFieldOptions:
       "Field {fieldName}[FieldId: {fieldId}] has {newOptionsNum} new options, start setting",
+    asyncData: "Getting remote data",
+    createCell: "Creating cell of field [{fieldId}] in table [{tableId}]",
   },
   allowAction: {
     updateAndAdd: "Update same records and add new records",

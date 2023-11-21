@@ -40,12 +40,12 @@ interface TranslatorOptions<
   refresh?: () => void
   normalization: (value: string, config?: fieldMap["config"]) => Promise<N>
   name: string
-  // cache?: Record<string, any> | Array<any>
   roles?: Array<FieldRole>
   asyncMethod?: (
     options: AsyncParams,
     config?: fieldMap["config"],
   ) => Promise<N>
+  reset?: () => void
 }
 
 interface Translator extends TranslatorOptions {
@@ -70,6 +70,7 @@ interface CellTranslatorOptions {
 export class CellTranslator {
   private translators: Record<number, Translator["translate"]> = {}
   private refreshList: Array<Function> = []
+  private resetList: Array<Function> = []
   private normalizations: Record<number, Translator["normalization"]> = {}
   private asyncMethods: Record<number, Translator["asyncMethod"]> = {}
   public supportTypes: Array<FieldType> = []
@@ -92,21 +93,18 @@ export class CellTranslator {
   }
 
   private registryTranslator(translator: TranslatorOptions) {
-    const { refresh, translate, normalization, asyncMethod, roles } = translator
-    if (refresh && typeof refresh === "function") {
-      this.refreshList.push(refresh)
-    }
-    if (asyncMethod && typeof asyncMethod === "function") {
+    const { refresh, translate, normalization, asyncMethod, roles, reset } =
+      translator
+    if (refresh && typeof refresh === "function") this.refreshList.push(refresh)
+    if (asyncMethod && typeof asyncMethod === "function")
       this.asyncMethods[translator.fieldType] = asyncMethod
-    }
-    if (roles) {
+    if (roles)
       roles.forEach((role) => {
         this.roleMap[role].push(translator.fieldType)
       })
-    }
-    if (translate && typeof translate === "function") {
+    if (translate && typeof translate === "function")
       this.translators[translator.fieldType] = translate
-    }
+    if (reset && typeof reset === "function") this.resetList.push(reset)
     this.normalizations[translator.fieldType] = normalization
   }
 
@@ -164,5 +162,11 @@ export class CellTranslator {
     }
     console.log("asyncMethod", asyncMethod)
     return await asyncMethod(options, config ?? fieldMap.config)
+  }
+
+  public reset() {
+    this.resetList.forEach((reset) => {
+      reset()
+    })
   }
 }
