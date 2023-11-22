@@ -32,6 +32,12 @@ const fieldsConfig: { [key: number]: fieldMap["config"] } = {
       body: "",
     },
   },
+  [FieldType.ModifiedTime]: {
+    format: dateDefaultFormat,
+  },
+  [FieldType.CreatedTime]: {
+    format: dateDefaultFormat,
+  },
 }
 
 export function configField(type: FieldType) {
