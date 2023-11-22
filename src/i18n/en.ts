@@ -1,4 +1,7 @@
 export const en = {
+  alert: {
+    dateAsText: "Please convert the date format in Excel to text first",
+  },
   button: {
     confirm: "Confirm",
     cancel: "Cancel",
@@ -6,6 +9,8 @@ export const en = {
     import: "Import",
     autoFill: "Auto Fill",
     clear: "Clear",
+    exportConfig: "Export Config",
+    importConfig: "Import Config File",
   },
   guide: "Guide Book",
   h: {
@@ -42,6 +47,9 @@ export const en = {
       allowAction: "Allow Action",
       whenTwoSame: "When Two or More Records are the Same",
       saveFirst: "Save First",
+      requestConfig: "Request Config",
+      requestMethod: "Method",
+      requestHeaders: "Headers",
     },
   },
   table: {
@@ -52,8 +60,8 @@ export const en = {
     tip: {
       common: "Drag and drop file here or click to upload",
       em: "click to upload",
-      fileLimit: "xlsx/xls file",
-      fileSupport: "xlsx/xls file support",
+      fileLimit: "xlsx/xls/csv file",
+      fileSupport: "xlsx/xls/csv file support",
     },
   },
   mode: {
@@ -95,6 +103,8 @@ export const en = {
     getModifiedTimeFailure: "Get table [{id}] modified time failed",
     autoFieldInIndex:
       "Index contains auto field [{fields}], the plugin will not add new records to the table",
+    configTableError: "Config file does not match the table",
+    exportSuccess: "Export success",
   },
   loading: "Loading...",
   fieldType: {
@@ -164,11 +174,13 @@ export const en = {
       "Checking field {fieldName}[FieldId: {fieldId}] options",
     setSelectFieldOptions:
       "Field {fieldName}[FieldId: {fieldId}] has {newOptionsNum} new options, start setting",
+    asyncData: "Getting remote data",
+    createCell: "Creating cell of field [{fieldId}] in table [{tableId}]",
   },
   allowAction: {
     updateAndAdd: "Update same records and add new records",
-    update: " Only update same records",
-    add: "Only add new records",
+    onlyUpdate: " Only update same records",
+    onlyAdd: "Only add new records",
   },
   updateMode: {
     saveMost: "Save the record with the most non-empty fields",

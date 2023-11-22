@@ -1,13 +1,6 @@
 import { type IRatingField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
-
-async function normalization(value: string) {
-  const { divide } = await import("mathjs")
-  const percentage = /-?\d+\.?\d*%/g.test(value)
-  const v = value.match(/-?\d+\.?\d*/g)
-  const res = percentage ? divide(Number(v), 100) : Number(v)
-  return res
-}
+import { normalization } from "./number"
 
 /**
  * Get rating cell

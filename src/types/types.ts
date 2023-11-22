@@ -1,4 +1,4 @@
-import {
+import type {
   IDuplexLinkFieldMeta,
   IFieldMeta,
   ISingleLinkFieldMeta,
@@ -6,7 +6,7 @@ import {
   IField,
   IOpenCellValue,
 } from "@lark-base-open/js-sdk"
-import { TaskAction } from "@/utils/import/tasks"
+import type { TaskAction } from "@/utils/import/tasks"
 
 export interface SheetInfo {
   name: string
@@ -36,6 +36,9 @@ export interface IUndefinedFieldValue {
 }
 
 export type LinkField = ISingleLinkFieldMeta | IDuplexLinkFieldMeta
+
+export type requestMethod = "GET" | "POST"
+
 export interface fieldMap {
   /**
    * Key for tree node
@@ -55,6 +58,11 @@ export interface fieldMap {
     boolValue?: {
       true: string[]
       false: string[]
+    }
+    requestConfig?: {
+      method: requestMethod
+      headers: Array<[string, string]>
+      body: string
     }
   }
   linkConfig?: {
@@ -98,6 +106,9 @@ export interface Task<T = any> {
   link?: Array<Task>
   target?: Task
   recordId?: string
+  asyncField?: fieldMap
+  value?: string
+  field?: IField
 }
 
 export enum importModes {

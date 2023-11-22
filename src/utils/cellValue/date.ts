@@ -10,7 +10,10 @@ dayjs.extend(advancedFormat)
 
 export const dateDefaultFormat = "YYYY/MM/DD"
 
-async function normalization(value: string, config?: fieldMap["config"]) {
+export async function normalization(
+  value: string,
+  config?: fieldMap["config"],
+) {
   const { format = dateDefaultFormat } = config || {}
   return dayjs(value, format).valueOf()
 }

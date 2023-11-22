@@ -4,9 +4,16 @@ import { bitable } from "@lark-base-open/js-sdk"
 import type { ITableMeta, IFieldMeta } from "@lark-base-open/js-sdk"
 import { importModes, UpdateMode } from "@/types/types"
 import type { ExcelDataInfo, fieldMap, ImportOptions } from "@/types/types"
-import type { TableColumnCtx } from "element-plus"
-import { Setting, Lock, Refresh, Key } from "@element-plus/icons-vue"
-import { indexFieldType, Log, Error, Warn } from "@/utils"
+import { ElMessage, type TableColumnCtx, type UploadFile } from "element-plus"
+import {
+  Setting,
+  Lock,
+  Refresh,
+  Key,
+  EditPen,
+  DeleteFilled,
+} from "@element-plus/icons-vue"
+import { indexFieldType, Log, Error, Warn, downLoadFileFromA } from "@/utils"
 import fieldSetting from "@/components/field-setting/index.vue"
 import linkSetting from "@/components/link-setting/index.vue"
 import { useI18n } from "vue-i18n"
@@ -18,6 +25,8 @@ import { cellTranslator } from "@/utils/cellValue"
 import { useStorage } from "@vueuse/core"
 import defaultOptions from "../../../plugin.config.json"
 import { validateIndex, validateIndexAuto } from "./utils"
+import ExportIcon from "@/components/icons/export-icon.vue"
+import ImportIcon from "@/components/icons/import-icon.vue"
 
 const { t } = useI18n()
 const props = defineProps({
@@ -311,7 +320,6 @@ function settingLink(row: fieldMap) {
 }
 
 function getFormat(value: fieldMap["config"]) {
-  // console.log("getFormat", value)
   if (currentSetting.value) {
     currentSetting.value.config = value
   }
@@ -321,13 +329,11 @@ function setLinkField(
   linkConfig: fieldMap["linkConfig"],
   config: fieldMap["config"],
 ) {
-  // console.log("setLinkField", linkConfig)
   if (currentSetting.value) {
     currentSetting.value.linkConfig = linkConfig
     currentSetting.value.children?.forEach((field) => {
       if (linkConfig && field.field.id === linkConfig.primaryKey) {
         field.config = config
-        // console.log("setLinkField", settingColumns.value)
       }
     })
   }
@@ -378,6 +384,89 @@ onMounted(() => {
       })
     })
 })
+
+const exporting = ref(false)
+const exportConfig = () => {
+  exporting.value = true
+  const config = {
+    fieldMaps: toRaw(settingColumns.value).reduce(
+      (acc, cur) => {
+        acc[cur.field.id] = {
+          excel_field: cur.excel_field,
+          config: cur.config,
+        }
+        return acc
+      },
+      {} as Record<string, any>,
+    ),
+    index: toRaw(Index.value),
+    table: targetTableId.value,
+    mode: mode.value,
+  }
+  const data = `data:text/json;charset=utf-8,${encodeURIComponent(
+    JSON.stringify(config),
+  )}`
+  targetTable.value?.getName().then((name) => {
+    downLoadFileFromA(data, `${name}_${Date.now()}.json`)
+    exporting.value = false
+    ElMessage.success(t("message.exportSuccess"))
+  })
+}
+const configImporting = ref(false)
+const readConfig = async (file: UploadFile) => {
+  configImporting.value = true
+  if (!/\.json?$/.test(file.name)) {
+    Error({
+      title: "configFileTypeError",
+      message: t("message.fileType"),
+      notice: true,
+      noticeParams: {
+        text: "message.fileType",
+      },
+    })
+    return
+  }
+  const config = JSON.parse((await file.raw?.text()) ?? "")
+  if (!config) return
+  const { fieldMaps, index, table } = config
+  if (table && table !== targetTableId.value) {
+    Warn({
+      title: "configTableError",
+      message: t("message.configTableError"),
+      notice: true,
+      noticeParams: {
+        text: "message.configTableError",
+      },
+    })
+    return
+  }
+  if (fieldMaps) {
+    const excelFields = excelData.value?.sheets[
+      sheetIndex.value
+    ].tableData.fields.map((i) => i.name)
+    settingColumns.value.forEach((item) => {
+      if (fieldMaps[item.field.id]) {
+        if (
+          !item.excel_field &&
+          excelFields?.includes(fieldMaps[item.field.id].excel_field)
+        )
+          item.excel_field = fieldMaps[item.field.id].excel_field
+        Object.keys(item.config).forEach((key) => {
+          if (fieldMaps[item.field.id].config[key]) {
+            // @ts-ignore
+            item.config[key] = fieldMaps[item.field.id].config[key]
+          }
+        })
+      }
+    })
+  }
+  if (index) {
+    const tableFields = settingColumns.value.map((i) => i.field.id)
+    Index.value = index.filter((i: string) => tableFields.includes(i))
+  }
+  ElMessage.success(t("message.importSuccess"))
+  configImporting.value = false
+}
 
 defineExpose({
   index: Index,
@@ -438,23 +527,65 @@ defineExpose({
       <template #label="{ label }">
         <label>{{ label }}</label>
         <div
-          style="display: inline; margin-left: 20px"
+          style="display: inline-flex; margin-left: 20px"
           class="el-form-item__content"
         >
-          <el-button
-            type="primary"
-            size="default"
-            @click="autoFill"
-          >
-            {{ t("button.autoFill") }}
-          </el-button>
-          <el-button
-            type="danger"
-            size="default"
-            @click="reset"
-          >
-            {{ t("button.clear") }}
-          </el-button>
+          <el-tooltip>
+            <template #content>
+              {{ t("button.autoFill") }}
+            </template>
+            <el-button
+              type="primary"
+              size="default"
+              @click="autoFill"
+            >
+              <el-icon><EditPen /></el-icon>
+            </el-button>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
+              {{ t("button.clear") }}
+            </template>
+            <el-button
+              type="danger"
+              size="default"
+              @click="reset"
+            >
+              <el-icon><DeleteFilled /></el-icon>
+            </el-button>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
+              {{ t("button.exportConfig") }}
+            </template>
+            <el-button
+              v-loading="exporting"
+              type="primary"
+              size="default"
+              @click="exportConfig"
+            >
+              <el-icon><ExportIcon /></el-icon>
+            </el-button>
+          </el-tooltip>
+          <el-tooltip>
+            <template #content>
+              {{ t("button.importConfig") }}
+            </template>
+            <el-upload
+              style="display: inline-flex; margin-left: 12px"
+              :limit="1"
+              :auto-upload="false"
+              :on-change="readConfig"
+              accept=".json"
+              :show-file-list="false"
+            >
+              <template #trigger>
+                <el-button type="primary">
+                  <el-icon><ImportIcon /></el-icon>
+                </el-button>
+              </template>
+            </el-upload>
+          </el-tooltip>
         </div>
       </template>
       <el-table

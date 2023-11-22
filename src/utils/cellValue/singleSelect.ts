@@ -1,5 +1,5 @@
 import { type ISingleSelectField, FieldType } from "@lark-base-open/js-sdk"
-import { defineTranslator } from "./cell"
+import { defineTranslator, FieldRole } from "./cell"
 
 /**
  * Get singleSelect cell
@@ -16,4 +16,5 @@ export const SingleSelectTranslator = defineTranslator({
   translate: singleSelect,
   normalization: async (value: string) => value,
   name: "SingleSelect",
+  roles: [FieldRole.HAS_OPTIONS],
 })
