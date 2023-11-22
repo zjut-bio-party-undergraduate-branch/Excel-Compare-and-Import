@@ -21,7 +21,7 @@ import {
   ElButton,
   ElRow,
 } from "element-plus"
-import { InfoFilled, Plus } from "@element-plus/icons-vue"
+import { InfoFilled, Plus, CloseBold } from "@element-plus/icons-vue"
 import { i18n } from "@/i18n"
 import dayjs from "dayjs"
 
@@ -235,6 +235,9 @@ export function useFieldConfig(
       const addHeader = () => {
         headers.value.push(["", ""])
       }
+      const removeHeader = (index: number) => {
+        headers.value.splice(index, 1)
+      }
       return [
         h("h2", null, i18n.global.t("form.label.requestConfig")),
         h(
@@ -262,6 +265,7 @@ export function useFieldConfig(
                   },
                 ],
                 style: "width: 100%",
+                disabled: true,
               }),
           },
         ),
@@ -281,7 +285,7 @@ export function useFieldConfig(
         ]),
         h(ElFormItem, null, {
           default: () =>
-            headers.value.map((v) =>
+            headers.value.map((v, i) =>
               h(
                 ElRow,
                 {
@@ -307,6 +311,16 @@ export function useFieldConfig(
                       placeholder: "Value",
                       style: "width: 35%",
                     }),
+                    h(
+                      ElButton,
+                      {
+                        onClick: () => removeHeader(i),
+                        style: "margin-left: 10px",
+                      },
+                      {
+                        default: () => h(ElIcon, {}, () => h(CloseBold)),
+                      },
+                    ),
                   ],
                 },
               ),

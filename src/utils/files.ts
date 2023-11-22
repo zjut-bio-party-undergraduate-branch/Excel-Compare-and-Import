@@ -272,12 +272,15 @@ export async function downLoadFile(url: string, options?: DownLoadFileOptions) {
   if (method === "GET") {
     delete fetchOptions?.body
   }
+  if (fetchOptions && fetchOptions.headers) {
+    fetchOptions.headers = (
+      fetchOptions?.headers as Array<[string, string]>
+    ).filter((i) => i[0])
+  }
   const res = await fetch(url, fetchOptions)
-  console.log(res)
   if (!res.ok) {
     return null
   }
-  console.log(res)
   const reader = res.body?.getReader()
   if (!reader) return null
   const total = Number(res.headers.get("Content-Length"))
@@ -302,4 +305,12 @@ export async function downLoadFile(url: string, options?: DownLoadFileOptions) {
   const file = new File([blob], fileName, { type: MIME ?? blob.type })
   onLoaded?.(file)
   return file
+}
+
+export function downLoadFileFromA(url: string, name: string) {
+  const a = document.createElement("a")
+  a.href = url
+  a.download = name
+  a.click()
+  a.remove()
 }

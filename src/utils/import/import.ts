@@ -1498,6 +1498,13 @@ export async function importExcel(
               },
             })
           },
+          onError: (error) => {
+            Error({
+              title: "asyncDataFailure",
+              message: String(error),
+              error,
+            })
+          },
         },
         tasks[0].asyncField as fieldMap,
       )

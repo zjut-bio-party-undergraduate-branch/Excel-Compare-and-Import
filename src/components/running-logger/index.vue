@@ -2,7 +2,15 @@
 import { log } from "@/utils"
 import { computed, h, ref } from "vue"
 import { type RowClassNameGetter, type Column, ElTag } from "element-plus"
+import ExportIcon from "@/components/icons/export-icon.vue"
+import { downLoadFileFromA } from "@/utils"
+// import { useFileSystemAccess } from "@vueuse/core"
 
+// const {
+//   isSupported,
+//   data: exportData,
+//   saveAs,
+// } = useFileSystemAccess()
 const showType = ref<("info" | "log" | "error" | "warn")[]>([
   "error",
   "warn",
@@ -115,17 +123,40 @@ const Row = ({ cells, rowData }) => {
   return cells
 }
 
+const saveLog = () => {
+  const logString = JSON.stringify(data.value, null, 2)
+  downLoadFileFromA(
+    `data:text/json;charset=utf-8,${encodeURIComponent(logString)}`,
+    `Excel_Compare_and_Import_Log_${Date.now()}.json`,
+  )
+}
+
 Row.inheritAttrs = false
 </script>
 
 <template>
   <el-scrollbar max-height="90vh">
-    <el-checkbox-group v-model="showType">
-      <el-checkbox label="log" />
-      <el-checkbox label="info" />
-      <el-checkbox label="warn" />
-      <el-checkbox label="error" />
-    </el-checkbox-group>
+    <div style="display: flex">
+      <el-checkbox-group v-model="showType">
+        <el-checkbox label="log" />
+        <el-checkbox label="info" />
+        <el-checkbox label="warn" />
+        <el-checkbox label="error" />
+      </el-checkbox-group>
+      <el-tooltip>
+        <template #content>
+          <span>Export</span>
+        </template>
+        <el-button
+          @click="saveLog"
+          type="primary"
+          style="margin-left: 10px"
+        >
+          <el-icon><ExportIcon /></el-icon>
+        </el-button>
+      </el-tooltip>
+    </div>
+
     <el-auto-resizer style="height: 70vh">
       <template #default="{ width, height }">
         <el-table-v2

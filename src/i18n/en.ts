@@ -6,6 +6,8 @@ export const en = {
     import: "Import",
     autoFill: "Auto Fill",
     clear: "Clear",
+    exportConfig: "Export Config",
+    importConfig: "Import Config File",
   },
   guide: "Guide Book",
   h: {
@@ -98,6 +100,8 @@ export const en = {
     getModifiedTimeFailure: "Get table [{id}] modified time failed",
     autoFieldInIndex:
       "Index contains auto field [{fields}], the plugin will not add new records to the table",
+    configTableError: "Config file does not match the table",
+    exportSuccess: "Export success",
   },
   loading: "Loading...",
   fieldType: {
