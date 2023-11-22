@@ -955,7 +955,6 @@ export async function importExcel(
     params: lifeCircleEventParams,
   ) => void = runLifeCircleEvent,
 ) {
-  console.log(cellTranslator)
   lifeCircleHook(importLifeCircles.onStart, {
     stage: "start",
   })
@@ -1460,11 +1459,9 @@ export async function importExcel(
   })
 
   const groupedTasks = groupBy(tasks, "action")
-  console.log(groupedTasks)
   const asyncTasks = groupedTasks[TaskAction.Async]
   if (asyncTasks && asyncTasks.length) {
     const groupedAsyncTasks = groupBy(asyncTasks, "asyncField.field.type")
-    console.log("groupedAsyncTasks", groupedAsyncTasks)
     const toAsyncTypes = Object.keys(groupedAsyncTasks)
     const data = toAsyncTypes.reduce(
       (pre, cur) => {
@@ -1614,7 +1611,7 @@ export async function importExcel(
   // }
 
   const updateTasks = groupedTasks[TaskAction.Update]
-  console.log("updateTasks", updateTasks)
+  // console.log("updateTasks", updateTasks)
   if (updateTasks && allowAction.update && updateTasks.length) {
     lifeCircleHook(importLifeCircles.beforeUpdateRecords, {
       stage: "updateRecords",

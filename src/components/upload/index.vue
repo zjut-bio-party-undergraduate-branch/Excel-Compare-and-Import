@@ -84,7 +84,6 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
         const { data } = e
         const { type, payload } = data
         if (type === "readXLSX") {
-          console.log(payload)
           if (payload === null) excelFile.value = null
           resolve(payload)
           reader.terminate()

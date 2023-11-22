@@ -100,7 +100,6 @@ function processDownloadFiles(
       pendingItems.push(item)
       downLoadFile(item.url, {
         onProgress: (p) => {
-          console.log("processDownloadFiles", p)
           item.loaded = p.loaded
           item.total = p.total
           onProgress?.({
