@@ -160,7 +160,6 @@ export class CellTranslator {
     if (!asyncMethod) {
       return
     }
-    console.log("asyncMethod", asyncMethod)
     return await asyncMethod(options, config ?? fieldMap.config)
   }
 

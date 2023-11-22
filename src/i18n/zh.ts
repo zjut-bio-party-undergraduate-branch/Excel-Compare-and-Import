@@ -1,4 +1,7 @@
 export const zh = {
+  alert: {
+    dateAsText: "请先将 Excel 中的日期格式转换为文本",
+  },
   button: {
     confirm: "确认",
     cancel: "取消",

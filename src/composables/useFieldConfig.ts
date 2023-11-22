@@ -20,6 +20,7 @@ import {
   ElSelectV2,
   ElButton,
   ElRow,
+  ElAlert,
 } from "element-plus"
 import { InfoFilled, Plus, CloseBold } from "@element-plus/icons-vue"
 import { i18n } from "@/i18n"
@@ -76,6 +77,35 @@ export function useFieldConfig(
 
   const configFormItem: { [key: string]: any } = {
     format: () => [
+      h(
+        ElAlert,
+        {
+          type: "info",
+          showIcon: true,
+          title: "TIPS",
+          style: "margin-bottom: 10px",
+        },
+        {
+          default: () => [
+            h("span", null, [
+              i18n.global.t("alert.dateAsText") +
+                ", " +
+                i18n.global.t("toolTip.pleaseReferTo"),
+              h(
+                ElLink,
+                {
+                  type: "primary",
+                  href: "https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc#ErLgdnUNJoxPo4xkraycQIKln6g",
+                  target: "_blank",
+                },
+                {
+                  default: () => i18n.global.t("guide"),
+                },
+              ),
+            ]),
+          ],
+        },
+      ),
       h(
         ElFormItem,
         {},

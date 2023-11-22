@@ -85,7 +85,6 @@ function processDownloadFiles(
       )
     }) as Array<FileCacheItem>
   if (!cacheItems.length) return
-  console.log("processDownloadFiles", cacheItems)
   setCache(cacheItems)
   const { onProgress, parallel = 4, onError } = options ?? {}
   const total = cacheItems.length
@@ -123,25 +122,20 @@ function processDownloadFiles(
           item.file = file
           item.name = file?.name ?? ""
           item.status = DownloadStatus.Downloaded
-          console.log("res", item, file)
         })
         .catch((e) => {
           item.status = DownloadStatus.Error
           onError?.(e)
-          console.error(e)
         })
         .finally(() => {
           runningNum--
           loaded++
-          console.log("cache", cache)
           pendingItems.splice(pendingItems.indexOf(item), 1)
-          console.log("cache", cache)
           _run()
         })
     }
   }
   return new Promise((resolve) => {
-    console.log("processDownloadFiles", cacheItems)
     _run()
     const timer = setInterval(() => {
       if (!cacheItems.length) {
@@ -162,7 +156,6 @@ async function normalization(value: string, config?: fieldMap["config"]) {
 async function attachment(value: string, field: IAttachmentField) {
   const urls = await normalization(value)
   const mobileCacheItem = mobileCache[field.id]
-  console.log("isMobile", mobileCacheItem)
   if (mobileCacheItem === undefined) {
     const cur = await field.getOnlyMobile()
     mobileCache[field.id] = {

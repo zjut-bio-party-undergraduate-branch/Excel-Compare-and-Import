@@ -1,4 +1,7 @@
 export const en = {
+  alert: {
+    dateAsText: "Please convert the date format in Excel to text first",
+  },
   button: {
     confirm: "Confirm",
     cancel: "Cancel",
