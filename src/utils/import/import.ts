@@ -955,6 +955,7 @@ export async function importExcel(
     params: lifeCircleEventParams,
   ) => void = runLifeCircleEvent,
 ) {
+  console.log(fieldsMaps)
   lifeCircleHook(importLifeCircles.onStart, {
     stage: "start",
   })

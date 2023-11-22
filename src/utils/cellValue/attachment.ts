@@ -185,7 +185,7 @@ async function attachment(value: string, field: IAttachmentField) {
 export const AttachmentTranslator = defineTranslator({
   fieldType: FieldType.Attachment,
   translate: attachment,
-  normalization: async (value: string) => value,
+  normalization,
   name: "Attachment",
   asyncMethod: async (
     options: AsyncParams<string>,
