@@ -7,7 +7,7 @@
     "dev": "vite --mode dev",
     "dev:Beta": "vite --mode beta",
     "github:build": "vite build --base /Excel-Compare-and-Import/ --mode alpha",
-    "build": "vite build --mode stable",
+    "build": "vite build --base ./ --mode stable",
     "preview": "vite preview --port 4173",
     "createData": "npx vite-node ./scripts/createTestData.ts -n",
     "prepare": "husky install",
