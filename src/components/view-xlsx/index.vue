@@ -46,7 +46,7 @@ const rowClassGetter: RowClassNameGetter<{
       />
     </el-form-item>
   </el-form>
-  <div style="height: 260px">
+  <div style="height: 70vh">
     <el-auto-resizer>
       <template #default="{ width, height }">
         <el-table-v2
