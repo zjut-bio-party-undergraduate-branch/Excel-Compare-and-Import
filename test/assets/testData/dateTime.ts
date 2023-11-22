@@ -34,13 +34,13 @@ export const dateTimeTest: TestItem = {
       testTitle:
         'Test default format (YYYY/MM/DD): "2021/01/01" => 1609430400000',
       value: "2021/01/01",
-      normalized: 1609430400000,
+      normalized: new Date("2021/01/01").getTime(),
     },
     {
       testTitle:
         'Test format (YYYY/MM/DD HH:mm:ss): "2021/01/01 00:00:00" => 1609430400000',
       value: "2021/01/01 00:00:00",
-      normalized: 1609430400000,
+      normalized: new Date("2021/01/01 00:00:00").getTime(),
       config: {
         format: "YYYY/MM/DD HH:mm:ss",
       },
