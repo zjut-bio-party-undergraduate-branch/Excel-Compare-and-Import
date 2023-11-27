@@ -110,6 +110,13 @@ export function useSetting(
     },
     { deep: true },
   )
+  watch(sheetIndex, () => {
+    const data = toValue(excelData)
+    if (data) {
+      excelFields.value = data.sheets[sheetIndex.value].tableData.fields
+      fill()
+    }
+  })
   watch(
     () => toValue(tableFields),
     (newVal) => {
