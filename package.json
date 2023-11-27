@@ -1,6 +1,6 @@
 {
   "name": "excel_compare_and_import",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "type": "module",
   "description": "This is a Base extension for Feishu that compares local Excel files with base and imports the differences into the current Base.",
   "scripts": {
