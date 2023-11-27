@@ -25,7 +25,13 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
     if (typeof Worker === "undefined") {
       try {
         const XLSX = await import("xlsx")
-        const workbook = XLSX.read(data, { type: "binary" })
+        const cptable = await import("xlsx/dist/cpexcel.full.mjs")
+        XLSX.set_cptable(cptable)
+        const workbook = XLSX.read(data, {
+          type: "binary",
+          raw: true,
+          codepage: 65001,
+        })
         const sheets = workbook.SheetNames.map((name) => {
           const sheet = workbook.Sheets[name]
           const tableData = XLSX.utils.sheet_to_json(sheet, {
@@ -78,7 +84,6 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
         const { data } = e
         const { type, payload } = data
         if (type === "readXLSX") {
-          console.log(payload)
           if (payload === null) excelFile.value = null
           resolve(payload)
           reader.terminate()
@@ -116,7 +121,7 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
 })
 
 function getFile(file: UploadFile) {
-  if (!/\.xls[x]?$/.test(file.name)) {
+  if (!/\.(xlsx|xls|csv)?$/.test(file.name)) {
     ElMessage.error(t("message.fileType"))
     return
   }
@@ -152,7 +157,7 @@ defineExpose({
     ref="upload"
     drag
     :on-change="getFile"
-    accept=".xls,.xlsx"
+    accept=".xls,.xlsx,.csv"
     :limit="1"
     :auto-upload="false"
     :on-exceed="exceedHandler"

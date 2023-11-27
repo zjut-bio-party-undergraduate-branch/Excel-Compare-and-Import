@@ -18,7 +18,10 @@ import { UserTranslator } from "./user"
 import { SingleLinkTranslator } from "./singleLink"
 import { DuplexTranslator } from "./duplexLink"
 import { NumberTranslator } from "./number"
+import { AttachmentTranslator } from "./attachment"
 import { CellTranslator } from "./cell"
+import { ModifiedTimeTranslator } from "./modifiedTime"
+import { CreatedTimeTranslator } from "./createdTime"
 
 export const cellTranslator = new CellTranslator({
   translators: [
@@ -37,6 +40,9 @@ export const cellTranslator = new CellTranslator({
     SingleLinkTranslator,
     DuplexTranslator,
     NumberTranslator,
+    AttachmentTranslator,
+    ModifiedTimeTranslator,
+    CreatedTimeTranslator,
   ],
 })
 

@@ -24,7 +24,7 @@ jobs:
           node-version: 18
           cache: npm
       - run: npm install --frozen-lockfile
-      - name: Build
+      - name: Build Test
         run: npm run build
       - name: Test
         run: npm run test

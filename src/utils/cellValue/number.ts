@@ -1,7 +1,7 @@
 import { type INumberField, FieldType } from "@lark-base-open/js-sdk"
 import { defineTranslator } from "./cell"
 
-async function normalization(value: string) {
+export async function normalization(value: string) {
   const { divide } = await import("mathjs")
   const v = value.match(/-?\d+\.?\d*/g)
   const percentage = /-?\d+\.?\d*%/g.test(value)

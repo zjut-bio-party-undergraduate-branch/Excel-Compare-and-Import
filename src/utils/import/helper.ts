@@ -1,14 +1,34 @@
+/**
+ * Check if the target array has new element from the from array
+ *
+ * @param target
+ * @param from
+ * @returns
+ */
 export function hasNewElement(target: string[], from: string[]): boolean {
   const res = !from.every((v) => target.includes(v))
   return res
 }
 
+/**
+ * Delay Time
+ *
+ * @param t
+ * @returns
+ */
 export function delay(t: number) {
   return new Promise(function (resolve) {
     setTimeout(resolve, t)
   })
 }
 
+/**
+ * Async filter
+ *
+ * @param arr
+ * @param predicate
+ * @returns
+ */
 export async function asyncFilter(
   arr: any[],
   predicate: (item: any) => Promise<boolean>,
@@ -17,6 +37,13 @@ export async function asyncFilter(
   return arr.filter((_v, index) => results[index])
 }
 
+/**
+ * Check if the two arrays are equal
+ *
+ * @param arr1
+ * @param arr2
+ * @returns
+ */
 export function isArrayEqual(arr1: any[], arr2: any[]): boolean {
   return (
     arr1.length === arr2.length &&
@@ -26,6 +53,13 @@ export function isArrayEqual(arr1: any[], arr2: any[]): boolean {
   )
 }
 
+/**
+ * Check if the two arrays are equal strictly
+ *
+ * @param arr1
+ * @param arr2
+ * @returns
+ */
 export function isArrayStrictEqual(arr1: any[], arr2: any[]): boolean {
   return (
     arr1.length === arr2.length &&
@@ -38,6 +72,13 @@ export function isArrayStrictEqual(arr1: any[], arr2: any[]): boolean {
   )
 }
 
+/**
+ * Group by key
+ *
+ * @param arr
+ * @param key
+ * @returns
+ */
 export function groupBy<T extends Record<string, any>>(
   arr: Array<T>,
   key: string,
@@ -54,36 +95,65 @@ export function groupBy<T extends Record<string, any>>(
     }
     res[k].push(v)
   })
-  // arr.forEach((v) => {
-  //   const k = v[key]
-  //   if (!res[k]) {
-  //     res[k] = []
-  //   }
-  //   res[k].push(v)
-  // })
   return res
 }
 
+/**
+ * Check if the value is not null
+ *
+ * @param v
+ * @returns
+ */
 export function isNotNull<T>(v: T | null): v is T {
   return v !== null
 }
 
+/**
+ * Check if the value is not null or undefined
+ *
+ * @param v
+ * @returns
+ */
 export function isNotEmpty<T>(v: T | null | undefined): v is T {
   return v !== null && v !== undefined
 }
 
+/**
+ * Check if the value is not null or undefined or empty string
+ *
+ * @param v
+ * @returns
+ */
 export function isNotEmptyString(v: string | null | undefined): v is string {
   return v !== null && v !== undefined && v !== ""
 }
 
+/**
+ * Check if the value is not null or undefined or empty array
+ *
+ * @param v
+ * @returns
+ */
 export function isNotEmptyArray<T>(v: T[] | null | undefined): v is T[] {
   return v !== null && v !== undefined && v.length > 0
 }
 
+/**
+ * Check if the array has empty value
+ *
+ * @param v
+ * @returns
+ */
 export function ArrayHasNoEmpty<T>(v: (T | null | undefined)[]): v is T[] {
   return v.every(isNotEmpty)
 }
 
+/**
+ * Unique array
+ *
+ * @param arr
+ * @returns
+ */
 export function unique<T>(arr: T[]): T[] {
   return Array.from(new Set(arr))
 }

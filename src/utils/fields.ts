@@ -21,9 +21,10 @@ export const indexFieldType = [
   FieldType.ModifiedUser,
 ]
 
-export const notSupportFields = [FieldType.Location, FieldType.Attachment]
+export const notSupportFields = [FieldType.Location]
+export const SelectFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
-export const selectFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
+export const linkFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
 
 export const autoFields = [
   FieldType.CreatedTime,

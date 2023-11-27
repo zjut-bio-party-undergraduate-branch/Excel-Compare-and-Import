@@ -109,15 +109,15 @@ defineExpose({
             })
           }}</el-text
           ><br />
-          <!-- <el-scrollbar
+          <el-scrollbar
             v-if="stage.message"
             max-height="100px"
           >
-            <pre>
-              <code>{{ stage.message }}</code>
-            </pre>
-          </el-scrollbar> -->
-          <el-text>{{ stage.message }}</el-text>
+            <pre style="text-wrap: wrap">{{ stage.message }}</pre>
+          </el-scrollbar>
+          <!-- <el-text>
+            <pre>{{ stage.message }}</pre>
+          </el-text> -->
         </el-collapse-item>
       </el-collapse>
     </el-scrollbar>

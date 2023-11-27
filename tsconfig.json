@@ -29,7 +29,8 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "node_modules/**/*.d.ts"
+    "node_modules/**/*.d.ts",
+    "test/**/*.ts"
   ],
   "references": [
     {

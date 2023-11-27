@@ -1,4 +1,7 @@
 export const zh = {
+  alert: {
+    dateAsText: "请先将 Excel 中的日期格式转换为文本",
+  },
   button: {
     confirm: "确认",
     cancel: "取消",
@@ -6,6 +9,8 @@ export const zh = {
     import: "导入",
     autoFill: "自动填充",
     clear: "清空",
+    exportConfig: "导出配置",
+    importConfig: "导入配置文件",
   },
   guide: "使用指南",
   h: {
@@ -42,6 +47,9 @@ export const zh = {
       allowAction: "允许操作",
       whenTwoSame: "当两条以上记录相同时",
       saveFirst: "优先保留",
+      requestConfig: "请求配置",
+      requestMethod: "请求方法",
+      requestHeaders: "请求头",
     },
   },
   table: {
@@ -53,7 +61,7 @@ export const zh = {
       common: "点击上传文件或拖拽文件到这里",
       em: "拖拽文件到这里",
       fileLimit: "xlsx/xls 文件",
-      fileSupport: "支持 xlsx/xls 类型文件",
+      fileSupport: "支持 xlsx/xls/csv 类型文件",
     },
   },
   mode: {
@@ -94,6 +102,8 @@ export const zh = {
     getModifiedTimeFailure: "获取表格 [{id}] 记录修改时间失败",
     autoFieldInIndex:
       "索引包含自动计算字段 [{fields}]，插件将不会向表中添加新记录",
+    configTableError: "配置文件与表格不匹配",
+    exportSuccess: "导出成功",
   },
   loading: "加载中...",
   fieldType: {
@@ -159,6 +169,8 @@ export const zh = {
       "正在检查字段 {fieldName}[FieldId: {fieldId}] 的选项",
     setSelectFieldOptions:
       "字段 {fieldName}[FieldId: {fieldId}] 共有 {newOptionsNum} 个新选项，开始设置",
+    asyncData: "获取远程数据",
+    createCell: "创建表格 [{tableId}] 字段 [{fieldId}] 单元格",
   },
   allowAction: {
     updateAndAdd: "更新已有记录并添加新记录",

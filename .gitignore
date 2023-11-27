@@ -6,6 +6,7 @@ coverage
 public/test/
 components.d.ts
 auto-imports.d.ts
+stats.html
 # IDEs and editors
 
 *.iml

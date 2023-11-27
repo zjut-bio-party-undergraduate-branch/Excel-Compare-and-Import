@@ -18,8 +18,11 @@ import {
   ElLink,
   ElIcon,
   ElSelectV2,
+  ElButton,
+  ElRow,
+  ElAlert,
 } from "element-plus"
-import { InfoFilled } from "@element-plus/icons-vue"
+import { InfoFilled, Plus, CloseBold } from "@element-plus/icons-vue"
 import { i18n } from "@/i18n"
 import dayjs from "dayjs"
 
@@ -37,6 +40,7 @@ const dateFormatList = [
   "MM-DD HH:mm:ss",
   "MM-DD HH:mm",
   "MM-DD HH",
+  "YYYYMMDD",
 ]
 
 export function useFieldConfig(
@@ -73,6 +77,35 @@ export function useFieldConfig(
 
   const configFormItem: { [key: string]: any } = {
     format: () => [
+      h(
+        ElAlert,
+        {
+          type: "info",
+          showIcon: true,
+          title: "TIPS",
+          style: "margin-bottom: 10px",
+        },
+        {
+          default: () => [
+            h("span", null, [
+              i18n.global.t("alert.dateAsText") +
+                ", " +
+                i18n.global.t("toolTip.pleaseReferTo"),
+              h(
+                ElLink,
+                {
+                  type: "primary",
+                  href: "https://ct8hv7vfy1.feishu.cn/docx/EOALdRssWoxksuxy7gucmECQnEc#ErLgdnUNJoxPo4xkraycQIKln6g",
+                  target: "_blank",
+                },
+                {
+                  default: () => i18n.global.t("guide"),
+                },
+              ),
+            ]),
+          ],
+        },
+      ),
       h(
         ElFormItem,
         {},
@@ -218,6 +251,113 @@ export function useFieldConfig(
         },
       ),
     ],
+    requestConfig: () => {
+      const headers = ref<Array<[string, string]>>(
+        configResult.value.requestConfig?.headers ?? [["", ""]],
+      )
+      watch(
+        () => headers.value,
+        (newVal) => {
+          configResult.value.requestConfig!.headers = newVal
+        },
+        { deep: true },
+      )
+      const addHeader = () => {
+        headers.value.push(["", ""])
+      }
+      const removeHeader = (index: number) => {
+        headers.value.splice(index, 1)
+      }
+      return [
+        h("h2", null, i18n.global.t("form.label.requestConfig")),
+        h(
+          ElFormItem,
+          {
+            label: i18n.global.t("form.label.requestMethod"),
+          },
+          {
+            default: () =>
+              h(ElSelectV2, {
+                modelValue: configResult.value.requestConfig?.method,
+                ["onUpdate:modelValue"]: (v: "GET" | "POST") => {
+                  configResult.value!.requestConfig!.method = v
+                },
+                filterable: true,
+                defaultFirstOption: true,
+                options: [
+                  {
+                    label: "GET",
+                    value: "GET",
+                  },
+                  {
+                    label: "POST",
+                    value: "POST",
+                  },
+                ],
+                style: "width: 100%",
+                disabled: true,
+              }),
+          },
+        ),
+        h("h3", null, [
+          i18n.global.t("form.label.requestHeaders"),
+          h(
+            ElButton,
+            {
+              onClick: addHeader,
+              type: "primary",
+              style: "margin-left: 10px",
+            },
+            {
+              default: () => h(ElIcon, {}, () => h(Plus)),
+            },
+          ),
+        ]),
+        h(ElFormItem, null, {
+          default: () =>
+            headers.value.map((v, i) =>
+              h(
+                ElRow,
+                {
+                  gutter: 10,
+                  style: "margin-bottom: 5px",
+                },
+                {
+                  default: () => [
+                    h(ElInput, {
+                      modelValue: v[0],
+                      ["onUpdate:modelValue"]: (val: string) => {
+                        v[0] = val
+                      },
+                      placeholder: "Key",
+                      style: "width: 35%",
+                    }),
+                    h("span", null, ": "),
+                    h(ElInput, {
+                      modelValue: v[1],
+                      ["onUpdate:modelValue"]: (val: string) => {
+                        v[1] = val
+                      },
+                      placeholder: "Value",
+                      style: "width: 35%",
+                    }),
+                    h(
+                      ElButton,
+                      {
+                        onClick: () => removeHeader(i),
+                        style: "margin-left: 10px",
+                      },
+                      {
+                        default: () => h(ElIcon, {}, () => h(CloseBold)),
+                      },
+                    ),
+                  ],
+                },
+              ),
+            ),
+        }),
+      ]
+    },
   }
 
   const formatExamples: {

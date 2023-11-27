@@ -1,9 +1,16 @@
 import * as XLSX from "xlsx"
+import * as cptable from "xlsx/dist/cpexcel.full.mjs"
 import type { SheetInfo } from "@/types/types"
+
+XLSX.set_cptable(cptable)
 
 function readXLSX(data: string, name: string) {
   try {
-    const workbook = XLSX.read(data, { type: "binary" })
+    const workbook = XLSX.read(data, {
+      type: "binary",
+      raw: true,
+      codepage: 65001,
+    })
     const sheets = workbook.SheetNames.map((name) => {
       const sheet = workbook.Sheets[name]
       const tableData = XLSX.utils.sheet_to_json(sheet, {
@@ -31,32 +38,16 @@ function readXLSX(data: string, name: string) {
         if (records.length) return { name, tableData: { fields, records } }
         return null
       } catch (e) {
-        // Error({
-        //   title: "message.sheetError",
-        //   message: String(e),
-        //   error: e,
-        // })
-        // ElMessage.error(t("message.sheetError", { sheetName: name }))
         postMessage({ type: "error", payload: "message.sheetError" })
         return null
       }
     }).filter((sheet) => sheet !== null) as SheetInfo[]
     if (sheets.length === 0) {
-      // ElMessage.error(t("message.noSheet"))
-      // Error({
-      //   title: "message.noSheet",
-      //   message: "message.noSheet",
-      // })
       postMessage({ type: "error", payload: "message.noSheet" })
       return null
     }
     return { sheets, name: name }
   } catch (e) {
-    // Error({
-    //   title: "message.fileError",
-    //   message: String(e),
-    //   error: e,
-    // })
     postMessage({ type: "error", payload: "message.fileError" })
     return null
   }
