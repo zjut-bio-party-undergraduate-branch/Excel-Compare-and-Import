@@ -8,3 +8,4 @@ replit.nix
 .gitignore
 .config
 .commitlintrc
+renovate.json
