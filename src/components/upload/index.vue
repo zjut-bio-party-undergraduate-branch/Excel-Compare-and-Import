@@ -118,6 +118,7 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
       })
     }
   },
+  shallow: true,
 })
 
 function getFile(file: UploadFile) {
