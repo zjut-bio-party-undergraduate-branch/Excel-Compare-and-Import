@@ -1,5 +1,4 @@
 import type {
-  IWidgetTable,
   IRecord,
   ICell,
   IField,
@@ -395,7 +394,7 @@ async function asyncStrategy(
   value: string,
   fieldMap: fieldMap,
   field: IField,
-  tables: Record<IWidgetTable["id"], BitableTable>,
+  tables: Record<ITable["id"], BitableTable>,
   linkIndexes: Record<
     string,
     {
@@ -436,7 +435,7 @@ async function linkStrategy(
   value: string,
   fieldMap: fieldMap,
   field: IField,
-  tables: Record<IWidgetTable["id"], BitableTable>,
+  tables: Record<ITable["id"], BitableTable>,
   linkIndexes: Record<
     string,
     {
@@ -543,7 +542,7 @@ async function linkStrategy(
 async function addStrategy(
   record: Record<string, string>,
   fieldMap: fieldMap,
-  tables: Record<IWidgetTable["id"], BitableTable>,
+  tables: Record<ITable["id"], BitableTable>,
   linkIndexes: Record<
     string,
     {
@@ -1022,7 +1021,7 @@ export async function importExcel(
 
   const rootIndex: Array<{
     indexValue: (string | string[])[]
-    table: IWidgetTable["id"]
+    table: ITable["id"]
     recordId: string
     modifiedTime: number
   }> = []
@@ -1532,6 +1531,7 @@ export async function importExcel(
             t.asyncField as fieldMap,
             t.value as string,
           )
+          console.log(cell, t.target)
           if (!cell || !t.target) continue
           if (t.target.action === TaskAction.Add) t.target.data.push(cell)
           else if (t.target.action === TaskAction.Update) {
