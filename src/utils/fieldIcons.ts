@@ -36,4 +36,5 @@ export const iconList: Record<number, any> = {
   [FieldType.Lookup]: () => import("@/components/icons/lookup-icon.vue"),
   [FieldType.ModifiedUser]: () =>
     import("@/components/icons/modifiedUser-icon.vue"),
+  [FieldType.Email]: () => import("@/components/icons/email-icon.vue"),
 }
