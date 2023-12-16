@@ -23,6 +23,7 @@ import { CellTranslator } from "./cell"
 import { ModifiedTimeTranslator } from "./modifiedTime"
 import { CreatedTimeTranslator } from "./createdTime"
 import { EmailTranslator } from "./email"
+import { LocationTranslator } from "./location"
 
 export const cellTranslator = new CellTranslator({
   translators: [
@@ -45,6 +46,7 @@ export const cellTranslator = new CellTranslator({
     ModifiedTimeTranslator,
     CreatedTimeTranslator,
     EmailTranslator,
+    LocationTranslator,
   ],
 })
 

@@ -38,6 +38,11 @@ const fieldsConfig: { [key: number]: fieldMap["config"] } = {
   [FieldType.CreatedTime]: {
     format: dateDefaultFormat,
   },
+  [FieldType.Location]: {
+    locationConfig: {
+      type: "auto",
+    },
+  },
 }
 
 export function configField(type: FieldType) {

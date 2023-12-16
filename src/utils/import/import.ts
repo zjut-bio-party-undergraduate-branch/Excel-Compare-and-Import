@@ -21,44 +21,15 @@ import { importModes, TaskStatus, UpdateMode } from "@/types/types"
 import { TaskAction } from "@/utils/import/tasks"
 import { cellTranslator } from "../cellValue"
 import {
-  delay,
   isArrayStrictEqual,
   groupBy,
   isNotEmpty,
   unique,
+  batch,
 } from "./helper"
 import type { lifeCircleEventParams } from "./lifeCircle"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
 import { Error, Log, Info, SelectFieldType, linkFieldType } from "@/utils"
-
-/**
- * Batch processing
- *
- * @param maxNumber
- * @param interval
- * @param list
- * @param action
- * @returns
- */
-async function batch<T>(
-  maxNumber: number = 5000,
-  interval: number = 0,
-  list: Array<T>,
-  action: (list: Array<T>) => Promise<void>,
-) {
-  if (list.length === 0) return
-  if (list.length <= maxNumber) {
-    await action(list)
-  } else {
-    const count = Math.ceil(list.length / maxNumber)
-    for (let i = 0; i < count; i++) {
-      await action(list.slice(i * maxNumber, (i + 1) * maxNumber))
-      if (interval > 0) {
-        await delay(interval)
-      }
-    }
-  }
-}
 
 async function addRecords(
   table: ITable,
