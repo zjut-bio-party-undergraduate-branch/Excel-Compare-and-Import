@@ -246,7 +246,7 @@ export function getFileName(url: string, mime?: string) {
  * @returns
  */
 export function validateUrl(url: string) {
-  const regex = /^((http|https)?:\/\/)/
+  const regex = /^(http|https)?:\/\/[^\s/$.?#].[^\s]*$/
   return regex.test(url)
 }
 
@@ -267,7 +267,8 @@ export async function downLoadFile(url: string, options?: DownLoadFileOptions) {
   const { fetchOptions } = options ?? {}
   const { method } = fetchOptions ?? {}
   if (!validateUrl(url)) {
-    throw new Error("Invalid url")
+    // throw new Error("Invalid url")
+    return Promise.reject("Invalid url")
   }
   if (method === "GET") {
     delete fetchOptions?.body

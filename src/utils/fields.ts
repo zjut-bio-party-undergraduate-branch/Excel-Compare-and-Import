@@ -21,7 +21,7 @@ export const indexFieldType = [
   FieldType.ModifiedUser,
 ]
 
-export const notSupportFields = [FieldType.Location]
+export const notSupportFields = []
 export const SelectFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
 export const linkFieldType = [FieldType.SingleLink, FieldType.DuplexLink]
@@ -64,4 +64,5 @@ export const FieldNameList = {
   [FieldType.GroupChat]: "groupChat",
   [FieldType.Denied]: "denied",
   [FieldType.Attachment]: "attachment",
+  [FieldType.Email]: "email",
 }
