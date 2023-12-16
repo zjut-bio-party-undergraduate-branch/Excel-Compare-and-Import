@@ -134,6 +134,7 @@ export const en = {
     groupChat: "GroupChat",
     denied: "Denied",
     notSupport: "NotSupport",
+    email: "Email",
   },
   importInfo: {
     title: "Import Info",

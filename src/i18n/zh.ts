@@ -133,6 +133,7 @@ export const zh = {
     groupChat: "群组",
     denied: "拒绝",
     notSupport: "不支持",
+    email: "Email",
   },
   importInfo: {
     title: "导入进度",
