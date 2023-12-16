@@ -8,6 +8,7 @@ import {
 import { defineTranslator, type AsyncParams, FieldRole } from "./cell"
 import { downLoadFile, unique, validateUrl } from "@/utils"
 import type { fieldMap } from "@/types/types"
+import { on } from "events"
 
 enum DownloadStatus {
   Waiting = -1,
@@ -62,9 +63,13 @@ function processDownloadFiles(
     requestConfig?: fieldMap["config"]["requestConfig"]
   },
 ) {
+  const { onProgress, parallel = 4, onError } = options ?? {}
   const cacheItems = unique(urls)
     .map((url) => {
-      if (!url || !validateUrl(url)) return
+      if (!validateUrl(url)) {
+        onError?.(new Error("Invalid url: " + url))
+        return
+      }
       const item =
         cache[url] ||
         ({
@@ -86,7 +91,6 @@ function processDownloadFiles(
     }) as Array<FileCacheItem>
   if (!cacheItems.length) return
   setCache(cacheItems)
-  const { onProgress, parallel = 4, onError } = options ?? {}
   const total = cacheItems.length
   let loaded = 0
   let runningNum = 0
@@ -165,7 +169,7 @@ async function attachment(value: string, field: IAttachmentField) {
       await field.setOnlyMobile(false)
     }
   }
-  if (!urls || !urls.length) return await field.createCell([])
+  if (!urls || !urls.length) return null
   const files = urls
     .map((url) => {
       const item = cache[url]
@@ -178,7 +182,8 @@ async function attachment(value: string, field: IAttachmentField) {
         timeStamp: new Date().getTime(),
       }
     })
-    .filter((item) => item) as IOpenAttachment[]
+    .filter(Boolean) as IOpenAttachment[]
+  if (!files.length) return null
   return await field.createCell(files)
 }
 
@@ -196,7 +201,9 @@ export const AttachmentTranslator = defineTranslator({
     if (!urls.length) return
     await processDownloadFiles(urls, { onProgress, onError, requestConfig })
     const hasFileItems = Object.values(cache).filter((item) => item.file)
-    const files = hasFileItems.map((item) => item.file) as File[]
+    const files = hasFileItems
+      .map((item) => item.file)
+      .filter(Boolean) as File[]
     const off = bitable.base.onUploadStatusChange(({ data }) => {
       const { tasks } = data
       const { list } = tasks
@@ -215,6 +222,7 @@ export const AttachmentTranslator = defineTranslator({
           .join("\n"),
       })
     })
+    if (!files.length) return
     const tokens = await bitable.base.batchUploadFile(files)
     let index = 0
     const items = Object.values(hasFileItems)
