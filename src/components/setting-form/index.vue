@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, toRaw, onMounted } from "vue"
 import { bitable } from "@lark-base-open/js-sdk"
-import type { ITableMeta, IFieldMeta } from "@lark-base-open/js-sdk"
+import type { ITableMeta, IFieldMeta, ITable } from "@lark-base-open/js-sdk"
 import { importModes, UpdateMode } from "@/types/types"
 import type { ExcelDataInfo, fieldMap, ImportOptions } from "@/types/types"
 import { ElMessage, type TableColumnCtx, type UploadFile } from "element-plus"
@@ -27,6 +27,7 @@ import defaultOptions from "../../../plugin.config.json"
 import { validateIndex, validateIndexAuto } from "./utils"
 import ExportIcon from "@/components/icons/export-icon.vue"
 import ImportIcon from "@/components/icons/import-icon.vue"
+import { onFieldAdd, onFieldDelete, onFieldModify } from "@qww0302/use-bitable"
 
 const { t } = useI18n()
 const props = defineProps({
@@ -169,15 +170,30 @@ watch(
   },
 )
 
+const updateFields = (table: ITable | null) => {
+  if (!table) return
+  return table.getFieldMetaList().then((res) => {
+    tableFields.value = res
+  })
+}
+
+onFieldAdd(targetTable, () => {
+  updateFields(targetTable.value)
+})
+
+onFieldDelete(targetTable, () => {
+  updateFields(targetTable.value)
+})
+
+onFieldModify(targetTable, () => {
+  updateFields(targetTable.value)
+})
+
 watch(
   () => targetTable.value,
   () => {
     if (!targetTable.value) return
-    console.log("targetTable", targetTable.value)
-    targetTable.value?.getFieldMetaList().then((res) => {
-      tableFields.value = res
-      fill()
-    })
+    updateFields(targetTable.value).then(fill)
   },
 )
 
@@ -539,7 +555,9 @@ defineExpose({
               size="default"
               @click="autoFill"
             >
-              <el-icon><EditPen /></el-icon>
+              <el-icon>
+                <EditPen />
+              </el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip>
@@ -551,7 +569,9 @@ defineExpose({
               size="default"
               @click="reset"
             >
-              <el-icon><DeleteFilled /></el-icon>
+              <el-icon>
+                <DeleteFilled />
+              </el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip>
@@ -564,7 +584,9 @@ defineExpose({
               size="default"
               @click="exportConfig"
             >
-              <el-icon><ExportIcon /></el-icon>
+              <el-icon>
+                <ExportIcon />
+              </el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip>
@@ -581,7 +603,9 @@ defineExpose({
             >
               <template #trigger>
                 <el-button type="primary">
-                  <el-icon><ImportIcon /></el-icon>
+                  <el-icon>
+                    <ImportIcon />
+                  </el-icon>
                 </el-button>
               </template>
             </el-upload>

@@ -19,6 +19,7 @@ async function loadFieldMaps(
   fields: IFieldMeta[],
   tableId: string,
   root = true,
+  defaults?: fieldMap[],
 ): Promise<fieldMap[]> {
   return await Promise.all(
     fields.map(async (v) => {
@@ -45,12 +46,16 @@ async function loadFieldMaps(
           primaryKey: defaultPrimaryKey.id,
         }
       }
+      const defaultMap = defaults?.find((i) => i.field.id === v.id) ?? undefined
       return {
         key: v.id,
         field: v,
         table: tableId ?? "",
-        excel_field: undefined,
-        config: configField(v.type),
+        excel_field: defaultMap ? defaultMap.excel_field : undefined,
+        config:
+          defaultMap && defaultMap.field.type === v.type
+            ? defaultMap.config
+            : configField(v.type),
         root: true,
         hasChildren,
         children,
@@ -97,6 +102,7 @@ export function useSetting(
       }
     })
   }
+
   watch(
     () => toValue(excelData),
     (newVal) => {
@@ -125,7 +131,12 @@ export function useSetting(
         return
       }
       pending.value = true
-      loadFieldMaps(newVal, toValue(tableId) as string).then((res) => {
+      loadFieldMaps(
+        newVal,
+        toValue(tableId) as string,
+        true,
+        toValue(settingColumns),
+      ).then((res) => {
         settingColumns.value = res
         pending.value = false
         if (toValue(excelData)) {
