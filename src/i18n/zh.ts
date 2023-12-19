@@ -105,6 +105,7 @@ export const zh = {
       "索引包含自动计算字段 [{fields}]，插件将不会向表中添加新记录",
     configTableError: "配置文件与表格不匹配",
     exportSuccess: "导出成功",
+    setSelectFieldOptionsFailure: "设置字段 {name}[{field}] 选项失败",
   },
   loading: "加载中...",
   fieldType: {
