@@ -893,11 +893,28 @@ async function setOptions(
           },
         },
       })
-      await field.addOptions(
-        newOptions.map((v) => ({
-          name: v,
-        })),
-      )
+      try {
+        await field.addOptions(
+          newOptions.map((v) => ({
+            name: v,
+          })),
+        )
+      } catch (e) {
+        const name = await field.getName()
+        Error({
+          title: "setSelectFieldOptionsFailure",
+          message: `set select field ${name}[${field.id}] options failure`,
+          error: e,
+          notice: true,
+          noticeParams: {
+            text: "message.setSelectFieldOptionsFailure",
+            params: {
+              id: i.field.id,
+              name,
+            },
+          },
+        })
+      }
     }
   }
 }
