@@ -52,7 +52,7 @@
     "@commitlint/config-conventional": "^18.0.0",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^20.4.10",
-    "@vitejs/plugin-vue": "^4.0.0",
+    "@vitejs/plugin-vue": "^5.0.0",
     "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
     "commander": "^11.0.0",
