@@ -267,7 +267,7 @@ const validate = () => {
 }
 
 async function importAction() {
-  if (!activeTableId.value) {
+  if (!targetTableId.value) {
     Warn({
       title: "chooseTableFirst",
       message: t("message.chooseTableFirst"),
