@@ -28,8 +28,8 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
         const _data = await readXLSX(data, (excelFile.value as File).name, {
           onError: ({ message, payload, error }) => {
             Error({
-              title: t(message, payload),
-              message: message,
+              title: message,
+              message: t(message, payload),
               notice: true,
               noticeParams: {
                 text: message,
@@ -42,7 +42,15 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
         if (_data === null) excelFile.value = null
         resolve(_data)
       } catch (e) {
-        console.error(e)
+        Error({
+          title: "readError",
+          message: "readError",
+          notice: true,
+          noticeParams: {
+            text: "readError",
+          },
+          error: e,
+        })
       }
     } else {
       const worker = (await import("./readXLSX.worker.ts?worker")).default
@@ -53,20 +61,18 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
         if (type === "readXLSX") {
           if (payload === null) excelFile.value = null
           resolve(payload)
-          console.log(payload)
           reader.terminate()
         }
         if (type === "error") {
-          const { message, payload, error } = data
+          const { message, payload: params } = payload
           Error({
-            title: t(message, payload),
-            message: message,
+            title: message,
+            message: t(message, params),
             notice: true,
             noticeParams: {
               text: message,
-              params: payload,
+              params,
             },
-            error,
           })
         }
       }

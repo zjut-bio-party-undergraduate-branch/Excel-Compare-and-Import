@@ -70,7 +70,6 @@ export async function readXLSX(
         return null
       }
     }).filter((sheet) => sheet !== null) as SheetInfo[]
-    console.log("sheets", sheets)
     if (sheets.length === 0) {
       onError &&
         onError({
