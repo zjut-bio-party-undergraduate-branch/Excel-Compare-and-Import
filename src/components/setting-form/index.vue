@@ -264,7 +264,7 @@ const validate = () => {
   } else {
     allowAdd.value = true
   }
-  return noEmpty && !hasAuto
+  return noEmpty
 }
 
 async function importAction() {
