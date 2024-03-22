@@ -133,6 +133,7 @@ export const zh = {
     groupChat: "群组",
     denied: "拒绝",
     notSupport: "不支持",
+    email: "Email",
   },
   importInfo: {
     title: "导入进度",
@@ -193,5 +194,10 @@ export const zh = {
     records: "记录",
     parallelTip: "并行量是同时处理的记录/字段数",
     intervalTip: "间隔时间是每次处理的时间间隔",
+  },
+  locationType: {
+    geo: "地址文本",
+    regeo: "经纬度",
+    auto: "自动",
   },
 }

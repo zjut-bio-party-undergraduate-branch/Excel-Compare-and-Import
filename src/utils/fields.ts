@@ -64,4 +64,5 @@ export const FieldNameList = {
   [FieldType.GroupChat]: "groupChat",
   [FieldType.Denied]: "denied",
   [FieldType.Attachment]: "attachment",
+  [FieldType.Email]: "email",
 }

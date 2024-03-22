@@ -157,3 +157,32 @@ export function ArrayHasNoEmpty<T>(v: (T | null | undefined)[]): v is T[] {
 export function unique<T>(arr: T[]): T[] {
   return Array.from(new Set(arr))
 }
+
+/**
+ * Batch processing
+ *
+ * @param maxNumber
+ * @param interval
+ * @param list
+ * @param action
+ * @returns
+ */
+export async function batch<T>(
+  maxNumber: number = 5000,
+  interval: number = 0,
+  list: Array<T>,
+  action: (list: Array<T>) => Promise<void>,
+) {
+  if (list.length === 0) return
+  if (list.length <= maxNumber) {
+    await action(list)
+  } else {
+    const count = Math.ceil(list.length / maxNumber)
+    for (let i = 0; i < count; i++) {
+      await action(list.slice(i * maxNumber, (i + 1) * maxNumber))
+      if (interval > 0) {
+        await delay(interval)
+      }
+    }
+  }
+}

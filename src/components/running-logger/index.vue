@@ -101,14 +101,14 @@ const Row = ({ cells, rowData }) => {
         h(
           "pre",
           {
-            style: "text-wrap: wrap;",
+            style: "wite-space: pre-wrap;",
           },
           rowData.detail,
         ),
         h(
           "pre",
           {
-            style: "text-wrap: wrap;",
+            style: "wite-space: pre-wrap;",
           },
           rowData.error
             ? JSON.stringify(

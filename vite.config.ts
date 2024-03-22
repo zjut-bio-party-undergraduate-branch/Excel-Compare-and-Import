@@ -47,10 +47,10 @@ function resolveAuthor(author: string | Author) {
 const pkg = fs.readJSONSync(path.resolve("./package.json"))
 
 // https://vitejs.dev/config/
-export default ({ mode }) => {
+export default ({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd())
   return defineConfig({
-    base: './',
+    base: "./",
     server: {
       host: true,
     },

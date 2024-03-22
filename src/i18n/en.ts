@@ -134,6 +134,7 @@ export const en = {
     groupChat: "GroupChat",
     denied: "Denied",
     notSupport: "NotSupport",
+    email: "Email",
   },
   importInfo: {
     title: "Import Info",
@@ -198,5 +199,10 @@ export const en = {
     parallelTip: "Parallel is the number of records/fields processed at a time",
     intervalTip: "Interval is the time interval for each processing",
     advancedSetting: "Advanced Setting",
+  },
+  locationType: {
+    geo: "Address Text",
+    regeo: "Latitude and Longitude",
+    auto: "Auto",
   },
 }
