@@ -15,7 +15,7 @@ export interface SheetInfo {
       name: string
     }[]
     records: {
-      [key: string]: string
+      [key: string]: string | null
     }[]
   }
 }
@@ -112,6 +112,7 @@ export interface Task<T = any> {
   asyncField?: fieldMap
   value?: string
   field?: IField
+  index?: number
 }
 
 export enum importModes {

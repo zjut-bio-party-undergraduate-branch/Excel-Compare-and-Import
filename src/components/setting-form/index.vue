@@ -193,6 +193,7 @@ watch(
   () => targetTable.value,
   () => {
     if (!targetTable.value) return
+    // @ts-ignore
     updateFields(targetTable.value).then(fill)
   },
 )

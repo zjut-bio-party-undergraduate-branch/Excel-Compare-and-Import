@@ -88,6 +88,14 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
 function getFile(file: UploadFile) {
   if (!/\.(xlsx|xls|csv)?$/.test(file.name)) {
     ElMessage.error(t("message.fileType"))
+    Error({
+      title: "message.fileType",
+      message: "message.fileType",
+      notice: true,
+      noticeParams: {
+        text: "message.fileType",
+      },
+    })
     return
   }
   excelFile.value = file.raw as File
@@ -183,16 +191,6 @@ defineExpose({
                   >{{ name }}</el-text
                 >
               </el-tooltip>
-              <!-- <el-text
-                class="file-name"
-                @click="toggleShowView"
-                :style="{
-                  width: width - 50 + 'px',
-                  cursor: 'pointer',
-                }"
-                truncated
-                >{{ name }}</el-text
-              > -->
             </template>
           </el-auto-resizer>
         </div>

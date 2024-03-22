@@ -111,9 +111,10 @@ export class CellTranslator {
   public async getCell(
     field: IField,
     fieldMap: fieldMap,
-    value: string | IOpenCellValue,
+    value: string | null | IOpenCellValue,
   ) {
     try {
+      if (value === null) return null
       if (typeof value !== "string") return field.createCell(value)
       const type = fieldMap.field.type
       const translator = this.translators[type]
@@ -140,10 +141,11 @@ export class CellTranslator {
   }
 
   public async normalization(
-    value: string,
+    value: string | null,
     fieldMap: fieldMap,
     config?: fieldMap["config"],
   ) {
+    if (value === null) return null
     const normalization = this.normalizations[fieldMap.field.type]
     if (!normalization) {
       return value
