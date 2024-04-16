@@ -36,7 +36,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "@lark-base-open/js-sdk": "^0.3.5",
-    "@qww0302/use-bitable": "^0.2.0",
+    "@qww0302/use-bitable": "^0.3.0",
     "@unhead/vue": "^1.7.3",
     "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
