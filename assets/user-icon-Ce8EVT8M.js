@@ -1,1 +1,0 @@
-import{d as n,u as o,_,o as a,a as c}from"./index-B3TQbPie.js";const u=n({__name:"user-icon",setup(s,{expose:r}){r();const e={get User(){return o}};return Object.defineProperty(e,"__isScriptSetup",{enumerable:!1,value:!0}),e}});function p(s,r,e,t,f,i){return a(),c(t.User)}const l=_(u,[["render",p],["__file","user-icon.vue"]]);export{l as default};
