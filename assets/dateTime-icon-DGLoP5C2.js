@@ -1,0 +1,1 @@
+import{d as n,c as o,_,o as c,a as s}from"./index-CVZQTezh.js";const d=n({__name:"dateTime-icon",setup(a,{expose:t}){t();const e={get Calendar(){return o}};return Object.defineProperty(e,"__isScriptSetup",{enumerable:!1,value:!0}),e}});function p(a,t,e,r,i,u){return c(),s(r.Calendar)}const l=_(d,[["render",p],["__file","dateTime-icon.vue"]]);export{l as default};
