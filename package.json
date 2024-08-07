@@ -10,7 +10,7 @@
     "build": "vite build --base ./ --mode stable",
     "preview": "vite preview --port 4173",
     "createData": "npx vite-node ./scripts/createTestData.ts -n",
-    "prepare": "husky install",
+    "prepare": "husky init",
     "style": "npx prettier . --write",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
     "@lark-base-open/js-sdk": "^0.4.0",
-    "@qww0302/use-bitable": "^0.3.0",
+    "@qww0302/use-bitable": "^1.0.0-alpha.0",
     "@unhead/vue": "^1.7.3",
     "@vueuse/core": "^10.3.0",
     "dayjs": "^1.11.9",
