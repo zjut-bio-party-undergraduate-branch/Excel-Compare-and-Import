@@ -20,14 +20,13 @@ import { useI18n } from "vue-i18n"
 import fieldIcon from "@/components/field-icon/index.vue"
 import importInfo from "@/components/import-info/index.vue"
 import { useSetting } from "./composables"
-import { useSelection, useTable } from "@qww0302/use-bitable"
+import { useSelection, useTable, useFieldMetaList } from "@qww0302/use-bitable"
 import { cellTranslator } from "@/utils/cellValue"
 import { useStorage } from "@vueuse/core"
 import defaultOptions from "../../../plugin.config.json"
 import { validateIndex, validateIndexAuto } from "./utils"
 import ExportIcon from "@/components/icons/export-icon.vue"
 import ImportIcon from "@/components/icons/import-icon.vue"
-import { onFieldAdd, onFieldDelete, onFieldModify } from "@qww0302/use-bitable"
 
 const { t } = useI18n()
 const props = defineProps({
@@ -44,7 +43,6 @@ const importInfoRef = ref()
 const linkRef = ref()
 const tableList = ref<ITableMeta[]>([])
 const targetTableId = ref<string>("")
-const tableFields = ref<IFieldMeta[]>()
 const allowAdd = ref(true)
 const AllowActionValue: Record<string, ImportOptions["allowAction"]> = {
   updateAndAdd: {
@@ -160,6 +158,7 @@ const updateOptionSelector = () => [
 
 const { tableId: activeTableId } = useSelection()
 const { table: targetTable, pending: tablePending } = useTable(targetTableId)
+const { fieldMetaList: tableFields } = useFieldMetaList(targetTable)
 
 watch(
   () => activeTableId.value,
@@ -170,38 +169,16 @@ watch(
   },
 )
 
-const updateFields = (table: ITable | null) => {
-  if (!table) return
-  return table.getFieldMetaList().then((res) => {
-    tableFields.value = res
-  })
-}
-
-onFieldAdd(targetTable, () => {
-  updateFields(targetTable.value)
-})
-
-onFieldDelete(targetTable, () => {
-  updateFields(targetTable.value)
-})
-
-onFieldModify(targetTable, () => {
-  updateFields(targetTable.value)
-})
-
 watch(
-  () => targetTable.value,
+  () => tableFields.value,
   () => {
     if (!targetTable.value) return
-    // @ts-ignore
-    updateFields(targetTable.value).then(fill)
+    fill()
   },
 )
 
 const indexFields = computed(() =>
-  (tableFields.value ?? []).filter((field) =>
-    indexFieldType.includes(field.type),
-  ),
+  tableFields.value.filter((field) => indexFieldType.includes(field.type)),
 )
 
 const excelData = ref<ExcelDataInfo>()
