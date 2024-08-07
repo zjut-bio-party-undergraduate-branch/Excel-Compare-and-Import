@@ -10,7 +10,7 @@
     "build": "vite build --base ./ --mode stable",
     "preview": "vite preview --port 4173",
     "createData": "npx vite-node ./scripts/createTestData.ts -n",
-    "prepare": "husky init",
+    "prepare": "husky",
     "style": "npx prettier . --write",
     "test": "vitest",
     "test:ui": "vitest --ui",
