@@ -86,7 +86,7 @@ const { data, pending, name } = useFileReader<ExcelDataInfo | null>(excelFile, {
 })
 
 function getFile(file: UploadFile) {
-  if (!/\.(xlsx|xls|csv)?$/.test(file.name)) {
+  if (!/\.(xlsx|xls|csv|xlsm)?$/.test(file.name)) {
     ElMessage.error(t("message.fileType"))
     Error({
       title: "message.fileType",
@@ -130,7 +130,7 @@ defineExpose({
     ref="upload"
     drag
     :on-change="getFile"
-    accept=".xls,.xlsx,.csv"
+    accept=".xls,.xlsx,.csv,.xlsm"
     :limit="1"
     :auto-upload="false"
     :on-exceed="exceedHandler"

@@ -62,7 +62,7 @@ export const zh = {
       common: "点击上传文件或拖拽文件到这里",
       em: "拖拽文件到这里",
       fileLimit: "xlsx/xls 文件",
-      fileSupport: "支持 xlsx/xls/csv 类型文件",
+      fileSupport: "支持 xlsx/xlsm/xls/csv 类型文件",
     },
   },
   mode: {

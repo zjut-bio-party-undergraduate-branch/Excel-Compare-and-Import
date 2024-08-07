@@ -62,7 +62,7 @@ export const en = {
       common: "Drag and drop file here or click to upload",
       em: "click to upload",
       fileLimit: "xlsx/xls/csv file",
-      fileSupport: "xlsx/xls/csv file support",
+      fileSupport: "xlsx/xlsm/xls/csv file support",
     },
   },
   mode: {
