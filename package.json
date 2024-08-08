@@ -24,6 +24,7 @@
     "Import",
     "Compare"
   ],
+  "output": "dist",
   "author": {
     "name": "qww",
     "url": "https://github.com/497363983"
