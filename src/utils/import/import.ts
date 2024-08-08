@@ -511,7 +511,7 @@ async function linkStrategy(
 }
 
 async function addStrategy(
-  record: Record<string, string>,
+  record: Record<string, string | null>,
   fieldMap: fieldMap,
   tables: Record<ITable["id"], BitableTable>,
   linkIndexes: Record<
@@ -709,6 +709,38 @@ async function collect(
   return tables
 }
 
+async function asyncRetry<T>(fn: () => Promise<T>, times: number = 3) {
+  try {
+    return await fn()
+  } catch (e) {
+    if (times <= 0) throw e
+    return await asyncRetry(fn, times - 1)
+  }
+}
+
+async function getRecordIdList(table: ITable, pageSize: number = 200) {
+  let hasMore = true
+  let pageToken: number | undefined = void 0
+  let recordIds: string[] = []
+  while (hasMore) {
+    const {
+      hasMore: canNext,
+      recordIds: ids,
+      pageToken: token,
+    } = await asyncRetry(
+      async () =>
+        await table.getRecordIdListByPage({
+          pageSize,
+          pageToken,
+        }),
+    )
+    hasMore = canNext
+    pageToken = token
+    recordIds.push(...ids)
+  }
+  return recordIds
+}
+
 /**
  * Get the index value of the table
  *
@@ -726,7 +758,7 @@ async function getTableIndex(
   ) => void,
 ) {
   // console.log("index", index)
-  const recordIds = await table.getRecordIdList()
+  const recordIds = await getRecordIdList(table, 200)
   const Index: {
     indexValue: (string | string[])[]
     table: string
@@ -820,12 +852,15 @@ async function getTableIndex(
 
 async function getTableRecords(table: ITable) {
   const tableCells: IRecord[] = []
-  let pageToken: string | undefined = undefined
+  let pageToken: number | undefined = undefined
   while (true) {
-    const records = await table.getRecords({
-      pageSize: 5000,
-      pageToken,
-    })
+    const records = await asyncRetry(
+      async () =>
+        await table.getRecordsByPage({
+          pageSize: 200,
+          pageToken,
+        }),
+    )
     pageToken = records.pageToken
     tableCells.push(...records.records)
     if (!records.hasMore || !pageToken) break
@@ -842,7 +877,7 @@ async function getTableRecords(table: ITable) {
 async function setOptions(
   fieldMaps: fieldMap[],
   fields: Record<string, IField>,
-  excelRecords: Array<Record<string, string>>,
+  excelRecords: Array<Record<string, string | null>>,
   lifeCircleHook: (
     stage: importLifeCircles,
     params: lifeCircleEventParams,
