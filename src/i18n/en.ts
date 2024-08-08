@@ -106,6 +106,8 @@ export const en = {
       "Index contains auto field [{fields}], the plugin will not add new records to the table",
     configTableError: "Config file does not match the table",
     exportSuccess: "Export success",
+    noLinkedTableReadPermission:
+      "No read permission of linked table [{tableId}]. The link field {fieldName}[{fieldId}] needs the read permission of this table at least.",
   },
   loading: "Loading...",
   fieldType: {

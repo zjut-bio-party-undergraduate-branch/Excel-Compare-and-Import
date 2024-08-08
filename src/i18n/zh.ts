@@ -106,6 +106,8 @@ export const zh = {
     configTableError: "配置文件与表格不匹配",
     exportSuccess: "导出成功",
     setSelectFieldOptionsFailure: "设置字段 {name}[{field}] 选项失败",
+    noLinkedTableReadPermission:
+      "没有关联数据表 [{tableId}] 的阅读权限，关联字段 {fieldName}[{fieldId}] 至少需要该数据表的阅读权限。",
   },
   loading: "加载中...",
   fieldType: {
