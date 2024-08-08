@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, toRaw, onMounted } from "vue"
 import { bitable } from "@lark-base-open/js-sdk"
-import type { ITableMeta, IFieldMeta, ITable } from "@lark-base-open/js-sdk"
+import type { ITableMeta } from "@lark-base-open/js-sdk"
 import { importModes, UpdateMode } from "@/types/types"
 import type { ExcelDataInfo, fieldMap, ImportOptions } from "@/types/types"
 import { ElMessage, type TableColumnCtx, type UploadFile } from "element-plus"
