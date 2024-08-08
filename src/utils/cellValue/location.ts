@@ -32,7 +32,7 @@ export async function batchLocation(
         adname: i.adname,
         cityname: i.cityname,
         full_address: i.full_address,
-        location: i.location,
+        location: i.location.replace(/\s/g, ""),
         name: i.name,
         pname: i.pname,
         fullAddress: i.full_address,
@@ -42,6 +42,13 @@ export async function batchLocation(
   })
 }
 
+/**
+ * Get location information
+ *
+ * @param locations
+ * @param options
+ * @returns
+ */
 async function getLocation(
   locations: string[],
   options?: {

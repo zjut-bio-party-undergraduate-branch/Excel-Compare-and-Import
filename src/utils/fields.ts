@@ -21,7 +21,11 @@ export const indexFieldType = [
   FieldType.ModifiedUser,
 ]
 
-export const notSupportFields = [FieldType.Location]
+export const notSupportFields = [
+  FieldType.NotSupport,
+  FieldType.Denied,
+  FieldType.Object,
+]
 export const SelectFieldType = [FieldType.SingleSelect, FieldType.MultiSelect]
 
 export const linkFieldType = [FieldType.SingleLink, FieldType.DuplexLink]

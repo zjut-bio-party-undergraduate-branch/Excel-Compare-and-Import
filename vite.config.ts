@@ -122,5 +122,8 @@ export default ({ mode }: { mode: string }) => {
       },
       include: ["test/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
     },
+    worker: {
+      format: "es",
+    },
   })
 }

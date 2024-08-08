@@ -12,7 +12,8 @@ async function normalization(value: string) {
  * @param field
  * @returns
  */
-async function currency(value: string, field: ICurrencyField) {
+async function currency(value: string | null, field: ICurrencyField) {
+  if (value === null) return null
   const v = await normalization(value)
   return await field.createCell(v)
 }

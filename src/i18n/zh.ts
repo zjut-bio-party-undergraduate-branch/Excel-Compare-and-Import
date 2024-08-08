@@ -61,7 +61,7 @@ export const zh = {
       common: "点击上传文件或拖拽文件到这里",
       em: "拖拽文件到这里",
       fileLimit: "xlsx/xls 文件",
-      fileSupport: "支持 xlsx/xls/csv 类型文件",
+      fileSupport: "支持 xlsx/xlsm/xls/csv 类型文件",
     },
   },
   mode: {
@@ -104,6 +104,9 @@ export const zh = {
       "索引包含自动计算字段 [{fields}]，插件将不会向表中添加新记录",
     configTableError: "配置文件与表格不匹配",
     exportSuccess: "导出成功",
+    setSelectFieldOptionsFailure: "设置字段 {name}[{field}] 选项失败",
+    noLinkedTableReadPermission:
+      "没有关联数据表 [{tableId}] 的阅读权限，关联字段 {fieldName}[{fieldId}] 至少需要该数据表的阅读权限。",
   },
   loading: "加载中...",
   fieldType: {
