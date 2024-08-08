@@ -54,7 +54,7 @@ export async function readXLSX(
           })
           .filter((record) => {
             return Object.values(record).some((value) => {
-              return value
+              return value !== null
             })
           })
         if (records.length) return { name, tableData: { fields, records } }
