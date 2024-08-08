@@ -12,6 +12,7 @@ import {
   indexFieldType,
   autoFields,
   hasChildrenFieldType,
+  Warn,
   // notSupportFields,
 } from "@/utils"
 
@@ -19,6 +20,7 @@ async function loadFieldMaps(
   fields: IFieldMeta[],
   tableId: string,
   root = true,
+  defaults?: fieldMap[],
 ): Promise<fieldMap[]> {
   return await Promise.all(
     fields.map(async (v) => {
@@ -27,30 +29,51 @@ async function loadFieldMaps(
       let linkConfig: fieldMap["linkConfig"] = undefined
       if (hasChildren && root) {
         const linkTableId = (v as LinkField).property.tableId
-        const linkTable = await bitable.base.getTable(linkTableId)
-        const linkFields = await linkTable.getFieldMetaList()
-        children = (await loadFieldMaps(linkFields, linkTableId, false)).filter(
-          (i) => indexFieldType.includes(i.field.type),
-        )
-        const defaultPrimaryKey = linkFields.filter((i) => i.isPrimary)[0]
-        linkConfig = {
-          // allowAdd: !(
-          //   autoFields.includes(defaultPrimaryKey.type) ||
-          //   notSupportFields.includes(defaultPrimaryKey.type)
-          // ),
-          /**
-           * 暂时禁止向关联表添加值，待官方找到 bug
-           */
-          allowAdd: false,
-          primaryKey: defaultPrimaryKey.id,
+        try {
+          const linkTable = await bitable.base.getTable(linkTableId)
+          const linkFields = await linkTable.getFieldMetaList()
+          children = (
+            await loadFieldMaps(linkFields, linkTableId, false)
+          ).filter((i) => indexFieldType.includes(i.field.type))
+          const defaultPrimaryKey = linkFields.filter((i) => i.isPrimary)[0]
+          linkConfig = {
+            // allowAdd: !(
+            //   autoFields.includes(defaultPrimaryKey.type) ||
+            //   notSupportFields.includes(defaultPrimaryKey.type)
+            // ),
+            /**
+             * 暂时禁止向关联表添加值，待官方找到 bug
+             */
+            allowAdd: false,
+            primaryKey: defaultPrimaryKey.id,
+          }
+        } catch (e) {
+          Warn({
+            message: `No permission of linked table ${linkTableId}, because of the link field ${v.name}[${v.id}]`,
+            error: e,
+            notice: true,
+            noticeParams: {
+              text: "message.noLinkedTableReadPermission",
+              params: {
+                tableId: linkTableId,
+                fieldName: v.name,
+                fieldId: v.id,
+              },
+            },
+          })
+          return null
         }
       }
+      const defaultMap = defaults?.find((i) => i.field.id === v.id) ?? undefined
       return {
         key: v.id,
         field: v,
         table: tableId ?? "",
-        excel_field: undefined,
-        config: configField(v.type),
+        excel_field: defaultMap ? defaultMap.excel_field : undefined,
+        config:
+          defaultMap && defaultMap.field.type === v.type
+            ? defaultMap.config
+            : configField(v.type),
         root: true,
         hasChildren,
         children,
@@ -58,7 +81,7 @@ async function loadFieldMaps(
         linkConfig,
       }
     }),
-  )
+  ).then((res) => res.filter((i) => i !== null) as fieldMap[])
 }
 
 export function useSetting(
@@ -97,6 +120,7 @@ export function useSetting(
       }
     })
   }
+
   watch(
     () => toValue(excelData),
     (newVal) => {
@@ -125,7 +149,12 @@ export function useSetting(
         return
       }
       pending.value = true
-      loadFieldMaps(newVal, toValue(tableId) as string).then((res) => {
+      loadFieldMaps(
+        newVal,
+        toValue(tableId) as string,
+        true,
+        toValue(settingColumns),
+      ).then((res) => {
         settingColumns.value = res
         pending.value = false
         if (toValue(excelData)) {

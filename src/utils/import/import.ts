@@ -29,6 +29,13 @@ import {
 } from "./helper"
 import type { lifeCircleEventParams } from "./lifeCircle"
 import { importLifeCircles, runLifeCircleEvent } from "./lifeCircle"
+import {
+  ADD_RECORDS_LIMIT,
+  UPDATE_RECORDS_LIMIT,
+  DELETE_RECORDS_LIMIT,
+  GET_RECORDS_LIMIT,
+  GET_RECORDS_ID_LIMIT,
+} from "./const"
 import { Error, Log, Info, SelectFieldType, linkFieldType } from "@/utils"
 
 async function addRecords(
@@ -203,7 +210,7 @@ async function deleteRecords(
 async function batchAddRecords(
   tasks: Task<ICell>[],
   table: ITable,
-  maxNumber: number = 500,
+  maxNumber: number = ADD_RECORDS_LIMIT,
   interval: number = 500,
   lifeCircleHook: (
     stage: importLifeCircles,
@@ -221,7 +228,7 @@ async function batchAddRecords(
 async function batchUpdateRecords(
   records: Task<IRecord>[],
   table: ITable,
-  maxNumber: number = 500,
+  maxNumber: number = UPDATE_RECORDS_LIMIT,
   interval: number = 500,
   lifeCircleHook: (
     stage: importLifeCircles,
@@ -239,7 +246,7 @@ async function batchUpdateRecords(
 async function batchDeleteRecords(
   tasks: Task<string>[],
   table: ITable,
-  maxNumber: number = 500,
+  maxNumber: number = DELETE_RECORDS_LIMIT,
   interval: number = 500,
   lifeCircleHook: (
     stage: importLifeCircles,
@@ -511,7 +518,7 @@ async function linkStrategy(
 }
 
 async function addStrategy(
-  record: Record<string, string>,
+  record: Record<string, string | null>,
   fieldMap: fieldMap,
   tables: Record<ITable["id"], BitableTable>,
   linkIndexes: Record<
@@ -709,6 +716,41 @@ async function collect(
   return tables
 }
 
+async function asyncRetry<T>(fn: () => Promise<T>, times: number = 3) {
+  try {
+    return await fn()
+  } catch (e) {
+    if (times <= 0) throw e
+    return await asyncRetry(fn, times - 1)
+  }
+}
+
+async function getRecordIdList(
+  table: ITable,
+  pageSize: number = GET_RECORDS_ID_LIMIT,
+) {
+  let hasMore = true
+  let pageToken: number | undefined = void 0
+  let recordIds: string[] = []
+  while (hasMore) {
+    const {
+      hasMore: canNext,
+      recordIds: ids,
+      pageToken: token,
+    } = await asyncRetry(
+      async () =>
+        await table.getRecordIdListByPage({
+          pageSize,
+          pageToken,
+        }),
+    )
+    hasMore = canNext
+    pageToken = token
+    recordIds.push(...ids)
+  }
+  return recordIds
+}
+
 /**
  * Get the index value of the table
  *
@@ -726,7 +768,7 @@ async function getTableIndex(
   ) => void,
 ) {
   // console.log("index", index)
-  const recordIds = await table.getRecordIdList()
+  const recordIds = await getRecordIdList(table)
   const Index: {
     indexValue: (string | string[])[]
     table: string
@@ -820,12 +862,15 @@ async function getTableIndex(
 
 async function getTableRecords(table: ITable) {
   const tableCells: IRecord[] = []
-  let pageToken: string | undefined = undefined
+  let pageToken: number | undefined = undefined
   while (true) {
-    const records = await table.getRecords({
-      pageSize: 5000,
-      pageToken,
-    })
+    const records = await asyncRetry(
+      async () =>
+        await table.getRecordsByPage({
+          pageSize: GET_RECORDS_LIMIT,
+          pageToken,
+        }),
+    )
     pageToken = records.pageToken
     tableCells.push(...records.records)
     if (!records.hasMore || !pageToken) break
@@ -842,7 +887,7 @@ async function getTableRecords(table: ITable) {
 async function setOptions(
   fieldMaps: fieldMap[],
   fields: Record<string, IField>,
-  excelRecords: Array<Record<string, string>>,
+  excelRecords: Array<Record<string, string | null>>,
   lifeCircleHook: (
     stage: importLifeCircles,
     params: lifeCircleEventParams,
@@ -893,11 +938,28 @@ async function setOptions(
           },
         },
       })
-      await field.addOptions(
-        newOptions.map((v) => ({
-          name: v,
-        })),
-      )
+      try {
+        await field.addOptions(
+          newOptions.map((v) => ({
+            name: v,
+          })),
+        )
+      } catch (e) {
+        const name = await field.getName()
+        Error({
+          title: "setSelectFieldOptionsFailure",
+          message: `set select field ${name}[${field.id}] options failure`,
+          error: e,
+          notice: true,
+          noticeParams: {
+            text: "message.setSelectFieldOptionsFailure",
+            params: {
+              id: i.field.id,
+              name,
+            },
+          },
+        })
+      }
     }
   }
 }
@@ -1536,7 +1598,13 @@ export async function importExcel(
     for (const i of toDeleteTableIds) {
       const table = tables[i]
       const tasks = groupedDeleteTasks[i]
-      await batchDeleteRecords(tasks, table.table, 5000, 0, lifeCircleHook)
+      await batchDeleteRecords(
+        tasks,
+        table.table,
+        DELETE_RECORDS_LIMIT,
+        0,
+        lifeCircleHook,
+      )
     }
     lifeCircleHook(importLifeCircles.onDeleteRecordsEnd, {
       stage: "deleteRecords",
@@ -1565,7 +1633,13 @@ export async function importExcel(
     for (const i of toAddTableIds) {
       const table = tables[i]
       const tasks = groupedAddTasks[i]
-      await batchAddRecords(tasks, table.table, 5000, 0, lifeCircleHook)
+      await batchAddRecords(
+        tasks,
+        table.table,
+        ADD_RECORDS_LIMIT,
+        0,
+        lifeCircleHook,
+      )
     }
     lifeCircleHook(importLifeCircles.onAddRecordsEnd, {
       stage: "addRecords",
@@ -1600,7 +1674,13 @@ export async function importExcel(
     for (const i of toUpdateTableIds) {
       const table = tables[i]
       const tasks = groupedUpdateTasks[i]
-      await batchUpdateRecords(tasks, table.table, 5000, 0, lifeCircleHook)
+      await batchUpdateRecords(
+        tasks,
+        table.table,
+        UPDATE_RECORDS_LIMIT,
+        0,
+        lifeCircleHook,
+      )
     }
     lifeCircleHook(importLifeCircles.onUpdateRecordsEnd, {
       stage: "updateRecords",

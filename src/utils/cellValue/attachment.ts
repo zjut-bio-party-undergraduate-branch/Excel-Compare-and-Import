@@ -8,7 +8,6 @@ import {
 import { defineTranslator, type AsyncParams, FieldRole } from "./cell"
 import { downLoadFile, unique, validateUrl } from "@/utils"
 import type { fieldMap } from "@/types/types"
-import { on } from "events"
 
 enum DownloadStatus {
   Waiting = -1,

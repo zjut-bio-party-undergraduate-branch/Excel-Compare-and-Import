@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, toRaw, onMounted } from "vue"
 import { bitable } from "@lark-base-open/js-sdk"
-import type { ITableMeta, IFieldMeta } from "@lark-base-open/js-sdk"
+import type { ITableMeta } from "@lark-base-open/js-sdk"
 import { importModes, UpdateMode } from "@/types/types"
 import type { ExcelDataInfo, fieldMap, ImportOptions } from "@/types/types"
 import { ElMessage, type TableColumnCtx, type UploadFile } from "element-plus"
@@ -20,7 +20,7 @@ import { useI18n } from "vue-i18n"
 import fieldIcon from "@/components/field-icon/index.vue"
 import importInfo from "@/components/import-info/index.vue"
 import { useSetting } from "./composables"
-import { useSelection, useTable } from "@qww0302/use-bitable"
+import { useSelection, useTable, useFieldMetaList } from "@qww0302/use-bitable"
 import { cellTranslator } from "@/utils/cellValue"
 import { useStorage } from "@vueuse/core"
 import defaultOptions from "../../../plugin.config.json"
@@ -43,7 +43,6 @@ const importInfoRef = ref()
 const linkRef = ref()
 const tableList = ref<ITableMeta[]>([])
 const targetTableId = ref<string>("")
-const tableFields = ref<IFieldMeta[]>()
 const allowAdd = ref(true)
 const AllowActionValue: Record<string, ImportOptions["allowAction"]> = {
   updateAndAdd: {
@@ -159,6 +158,7 @@ const updateOptionSelector = () => [
 
 const { tableId: activeTableId } = useSelection()
 const { table: targetTable, pending: tablePending } = useTable(targetTableId)
+const { fieldMetaList: tableFields } = useFieldMetaList(targetTable)
 
 watch(
   () => activeTableId.value,
@@ -170,21 +170,15 @@ watch(
 )
 
 watch(
-  () => targetTable.value,
+  () => tableFields.value,
   () => {
     if (!targetTable.value) return
-    console.log("targetTable", targetTable.value)
-    targetTable.value?.getFieldMetaList().then((res) => {
-      tableFields.value = res
-      fill()
-    })
+    fill()
   },
 )
 
 const indexFields = computed(() =>
-  (tableFields.value ?? []).filter((field) =>
-    indexFieldType.includes(field.type),
-  ),
+  tableFields.value.filter((field) => indexFieldType.includes(field.type)),
 )
 
 const excelData = ref<ExcelDataInfo>()
@@ -251,7 +245,7 @@ const validate = () => {
 }
 
 async function importAction() {
-  if (!activeTableId.value) {
+  if (!targetTableId.value) {
     Warn({
       title: "chooseTableFirst",
       message: t("message.chooseTableFirst"),
@@ -539,7 +533,9 @@ defineExpose({
               size="default"
               @click="autoFill"
             >
-              <el-icon><EditPen /></el-icon>
+              <el-icon>
+                <EditPen />
+              </el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip>
@@ -551,7 +547,9 @@ defineExpose({
               size="default"
               @click="reset"
             >
-              <el-icon><DeleteFilled /></el-icon>
+              <el-icon>
+                <DeleteFilled />
+              </el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip>
@@ -564,7 +562,9 @@ defineExpose({
               size="default"
               @click="exportConfig"
             >
-              <el-icon><ExportIcon /></el-icon>
+              <el-icon>
+                <ExportIcon />
+              </el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip>
@@ -581,7 +581,9 @@ defineExpose({
             >
               <template #trigger>
                 <el-button type="primary">
-                  <el-icon><ImportIcon /></el-icon>
+                  <el-icon>
+                    <ImportIcon />
+                  </el-icon>
                 </el-button>
               </template>
             </el-upload>

@@ -74,6 +74,6 @@ export async function regeo(locations: string[]) {
 }
 
 export function isLatLongitude(value: string) {
-  const regoReg = /^(\d+(\.\d+)?),(\d+(\.\d+)?)$/
+  const regoReg = /^(\d+(\.\d+)?)[,][\s]*(\d+(\.\d+)?)$/
   return regoReg.test(value)
 }
