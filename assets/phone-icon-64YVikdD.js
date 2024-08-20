@@ -1,1 +1,0 @@
-import{d as r,p as _,_ as p,o as s,a}from"./index-4m2oSrXB.js";const c=r({__name:"phone-icon",setup(o,{expose:n}){n();const e={get Phone(){return _}};return Object.defineProperty(e,"__isScriptSetup",{enumerable:!1,value:!0}),e}});function u(o,n,e,t,f,i){return s(),a(t.Phone)}const l=p(c,[["render",u],["__file","phone-icon.vue"]]);export{l as default};
