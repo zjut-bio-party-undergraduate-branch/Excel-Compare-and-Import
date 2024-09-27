@@ -7,12 +7,14 @@ defineProps<{
 }>()
 
 const { t } = useI18n()
+console.log(window.location)
 </script>
 
 <template>
-  <div class="reward-container">
+  <div class="reward-container reward">
     <el-popover
       :width="220"
+      placement="top"
       trigger="click"
     >
       <template #reference>
@@ -50,7 +52,7 @@ const { t } = useI18n()
 </template>
 
 <style>
-html.light {
+html {
   --semi-grey-1: 230, 232, 234;
   --semi-grey-4: 136, 141, 146;
   --semi-grey-5: 107, 112, 117;
