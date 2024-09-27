@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import heartIcon from "../icons/heart-icon.vue"
 defineProps<{
