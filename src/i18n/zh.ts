@@ -204,4 +204,8 @@ export const zh = {
     regeo: "经纬度",
     auto: "自动",
   },
+  reward: {
+    author: "作者",
+    tip: "扫码请 Ta 喝杯咖啡",
+  },
 }
