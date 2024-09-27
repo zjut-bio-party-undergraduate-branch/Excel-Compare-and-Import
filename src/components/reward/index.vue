@@ -7,7 +7,6 @@ defineProps<{
 }>()
 
 const { t } = useI18n()
-console.log(window.location)
 </script>
 
 <template>

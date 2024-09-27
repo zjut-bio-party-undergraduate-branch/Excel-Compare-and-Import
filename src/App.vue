@@ -21,7 +21,7 @@ import GithubIcon from "@/components/icons/github-icon.vue"
 const isDark = useDark()
 const showLogger = ref(false)
 const showAdvancedSetting = ref(false)
-const showReward = ref(false)
+const showReward = ref(true)
 
 useHead({
   meta: [
