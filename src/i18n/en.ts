@@ -207,4 +207,8 @@ export const en = {
     regeo: "Latitude and Longitude",
     auto: "Auto",
   },
+  reward: {
+    author: "Author",
+    tip: "Scan the QR code to buy him a coffee",
+  },
 }
