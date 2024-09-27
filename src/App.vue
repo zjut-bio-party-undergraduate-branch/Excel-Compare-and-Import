@@ -21,7 +21,7 @@ import GithubIcon from "@/components/icons/github-icon.vue"
 const isDark = useDark()
 const showLogger = ref(false)
 const showAdvancedSetting = ref(false)
-const showReward = ref(false)
+const showReward = ref(true)
 
 useHead({
   meta: [
@@ -207,11 +207,12 @@ onMounted(async () => {
       </Suspense>
       <el-row
         justify="center"
+        style="margin-top: 20px; padding-bottom: 50px"
         v-show="showReward"
       >
         <Reward
           ref="rewardRef"
-          qrCode="/qww_vx_pay_qrcode.jpg"
+          qrCode="https://s1.imagehub.cc/images/2024/09/27/e0dffe8162034e5614f5665e10e262ff.jpg"
           :author="Meta.author.name"
         />
       </el-row>
