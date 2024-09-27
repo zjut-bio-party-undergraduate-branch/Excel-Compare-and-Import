@@ -22,7 +22,7 @@ const { t } = useI18n()
           :icon="heartIcon"
           round
         >
-          赞赏作者
+          {{ t("reward.rewardAuthor") }}
         </el-button>
       </template>
       <template #default>
