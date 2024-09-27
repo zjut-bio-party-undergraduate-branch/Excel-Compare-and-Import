@@ -206,5 +206,6 @@ export const zh = {
   reward: {
     author: "作者",
     tip: "扫码请 Ta 喝杯咖啡",
+    rewardAuthor: "打赏作者",
   },
 }

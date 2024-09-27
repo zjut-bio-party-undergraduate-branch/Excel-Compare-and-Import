@@ -210,5 +210,6 @@ export const en = {
   reward: {
     author: "Author",
     tip: "Scan the QR code to buy him a coffee",
+    rewardAuthor: "Reward Author",
   },
 }
