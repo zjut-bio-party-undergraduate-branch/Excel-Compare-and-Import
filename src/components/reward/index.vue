@@ -36,11 +36,18 @@ const { t } = useI18n()
             <el-image
               :src="qrCode"
               fit="fill"
-              loading="lazy"
+              loading="eager"
               alt="qrCode"
             >
               <template #placeholder>
-                <el-skeleton style="width: 200px"> </el-skeleton>
+                <el-skeleton style="width: 200px">
+                  <template #template>
+                    <el-skeleton-item
+                      variant="image"
+                      style="width: 200px; height: 200px"
+                    ></el-skeleton-item>
+                  </template>
+                </el-skeleton>
               </template>
             </el-image>
           </div>
