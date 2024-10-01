@@ -50,7 +50,6 @@ export const en = {
       requestConfig: "Request Config",
       requestMethod: "Method",
       requestHeaders: "Headers",
-      locationType: "Location Type",
     },
   },
   table: {

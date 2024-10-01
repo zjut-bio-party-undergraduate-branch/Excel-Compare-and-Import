@@ -50,7 +50,6 @@ export const zh = {
       requestConfig: "请求配置",
       requestMethod: "请求方法",
       requestHeaders: "请求头",
-      locationType: "位置类型",
     },
   },
   table: {

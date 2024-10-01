@@ -1,5 +1,4 @@
 node_modules
-dist
 test/data/
 .config
 coverage
