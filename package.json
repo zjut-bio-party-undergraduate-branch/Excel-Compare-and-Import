@@ -46,7 +46,7 @@
     "mathjs": "^13.0.0",
     "vue": "^3.3.4",
     "vue-i18n": "^10.0.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
