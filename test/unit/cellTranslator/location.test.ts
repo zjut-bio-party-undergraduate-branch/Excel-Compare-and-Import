@@ -1,7 +1,7 @@
 // import { setupServer } from "msw/node"
 // import { HttpResponse, http } from "msw"
 // import { GEO_URL, REGEO_URL, geo, regeo, isLatLongitude } from "@/utils"
-// import { describe, expect, it, beforeAll, afterAll, afterEach } from "vitest"
+import { describe, expect, it, beforeAll, afterAll, afterEach } from "vitest"
 // import { locationCache } from "@/utils/cellValue/location"
 
 // const regeoLocations = [
@@ -82,18 +82,18 @@
 // afterAll(() => server.close())
 // afterEach(() => server.resetHandlers())
 
-// describe("location test", () => {
-//   it("test geo", async () => {
-//     const res = await geo(geoLocations.map((i) => i.record_id))
-//     expect(res).toEqual(geoLocations)
-//   })
-//   it("test regeo", async () => {
-//     const res = await regeo(regeoLocations.map((i) => i.location))
-//     expect(res).toEqual(regeoLocations)
-//   })
-//   it("test isLatLongitude", async () => {
-//     expect(isLatLongitude("116.310003,39.991957")).toBe(true)
-//     expect(isLatLongitude("116.310003, 39.991957")).toBe(true)
-//     expect(isLatLongitude("北京市海淀区理想国际大厦")).toBe(false)
-//   })
-// })
+describe("location test", () => {
+  it("test geo", async () => {
+    // const res = await geo(geoLocations.map((i) => i.record_id))
+    // expect(res).toEqual(geoLocations)
+  })
+  // it("test regeo", async () => {
+  //   const res = await regeo(regeoLocations.map((i) => i.location))
+  //   expect(res).toEqual(regeoLocations)
+  // })
+  // it("test isLatLongitude", async () => {
+  //   expect(isLatLongitude("116.310003,39.991957")).toBe(true)
+  //   expect(isLatLongitude("116.310003, 39.991957")).toBe(true)
+  //   expect(isLatLongitude("北京市海淀区理想国际大厦")).toBe(false)
+  // })
+})
