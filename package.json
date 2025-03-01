@@ -32,7 +32,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import.git"
+    "url": "https://github.com/use-bitable/Excel-Compare-and-Import.git"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
@@ -76,7 +76,7 @@
     "*.{js,css,md,ts,vue,json}": "prettier --write"
   },
   "bugs": {
-    "url": "https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import/issues"
+    "url": "https://github.com/use-bitable/Excel-Compare-and-Import/issues"
   },
-  "homepage": "https://github.com/zjut-bio-party-undergraduate-branch/Excel-Compare-and-Import#readme"
+  "homepage": "https://github.com/use-bitable/Excel-Compare-and-Import/blob/main/README.md"
 }
